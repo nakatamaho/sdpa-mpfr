@@ -1,0 +1,71 @@
+diff -r sdpa-gmp-7.1.3/gmpxx.h sdpa-gmp-7.1.3-mpfr/gmpxx.h
+0a1,7
+> #ifndef PLOUF
+> #define PLOUF
+> #include <boost/multiprecision/mpfr.hpp>
+> #include <mpf2mpfr.h>
+> typedef boost::multiprecision::mpfr_float mpf_class;
+> #define get_mpf_t backend().data
+> #endif
+diff -r sdpa-gmp-7.1.3/Makefile.am sdpa-gmp-7.1.3-mpfr/Makefile.am
+36c36
+< sdpa_gmp_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(GMP_LIBDIR) -lgmp -lgmpxx $(OPENMPLIB) -L$(MPACK_LIBDIR) -lmlapack_gmp -lmblas_gmp
+---
+> sdpa_gmp_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(GMP_LIBDIR) -lmpfr -lgmp -lgmpxx $(OPENMPLIB) -L$(MPACK_LIBDIR) -lmlapack_gmp -lmblas_gmp
+39c39
+< sdpa_gmp_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(GMP_LIBDIR) -lgmp -lgmpxx $(OPENMPLIB)
+---
+> sdpa_gmp_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(GMP_LIBDIR) -lmpfr -lgmp -lgmpxx $(OPENMPLIB)
+diff -r sdpa-gmp-7.1.3/mpack/Mutils.cpp sdpa-gmp-7.1.3-mpfr/mpack/Mutils.cpp
+117c117,118
+<     mtemp1 = cos(x.get_d());
+---
+>     // mtemp1 = cos(x.get_d());
+>     mtemp1 = cos((double) x);
+133c134,135
+<     mtemp1 = sin(x.get_d());
+---
+>     // mtemp1 = sin(x.get_d());
+>     mtemp1 = sin((double) x);
+149c151,152
+<     mtemp1 = exp(x.get_d());
+---
+>     // mtemp1 = exp(x.get_d());
+>     mtemp1 = exp((double) x);
+diff -r sdpa-gmp-7.1.3/mpack/mutils_gmp.h sdpa-gmp-7.1.3-mpfr/mpack/mutils_gmp.h
+62c62,63
+<     return a.get_d();
+---
+>   // return a.get_d();
+>   return (double) a;
+diff -r sdpa-gmp-7.1.3/sdpa_chordal.cpp sdpa-gmp-7.1.3-mpfr/sdpa_chordal.cpp
+25a26
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_dataset.cpp sdpa-gmp-7.1.3-mpfr/sdpa_dataset.cpp
+21a22
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_io.cpp sdpa-gmp-7.1.3-mpfr/sdpa_io.cpp
+23a24
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_jordan.cpp sdpa-gmp-7.1.3-mpfr/sdpa_jordan.cpp
+21a22
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_linear.cpp sdpa-gmp-7.1.3-mpfr/sdpa_linear.cpp
+21a22
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_main.cpp sdpa-gmp-7.1.3-mpfr/sdpa_main.cpp
+28a29
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_newton.cpp sdpa-gmp-7.1.3-mpfr/sdpa_newton.cpp
+21a22
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_parts.cpp sdpa-gmp-7.1.3-mpfr/sdpa_parts.cpp
+21a22
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_struct.cpp sdpa-gmp-7.1.3-mpfr/sdpa_struct.cpp
+21a22
+> #include <gmpxx.h>
+diff -r sdpa-gmp-7.1.3/sdpa_tool.cpp sdpa-gmp-7.1.3-mpfr/sdpa_tool.cpp
+25a26
+> #include <gmpxx.h>
+
