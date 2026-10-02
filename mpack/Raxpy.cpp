@@ -89,7 +89,7 @@ void Raxpy(mpackint n, mpfr_class da, mpfr_class* dx, mpackint incx, mpfr_class*
         iy = (-n + 1) * incy;
 
     for (mpackint i = 0; i < n; i++) {
-        dy[iy] = dy[iy] + da * dx[ix];
+        dy[iy] += da * dx[ix];
         ix = ix + incx;
         iy = iy + incy;
     }

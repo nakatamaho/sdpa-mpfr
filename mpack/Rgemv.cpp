@@ -151,7 +151,7 @@ void Rgemv(const char* trans, mpackint m, mpackint n, mpfr_class alpha, mpfr_cla
                 temp = alpha * x[jx];
                 iy = ky;
                 for (mpackint i = 0; i < m; i++) {
-                    y[iy] = y[iy] + temp * A[i + j * lda];
+                    y[iy] += temp * A[i + j * lda];
                     iy = iy + incy;
                 }
             }
@@ -164,10 +164,10 @@ void Rgemv(const char* trans, mpackint m, mpackint n, mpfr_class alpha, mpfr_cla
             temp = Zero;
             ix = kx;
             for (mpackint i = 0; i < m; i++) {
-                temp = temp + A[i + j * lda] * x[ix];
+                temp += A[i + j * lda] * x[ix];
                 ix = ix + incx;
             }
-            y[jy] = y[jy] + alpha * temp;
+            y[jy] += alpha * temp;
             jy = jy + incy;
         }
     }

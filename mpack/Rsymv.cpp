@@ -147,8 +147,8 @@ void Rsymv(const char* uplo, mpackint n, mpfr_class alpha, mpfr_class* A, mpacki
             ix = kx;
             iy = ky;
             for (mpackint i = 0; i < j; i++) {
-                y[iy] = y[iy] + temp1 * A[i + j * lda];
-                temp2 = temp2 + A[i + j * lda] * x[ix];
+                y[iy] += temp1 * A[i + j * lda];
+                temp2 += A[i + j * lda] * x[ix];
                 ix = ix + incx;
                 iy = iy + incy;
             }
@@ -163,16 +163,16 @@ void Rsymv(const char* uplo, mpackint n, mpfr_class alpha, mpfr_class* A, mpacki
         for (mpackint j = 0; j < n; j++) {
             temp1 = alpha * x[jx];
             temp2 = Zero;
-            y[jy] = y[jy] + temp1 * A[j + j * lda];
+            y[jy] += temp1 * A[j + j * lda];
             ix = jx;
             iy = jy;
             for (mpackint i = j + 1; i < n; i++) {
                 ix = ix + incx;
                 iy = iy + incy;
-                y[iy] = y[iy] + temp1 * A[i + j * lda];
-                temp2 = temp2 + A[i + j * lda] * x[ix];
+                y[iy] += temp1 * A[i + j * lda];
+                temp2 += A[i + j * lda] * x[ix];
             }
-            y[jy] = y[jy] + alpha * temp2;
+            y[jy] += alpha * temp2;
             jx = jx + incx;
             jy = jy + incy;
         }

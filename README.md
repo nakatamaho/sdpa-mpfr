@@ -35,7 +35,16 @@ make
 
 Other options: `--with-gmp-includedir`, `--with-gmp-libdir`,
 `--with-mpfr-includedir`, `--with-mpfr-libdir`, `--with-system-spooles`,
-`--enable-shared`.
+`--enable-shared`, `--disable-mpfr-fast`.
+
+By default the gmpfrxx_mkII fast paths `GMPFRXX_MKII_FAST_FIXED_PREC` and
+`GMPFRXX_MKII_FAST_STABLE_RND` are enabled.  Their contracts hold for
+SDPA-MPFR: every `mpfr_class` is kept at the precision given in
+`param.sdpa`, and the MPFR rounding mode is never changed.  Together with
+the `X += a * b` form used in the MBLAS kernels they let gmpfrxx_mkII reuse
+scratch storage instead of allocating a temporary per operation (about
+15-20% faster on SDPLIB theta1, control2 and mcp100).  Use
+`--disable-mpfr-fast` to build without them.
 
 ## Usage
 

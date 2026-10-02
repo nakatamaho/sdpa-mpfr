@@ -50,6 +50,19 @@ AC_ARG_WITH(spooles-libdir,
 SPOOLES_LIBDIR=$withval
 )
 
+AC_ARG_ENABLE(mpfr-fast,
+[  --disable-mpfr-fast   Disable the gmpfrxx_mkII fast paths
+                        (GMPFRXX_MKII_FAST_FIXED_PREC and
+                        GMPFRXX_MKII_FAST_STABLE_RND). They are enabled by
+                        default: SDPA-MPFR keeps every mpfr_class at the
+                        precision given in param.sdpa and never changes the
+                        MPFR rounding mode.],
+[case "${enableval}" in
+  yes) enable_mpfr_fast=yes ;;
+  no)  enable_mpfr_fast=no  ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-mpfr-fast) ;;
+esac],[enable_mpfr_fast=yes])
+
 AC_ARG_ENABLE(openmp,
 [  --enable-openmp       Enables openmp
 ],,)
@@ -239,6 +252,14 @@ if test x$HAVE_GMPFRXX_MKII != xyes; then
   AC_MSG_ERROR([No gmpfrxx_mkII found])
 fi
 AC_SUBST(GMPFRXX_MKII_INCLUDEDIR)
+
+AC_MSG_CHECKING([whether to enable gmpfrxx_mkII fast paths])
+MPFR_FAST_FLAGS=""
+if test x$enable_mpfr_fast = xyes; then
+  MPFR_FAST_FLAGS="-DGMPFRXX_MKII_FAST_FIXED_PREC -DGMPFRXX_MKII_FAST_STABLE_RND"
+fi
+AC_MSG_RESULT([$enable_mpfr_fast])
+AC_SUBST(MPFR_FAST_FLAGS)
 
 dnl openmp
 WITH_OPENMP=NO

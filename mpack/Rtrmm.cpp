@@ -139,7 +139,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (B[k + j * ldb] != Zero) {
                             temp = alpha * B[k + j * ldb];
                             for (mpackint i = 0; i < k; i++) {
-                                B[i + j * ldb] = B[i + j * ldb] + temp * A[i + k * lda];
+                                B[i + j * ldb] += temp * A[i + k * lda];
                             }
                             if (nounit)
                                 temp = temp * A[k + k * lda];
@@ -156,7 +156,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                             if (nounit)
                                 B[k + j * ldb] = B[k + j * ldb] * A[k + k * lda];
                             for (mpackint i = k + 1; i < m; i++) {
-                                B[i + j * ldb] = B[i + j * ldb] + temp * A[i + k * lda];
+                                B[i + j * ldb] += temp * A[i + k * lda];
                             }
                         }
                     }
@@ -171,7 +171,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (nounit)
                             temp = temp * A[i + i * lda];
                         for (mpackint k = 0; k < i; k++) {
-                            temp = temp + A[k + i * lda] * B[k + j * ldb];
+                            temp += A[k + i * lda] * B[k + j * ldb];
                         }
                         B[i + j * ldb] = alpha * temp;
                     }
@@ -183,7 +183,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (nounit)
                             temp = temp * A[i + i * lda];
                         for (mpackint k = i + 1; k < m; k++) {
-                            temp = temp + A[k + i * lda] * B[k + j * ldb];
+                            temp += A[k + i * lda] * B[k + j * ldb];
                         }
                         B[i + j * ldb] = alpha * temp;
                     }
@@ -205,7 +205,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (A[k + j * lda] != Zero) {
                             temp = alpha * A[k + j * lda];
                             for (mpackint i = 0; i < m; i++) {
-                                B[i + j * ldb] = B[i + j * ldb] + temp * B[i + k * ldb];
+                                B[i + j * ldb] += temp * B[i + k * ldb];
                             }
                         }
                     }
@@ -222,7 +222,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (A[k + j * lda] != Zero) {
                             temp = alpha * A[k + j * lda];
                             for (mpackint i = 0; i < m; i++) {
-                                B[i + j * ldb] = B[i + j * ldb] + temp * B[i + k * ldb];
+                                B[i + j * ldb] += temp * B[i + k * ldb];
                             }
                         }
                     }
@@ -235,7 +235,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (A[j + k * lda] != Zero) {
                             temp = alpha * A[j + k * lda];
                             for (mpackint i = 0; i < m; i++) {
-                                B[i + j * ldb] = B[i + j * ldb] + temp * B[i + k * ldb];
+                                B[i + j * ldb] += temp * B[i + k * ldb];
                             }
                         }
                     }
@@ -254,7 +254,7 @@ void Rtrmm(const char* side, const char* uplo, const char* transa, const char* d
                         if (A[j + k * lda] != Zero) {
                             temp = alpha * A[j + k * lda];
                             for (mpackint i = 0; i < m; i++) {
-                                B[i + j * ldb] = B[i + j * ldb] + temp * B[i + k * ldb];
+                                B[i + j * ldb] += temp * B[i + k * ldb];
                             }
                         }
                     }

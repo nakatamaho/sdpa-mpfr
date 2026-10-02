@@ -206,8 +206,8 @@ void Rsyr2k(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_cl
                     temp1 = Zero;
                     temp2 = Zero;
                     for (mpackint l = 0; l < k; l++) {
-                        temp1 = temp1 + A[l + i * lda] * B[l + j * ldb];
-                        temp2 = temp2 + B[l + i * ldb] * A[l + j * lda];
+                        temp1 += A[l + i * lda] * B[l + j * ldb];
+                        temp2 += B[l + i * ldb] * A[l + j * lda];
                     }
                     if (beta == Zero) {
                         C[i + j * ldc] = alpha * temp1 + alpha * temp2;
@@ -222,8 +222,8 @@ void Rsyr2k(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_cl
                     temp1 = Zero;
                     temp2 = Zero;
                     for (mpackint l = 0; l < k; l++) {
-                        temp1 = temp1 + A[l + i * lda] * B[l + j * ldb];
-                        temp2 = temp2 + B[l + i * ldb] * A[l + j * lda];
+                        temp1 += A[l + i * lda] * B[l + j * ldb];
+                        temp2 += B[l + i * ldb] * A[l + j * lda];
                     }
                     if (beta == Zero) {
                         C[i + j * ldc] = alpha * temp1 + alpha * temp2;

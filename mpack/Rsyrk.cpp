@@ -164,7 +164,7 @@ void Rsyrk(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_cla
                     if (A[j + l * lda] != Zero) {
                         temp = alpha * A[j + l * lda];
                         for (mpackint i = 0; i <= j; i++) {
-                            C[i + j * ldc] = C[i + j * ldc] + temp * A[i + l * lda];
+                            C[i + j * ldc] += temp * A[i + l * lda];
                         }
                     }
                 }
@@ -184,7 +184,7 @@ void Rsyrk(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_cla
                     if (A[j + l * lda] != Zero) {
                         temp = alpha * A[j + l * lda];
                         for (mpackint i = j; i < n; i++) {
-                            C[i + j * ldc] = C[i + j * ldc] + temp * A[i + l * lda];
+                            C[i + j * ldc] += temp * A[i + l * lda];
                         }
                     }
                 }
@@ -197,7 +197,7 @@ void Rsyrk(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_cla
                 for (mpackint i = 0; i <= j; i++) {
                     temp = Zero;
                     for (mpackint l = 0; l < k; l++) {
-                        temp = temp + A[l + i * lda] * A[l + j * lda];
+                        temp += A[l + i * lda] * A[l + j * lda];
                     }
                     if (beta == Zero) {
                         C[i + j * ldc] = alpha * temp;
@@ -211,7 +211,7 @@ void Rsyrk(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_cla
                 for (mpackint i = j; i < n; i++) {
                     temp = Zero;
                     for (mpackint l = 0; l < k; l++) {
-                        temp = temp + A[l + i * lda] * A[l + j * lda];
+                        temp += A[l + i * lda] * A[l + j * lda];
                     }
                     if (beta == Zero)
                         C[i + j * ldc] = alpha * temp;

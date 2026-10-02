@@ -163,7 +163,7 @@ void Rgemm(const char* transa, const char* transb, mpackint m, mpackint n, mpack
                     if (B[l + j * ldb] != Zero) {
                         temp = alpha * B[l + j * ldb];
                         for (mpackint i = 0; i < m; i++) {
-                            C[i + j * ldc] = C[i + j * ldc] + temp * A[i + l * lda];
+                            C[i + j * ldc] += temp * A[i + l * lda];
                         }
                     }
                 }
@@ -174,7 +174,7 @@ void Rgemm(const char* transa, const char* transb, mpackint m, mpackint n, mpack
                 for (mpackint i = 0; i < m; i++) {
                     temp = Zero;
                     for (mpackint l = 0; l < k; l++) {
-                        temp = temp + A[l + i * lda] * B[l + j * ldb];
+                        temp += A[l + i * lda] * B[l + j * ldb];
                     }
                     if (beta == Zero)
                         C[i + j * ldc] = alpha * temp;
@@ -200,7 +200,7 @@ void Rgemm(const char* transa, const char* transb, mpackint m, mpackint n, mpack
                     if (B[j + l * ldb] != Zero) {
                         temp = alpha * B[j + l * ldb];
                         for (mpackint i = 0; i < m; i++) {
-                            C[i + j * ldc] = C[i + j * ldc] + temp * A[i + l * lda];
+                            C[i + j * ldc] += temp * A[i + l * lda];
                         }
                     }
                 }
@@ -211,7 +211,7 @@ void Rgemm(const char* transa, const char* transb, mpackint m, mpackint n, mpack
                 for (mpackint i = 0; i < m; i++) {
                     temp = Zero;
                     for (mpackint l = 0; l < k; l++) {
-                        temp = temp + A[l + i * lda] * B[j + l * ldb];
+                        temp += A[l + i * lda] * B[j + l * ldb];
                     }
                     if (beta == Zero)
                         C[i + j * ldc] = alpha * temp;

@@ -119,7 +119,7 @@ void Rger(mpackint m, mpackint n, mpfr_class alpha, mpfr_class* x, mpackint incx
             temp = alpha * y[jy];
             ix = kx;
             for (mpackint i = 0; i < m; i++) {
-                A[i + j * lda] = A[i + j * lda] + x[ix] * temp;
+                A[i + j * lda] += x[ix] * temp;
                 ix = ix + incx;
             }
         }

@@ -129,7 +129,7 @@ void Rtrsv(const char* uplo, const char* trans, const char* diag, mpackint n, mp
                     ix = jx;
                     for (mpackint i = j - 1; i >= 0; i--) {
                         ix = ix - incx;
-                        x[ix] = x[ix] - temp * A[i + j * lda];
+                        x[ix] -= temp * A[i + j * lda];
                     }
                 }
                 jx = jx - incx;
@@ -144,7 +144,7 @@ void Rtrsv(const char* uplo, const char* trans, const char* diag, mpackint n, mp
                     ix = jx;
                     for (mpackint i = j + 1; i < n; i++) {
                         ix = ix + incx;
-                        x[ix] = x[ix] - temp * A[i + j * lda];
+                        x[ix] -= temp * A[i + j * lda];
                     }
                 }
                 jx = jx + incx;
@@ -158,7 +158,7 @@ void Rtrsv(const char* uplo, const char* trans, const char* diag, mpackint n, mp
                 ix = kx;
                 temp = x[jx];
                 for (mpackint i = 0; i <= j - 1; i++) {
-                    temp = temp - A[i + j * lda] * x[ix];
+                    temp -= A[i + j * lda] * x[ix];
                     ix = ix + incx;
                 }
                 if (nounit)
@@ -173,7 +173,7 @@ void Rtrsv(const char* uplo, const char* trans, const char* diag, mpackint n, mp
                 ix = kx;
                 temp = x[jx];
                 for (mpackint i = n - 1; i >= j + 1; i--) {
-                    temp = temp - A[i + j * lda] * x[ix];
+                    temp -= A[i + j * lda] * x[ix];
                     ix = ix - incx;
                 }
                 if (nounit)

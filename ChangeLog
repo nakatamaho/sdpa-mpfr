@@ -1,4 +1,13 @@
 2026-10-02 Nakata Maho <maho.nakata@gmail.com>
+        * Enable GMPFRXX_MKII_FAST_FIXED_PREC and GMPFRXX_MKII_FAST_STABLE_RND
+          by default (--disable-mpfr-fast to turn off).
+        * mpack: write single-term updates as X += a * b / X -= a * b so that
+          gmpfrxx_mkII can reuse scratch storage.  Rounding is unchanged
+          (product rounded, then sum rounded).
+          SDPLIB at 256 bits: theta1 5.52 -> 4.65 s, control2 5.91 -> 4.99 s,
+          mcp100 24.58 -> 19.43 s (SDPA-GMP: 4.23, 4.36, 18.74 s).
+
+2026-10-02 Nakata Maho <maho.nakata@gmail.com>
         * Remove dead code: constant #if blocks, commented-out code,
           unreferenced functions/variables/macros (including the unused
           METIS ordering path and --enable-metis), unreachable code after

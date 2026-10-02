@@ -652,6 +652,7 @@ ENABLE_SHARED_FALSE
 ENABLE_SHARED_TRUE
 OPENMPFLAGS
 OPENMPLIB
+MPFR_FAST_FLAGS
 GMPFRXX_MKII_INCLUDEDIR
 MPFR_INCLUDEDIR
 MPFR_LIBDIR
@@ -775,6 +776,7 @@ with_mpfr_libdir
 with_gmpfrxx_mkii_includedir
 with_spooles_includedir
 with_spooles_libdir
+enable_mpfr_fast
 enable_openmp
 with_openmplib
 with_openmpflag
@@ -1425,6 +1427,12 @@ Optional Features:
                           do not reject slow dependency extractors
   --disable-dependency-tracking
                           speeds up one-time build
+  --disable-mpfr-fast   Disable the gmpfrxx_mkII fast paths
+                        (GMPFRXX_MKII_FAST_FIXED_PREC and
+                        GMPFRXX_MKII_FAST_STABLE_RND). They are enabled by
+                        default: SDPA-MPFR keeps every mpfr_class at the
+                        precision given in param.sdpa and never changes the
+                        MPFR rounding mode.
   --enable-openmp       Enables openmp
 
   --enable-shared       Enables shared link to the libraries (slower)
@@ -5265,6 +5273,19 @@ then :
 fi
 
 
+# Check whether --enable-mpfr-fast was given.
+if test ${enable_mpfr_fast+y}
+then :
+  enableval=$enable_mpfr_fast; case "${enableval}" in
+  yes) enable_mpfr_fast=yes ;;
+  no)  enable_mpfr_fast=no  ;;
+  *) as_fn_error $? "bad value ${enableval} for --enable-mpfr-fast" "$LINENO" 5 ;;
+esac
+else $as_nop
+  enable_mpfr_fast=yes
+fi
+
+
 # Check whether --enable-openmp was given.
 if test ${enable_openmp+y}
 then :
@@ -5669,6 +5690,16 @@ if test x$HAVE_GMPFRXX_MKII != xyes; then
   echo "gmpfrxx_mkII https://github.com/nakatamaho/gmpfrxx_mkII"
   as_fn_error $? "No gmpfrxx_mkII found" "$LINENO" 5
 fi
+
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether to enable gmpfrxx_mkII fast paths" >&5
+printf %s "checking whether to enable gmpfrxx_mkII fast paths... " >&6; }
+MPFR_FAST_FLAGS=""
+if test x$enable_mpfr_fast = xyes; then
+  MPFR_FAST_FLAGS="-DGMPFRXX_MKII_FAST_FIXED_PREC -DGMPFRXX_MKII_FAST_STABLE_RND"
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $enable_mpfr_fast" >&5
+printf "%s\n" "$enable_mpfr_fast" >&6; }
 
 
 WITH_OPENMP=NO

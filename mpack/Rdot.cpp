@@ -90,7 +90,7 @@ mpfr_class Rdot(mpackint n, mpfr_class* dx, mpackint incx, mpfr_class* dy, mpack
         iy = (-n + 1) * incy;
 
     for (mpackint i = 0; i < n; i++) {
-        temp = temp + dx[ix] * dy[iy];
+        temp += dx[ix] * dy[iy];
         ix = ix + incx;
         iy = iy + incy;
     }
