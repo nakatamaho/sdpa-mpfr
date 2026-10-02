@@ -33,17 +33,14 @@ Mxerbla_mpfr is an error handler for the Mlapack routines.
 
 #include <mblas_mpfr.h>
 
-#if !defined  __MPACK_ERRNO__
+#if !defined __MPACK_ERRNO__
 #define __MPACK_ERRNO__
 int mpack_errno;
 #endif
 
-void
-Mxerbla_mpfr(const char *srname, int info)
+void Mxerbla_mpfr(const char* srname, int info)
 {
-    fprintf(stderr,
-	" ** On entry to %s parameter number %2d had an illegal value\n",
-	srname, info);
+    fprintf(stderr, " ** On entry to %s parameter number %2d had an illegal value\n", srname, info);
     mpack_errno = info;
     return;
 }

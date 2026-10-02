@@ -67,39 +67,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlaset(const char *uplo, mpackint m, mpackint n, mpfr_class alpha, mpfr_class beta,
-    mpfr_class * A, mpackint lda)
+void Rlaset(const char* uplo, mpackint m, mpackint n, mpfr_class alpha, mpfr_class beta,
+            mpfr_class* A, mpackint lda)
 {
     mpackint i, j;
 
     if (Mlsame_mpfr(uplo, "U")) {
-//Set the strictly upper triangular or trapezoidal part of the
-//array to ALPHA.
-	for (j = 1; j < n; j++) {
-	    for (i = 0; i < min(j, m); i++) {
-		A[i + j * lda] = alpha;
-	    }
-	}
+        //Set the strictly upper triangular or trapezoidal part of the
+        //array to ALPHA.
+        for (j = 1; j < n; j++) {
+            for (i = 0; i < min(j, m); i++) {
+                A[i + j * lda] = alpha;
+            }
+        }
     } else if (Mlsame_mpfr(uplo, "L")) {
-//Set the strictly lower triangular or trapezoidal part of the
-//array to ALPHA.
-	for (j = 0; j < min(m, n); j++) {
-	    for (i = j + 1; i < m; i++) {
-		A[i + j * lda] = alpha;
-	    }
-	}
+        //Set the strictly lower triangular or trapezoidal part of the
+        //array to ALPHA.
+        for (j = 0; j < min(m, n); j++) {
+            for (i = j + 1; i < m; i++) {
+                A[i + j * lda] = alpha;
+            }
+        }
     } else {
-//Set the leading m-by-n submatrix to ALPHA.
-	for (j = 0; j < n; j++) {
-	    for (i = 0; i < m; i++) {
-		A[i + j * lda] = alpha;
-	    }
-	}
+        //Set the leading m-by-n submatrix to ALPHA.
+        for (j = 0; j < n; j++) {
+            for (i = 0; i < m; i++) {
+                A[i + j * lda] = alpha;
+            }
+        }
     }
-//Set the first min(M,N) diagonal elements to BETA.
+    //Set the first min(M,N) diagonal elements to BETA.
     for (i = 0; i < min(m, n); i++) {
-	A[i + i * lda] = beta;
+        A[i + i * lda] = beta;
     }
     return;
 }

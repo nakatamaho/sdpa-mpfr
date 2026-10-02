@@ -71,10 +71,9 @@ Mlsame_mpfr returns 1 if CA is the same letter as CB regardless of case.
 
 #include <ctype.h>
 
-int
-Mlsame_mpfr(const char *a, const char *b)
+int Mlsame_mpfr(const char* a, const char* b)
 {
     if (toupper(*a) == toupper(*b))
-	return 1;
+        return 1;
     return 0;
 }

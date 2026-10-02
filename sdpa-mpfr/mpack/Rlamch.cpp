@@ -39,9 +39,9 @@ static unsigned long Rlamch_exp_limit(void)
     unsigned long emax = (unsigned long)mpfr_get_emax() - 2;
     unsigned long emin = (unsigned long)(-(mpfr_get_emin() + 2));
     if (exp2 > emax)
-	exp2 = emax;
+        exp2 = emax;
     if (exp2 > emin)
-	exp2 = emin;
+        exp2 = emin;
     return exp2;
 }
 
@@ -52,7 +52,7 @@ mpfr_class RlamchE_mpfr(void)
     static mpfr_class eps;
     static int called = 0;
     if (called)
-	return eps;
+        return eps;
     mpfr_class one;
     unsigned long exp2;
     one = 1.0;
@@ -73,8 +73,6 @@ mpfr_class RlamchS_mpfr(void)
     exp2 = Rlamch_exp_limit();
     mpfr_div_2ui(sfmin.get_mpfr_t(), one.get_mpfr_t(), exp2, MPFR_RNDN);
     return sfmin;
-
-
 }
 //"B" base  = base of the machine
 //cf.http://www.netlib.org/blas/dlamch.f
@@ -107,15 +105,13 @@ mpfr_class RlamchN_mpfr(void)
     tmp = mpfr_get_prec(mtmp.get_mpfr_t());
     mtmp2 = tmp;
     return mtmp2;
-
-
 }
 
 //"R" rnd   = 1.0 when rounding occurs in addition, 0.0 otherwise
 //cf.http://www.netlib.org/blas/dlamch.f
 mpfr_class RlamchR_mpfr(void)
 {
-//always rounding in addition on MPFR.
+    //always rounding in addition on MPFR.
     mpfr_class mtmp;
 
     mtmp = 1.0;
@@ -128,11 +124,10 @@ mpfr_class RlamchM_mpfr(void)
 {
     unsigned long exp2;
     mpfr_class tmp;
-    mpfr_class uflowmin, one=1.0; 
+    mpfr_class uflowmin, one = 1.0;
     exp2 = Rlamch_exp_limit();
-    tmp = exp2; 
+    tmp = exp2;
     return -tmp;
-
 }
 
 //"U"
@@ -180,28 +175,28 @@ mpfr_class RlamchZ_mpfr(void)
     return mtemp;
 }
 
-mpfr_class Rlamch_mpfr(const char *cmach)
+mpfr_class Rlamch_mpfr(const char* cmach)
 {
     if (Mlsame_mpfr(cmach, "E"))
-	return RlamchE_mpfr();
+        return RlamchE_mpfr();
     if (Mlsame_mpfr(cmach, "S"))
-	return RlamchS_mpfr();
+        return RlamchS_mpfr();
     if (Mlsame_mpfr(cmach, "B"))
-	return RlamchB_mpfr();
+        return RlamchB_mpfr();
     if (Mlsame_mpfr(cmach, "P"))
-	return RlamchP_mpfr();
+        return RlamchP_mpfr();
     if (Mlsame_mpfr(cmach, "N"))
-	return RlamchN_mpfr();
+        return RlamchN_mpfr();
     if (Mlsame_mpfr(cmach, "R"))
-	return RlamchR_mpfr();
+        return RlamchR_mpfr();
     if (Mlsame_mpfr(cmach, "M"))
-	return RlamchM_mpfr();
+        return RlamchM_mpfr();
     if (Mlsame_mpfr(cmach, "U"))
-	return RlamchU_mpfr();
+        return RlamchU_mpfr();
     if (Mlsame_mpfr(cmach, "L"))
-	return RlamchL_mpfr();
+        return RlamchL_mpfr();
     if (Mlsame_mpfr(cmach, "O"))
-	return RlamchO_mpfr();
+        return RlamchO_mpfr();
 
     Mxerbla_mpfr("Rlamch", 1);
     return RlamchZ_mpfr();

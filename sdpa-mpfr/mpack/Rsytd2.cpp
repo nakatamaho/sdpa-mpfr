@@ -67,9 +67,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rsytd2(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpfr_class * d,
-    mpfr_class * e, mpfr_class * tau, mpackint *info)
+void Rsytd2(const char* uplo, mpackint n, mpfr_class* A, mpackint lda, mpfr_class* d, mpfr_class* e,
+            mpfr_class* tau, mpackint* info)
 {
 
     mpfr_class One = 1.0, Zero = 0.0, Half = 0.5;
@@ -80,72 +79,69 @@ Rsytd2(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpfr_class * 
     *info = 0;
     upper = Mlsame_mpfr(uplo, "U");
     if (!upper && !Mlsame_mpfr(uplo, "L")) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0) {
-	*info = -2;
+        *info = -2;
     } else if (lda < max((mpackint)1, n)) {
-	*info = -4;
+        *info = -4;
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rsytd2", -(*info));
-	return;
+        Mxerbla_mpfr("Rsytd2", -(*info));
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (n <= 0)
-	return;
+        return;
     if (upper) {
-//Reduce the upper triangle of A
-	for (i = n - 1; i >= 1; i--) {
-//Generate elementary reflector H(i) = I - tau * v * v'
-//to annihilate A(1:i-1,i+1)
-	    Rlarfg(i, &A[(i - 1) + i * lda], &A[0 + i * lda], 1, &taui);
-	    e[i - 1] = A[(i - 1) + i * lda];
-	    if (taui != Zero) {
-//Apply H(i) from both sides to A(1:i,1:i)
-		A[(i - 1) + i * lda] = One;
-//Compute  x := tau * A * v  storing x in TAU(1:i)
-		Rsymv(uplo, i, taui, A, lda, &A[0 + i * lda], 1, Zero, tau, 1);
-//Compute  w := x - 1/2 * tau * (x'*v) * v
-		alpha = -Half * taui * Rdot(i, tau, 1, &A[0 + i * lda], 1);
-		Raxpy(i, alpha, &A[0 + i * lda], 1, tau, 1);
-//Apply the transformation as a rank-2 update
-//A := A - v * w' - w * v'
-		Rsyr2(uplo, i, -One, &A[0 + i * lda], 1, tau, 1, A, lda);
-		A[(i - 1) + i * lda] = e[i - 1];
-	    }
-	    d[i] = A[i + i * lda];
-	    tau[i - 1] = taui;
-	}
-	d[0] = A[0];
+        //Reduce the upper triangle of A
+        for (i = n - 1; i >= 1; i--) {
+            //Generate elementary reflector H(i) = I - tau * v * v'
+            //to annihilate A(1:i-1,i+1)
+            Rlarfg(i, &A[(i - 1) + i * lda], &A[0 + i * lda], 1, &taui);
+            e[i - 1] = A[(i - 1) + i * lda];
+            if (taui != Zero) {
+                //Apply H(i) from both sides to A(1:i,1:i)
+                A[(i - 1) + i * lda] = One;
+                //Compute  x := tau * A * v  storing x in TAU(1:i)
+                Rsymv(uplo, i, taui, A, lda, &A[0 + i * lda], 1, Zero, tau, 1);
+                //Compute  w := x - 1/2 * tau * (x'*v) * v
+                alpha = -Half * taui * Rdot(i, tau, 1, &A[0 + i * lda], 1);
+                Raxpy(i, alpha, &A[0 + i * lda], 1, tau, 1);
+                //Apply the transformation as a rank-2 update
+                //A := A - v * w' - w * v'
+                Rsyr2(uplo, i, -One, &A[0 + i * lda], 1, tau, 1, A, lda);
+                A[(i - 1) + i * lda] = e[i - 1];
+            }
+            d[i] = A[i + i * lda];
+            tau[i - 1] = taui;
+        }
+        d[0] = A[0];
     } else {
-//Reduce the lower triangle of A
-	for (i = 1; i <= n - 1; i++) {
-//Generate elementary reflector H(i) = I - tau * v * v'
-//to annihilate A(i+2:n,i)
-	    Rlarfg(n - i, &A[i + (i - 1) * lda], &A[min(i + 2,
-			n) - 1 + (i - 1) * lda], 1, &taui);
-	    e[i - 1] = A[i + (i - 1) * lda];
-	    if (taui != Zero) {
-//Apply H(i) from both sides to A(i+1:n,i+1:n)
-		A[i + (i - 1) * lda] = One;
-//Compute  x := tau * A * v  storing y in TAU(i:n-1)
-		Rsymv(uplo, n - i, taui, &A[i + i * lda],
-		    lda, &A[i + (i - 1) * lda], 1, Zero, &tau[i - 1], 1);
-//Compute  w := x - 1/2 * tau * (x'*v) * v
-		alpha =
-		    -Half * taui * Rdot(n - i, &tau[i - 1], 1,
-		    &A[i + (i - 1) * lda], 1);
-		Raxpy(n - i, alpha, &A[i + (i - 1) * lda], 1, &tau[i - 1], 1);
-//Apply the transformation as a rank-2 update:
-//A := A - v * w' - w * v'
-		Rsyr2(uplo, n - i, -One, &A[i + (i - 1) * lda], 1, &tau[i - 1],
-		    1, &A[i + i * lda], lda);
-		A[i + (i - 1) * lda] = e[i - 1];
-	    }
-	    d[i - 1] = A[(i - 1) + (i - 1) * lda];
-	    tau[i - 1] = taui;
-	}
-	d[n - 1] = A[(n - 1) + (n - 1) * lda];
+        //Reduce the lower triangle of A
+        for (i = 1; i <= n - 1; i++) {
+            //Generate elementary reflector H(i) = I - tau * v * v'
+            //to annihilate A(i+2:n,i)
+            Rlarfg(n - i, &A[i + (i - 1) * lda], &A[min(i + 2, n) - 1 + (i - 1) * lda], 1, &taui);
+            e[i - 1] = A[i + (i - 1) * lda];
+            if (taui != Zero) {
+                //Apply H(i) from both sides to A(i+1:n,i+1:n)
+                A[i + (i - 1) * lda] = One;
+                //Compute  x := tau * A * v  storing y in TAU(i:n-1)
+                Rsymv(uplo, n - i, taui, &A[i + i * lda], lda, &A[i + (i - 1) * lda], 1, Zero,
+                      &tau[i - 1], 1);
+                //Compute  w := x - 1/2 * tau * (x'*v) * v
+                alpha = -Half * taui * Rdot(n - i, &tau[i - 1], 1, &A[i + (i - 1) * lda], 1);
+                Raxpy(n - i, alpha, &A[i + (i - 1) * lda], 1, &tau[i - 1], 1);
+                //Apply the transformation as a rank-2 update:
+                //A := A - v * w' - w * v'
+                Rsyr2(uplo, n - i, -One, &A[i + (i - 1) * lda], 1, &tau[i - 1], 1, &A[i + i * lda],
+                      lda);
+                A[i + (i - 1) * lda] = e[i - 1];
+            }
+            d[i - 1] = A[(i - 1) + (i - 1) * lda];
+            tau[i - 1] = taui;
+        }
+        d[n - 1] = A[(n - 1) + (n - 1) * lda];
     }
     return;
 }

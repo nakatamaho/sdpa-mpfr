@@ -74,10 +74,8 @@ where alpha and beta are scalars, x and y are n element vectors and
 
 #include <mblas_mpfr.h>
 
-void
-Rsymv(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * A,
-    mpackint lda, mpfr_class * x, mpackint incx, mpfr_class beta, mpfr_class * y,
-    mpackint incy)
+void Rsymv(const char* uplo, mpackint n, mpfr_class alpha, mpfr_class* A, mpackint lda,
+           mpfr_class* x, mpackint incx, mpfr_class beta, mpfr_class* y, mpackint incy)
 {
     mpackint ix, iy, jx, jy, kx, ky;
 
@@ -89,33 +87,33 @@ Rsymv(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * A,
     mpackint info = 0;
 
     if (!Mlsame_mpfr(uplo, "U") && !Mlsame_mpfr(uplo, "L"))
-	info = 1;
+        info = 1;
     else if (n < 0)
-	info = 2;
-    else if (lda < max((mpackint) 1, n))
-	info = 5;
+        info = 2;
+    else if (lda < max((mpackint)1, n))
+        info = 5;
     else if (incx == 0)
-	info = 7;
+        info = 7;
     else if (incy == 0)
-	info = 10;
+        info = 10;
 
     if (info != 0) {
-	Mxerbla_mpfr("Rsymv ", info);
-	return;
+        Mxerbla_mpfr("Rsymv ", info);
+        return;
     }
     //quick return if possible.
     if ((n == 0) || ((alpha == Zero) && (beta == One)))
-	return;
+        return;
 
     //set up the start points in  x  and  y.
     if (incx > 0)
-	kx = 0;
+        kx = 0;
     else
-	kx = -(n - 1) * incx;
+        kx = -(n - 1) * incx;
     if (incy > 0)
-	ky = 0;
+        ky = 0;
     else
-	ky = -(n - 1) * incy;
+        ky = -(n - 1) * incy;
 
     //start the operations. in this version the elements of a are
     //accessed sequentially with one pass through the triangular part
@@ -123,61 +121,61 @@ Rsymv(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * A,
 
     //first form  y := beta*y.
     if (beta != One) {
-	iy = ky;
-	if (beta == Zero) {
-	    for (mpackint i = 0; i < n; i++) {
-		y[iy] = Zero;
-		iy = iy + incy;
-	    }
-	} else {
-	    for (mpackint i = 0; i < n; i++) {
-		y[iy] = beta * y[iy];
-		iy = iy + incy;
-	    }
-	}
+        iy = ky;
+        if (beta == Zero) {
+            for (mpackint i = 0; i < n; i++) {
+                y[iy] = Zero;
+                iy = iy + incy;
+            }
+        } else {
+            for (mpackint i = 0; i < n; i++) {
+                y[iy] = beta * y[iy];
+                iy = iy + incy;
+            }
+        }
     }
     if (alpha == Zero)
-	return;
+        return;
 
     if (Mlsame_mpfr(uplo, "U")) {
-	//form  y  when a is stored in upper triangle.
-	jx = kx;
-	jy = ky;
-	for (mpackint j = 0; j < n; j++) {
-	    temp1 = alpha * x[jx];
-	    temp2 = Zero;
-	    ix = kx;
-	    iy = ky;
-	    for (mpackint i = 0; i < j; i++) {
-		y[iy] = y[iy] + temp1 * A[i + j * lda];
-		temp2 = temp2 + A[i + j * lda] * x[ix];
-		ix = ix + incx;
-		iy = iy + incy;
-	    }
-	    y[jy] = y[jy] + temp1 * A[j + j * lda] + alpha * temp2;
-	    jx = jx + incx;
-	    jy = jy + incy;
-	}
+        //form  y  when a is stored in upper triangle.
+        jx = kx;
+        jy = ky;
+        for (mpackint j = 0; j < n; j++) {
+            temp1 = alpha * x[jx];
+            temp2 = Zero;
+            ix = kx;
+            iy = ky;
+            for (mpackint i = 0; i < j; i++) {
+                y[iy] = y[iy] + temp1 * A[i + j * lda];
+                temp2 = temp2 + A[i + j * lda] * x[ix];
+                ix = ix + incx;
+                iy = iy + incy;
+            }
+            y[jy] = y[jy] + temp1 * A[j + j * lda] + alpha * temp2;
+            jx = jx + incx;
+            jy = jy + incy;
+        }
     } else {
-	//form  y  when a is stored in lower triangle.
-	jx = kx;
-	jy = ky;
-	for (mpackint j = 0; j < n; j++) {
-	    temp1 = alpha * x[jx];
-	    temp2 = Zero;
-	    y[jy] = y[jy] + temp1 * A[j + j * lda];
-	    ix = jx;
-	    iy = jy;
-	    for (mpackint i = j + 1; i < n; i++) {
-		ix = ix + incx;
-		iy = iy + incy;
-		y[iy] = y[iy] + temp1 * A[i + j * lda];
-		temp2 = temp2 + A[i + j * lda] * x[ix];
-	    }
-	    y[jy] = y[jy] + alpha * temp2;
-	    jx = jx + incx;
-	    jy = jy + incy;
-	}
+        //form  y  when a is stored in lower triangle.
+        jx = kx;
+        jy = ky;
+        for (mpackint j = 0; j < n; j++) {
+            temp1 = alpha * x[jx];
+            temp2 = Zero;
+            y[jy] = y[jy] + temp1 * A[j + j * lda];
+            ix = jx;
+            iy = jy;
+            for (mpackint i = j + 1; i < n; i++) {
+                ix = ix + incx;
+                iy = iy + incy;
+                y[iy] = y[iy] + temp1 * A[i + j * lda];
+                temp2 = temp2 + A[i + j * lda] * x[ix];
+            }
+            y[jy] = y[jy] + alpha * temp2;
+            jx = jx + incx;
+            jy = jy + incy;
+        }
     }
     return;
 }

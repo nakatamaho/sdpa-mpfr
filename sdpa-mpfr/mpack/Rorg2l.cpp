@@ -67,51 +67,49 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rorg2l(mpackint m, mpackint n, mpackint k, mpfr_class * A, mpackint lda, mpfr_class * tau,
-    mpfr_class * work, mpackint *info)
+void Rorg2l(mpackint m, mpackint n, mpackint k, mpfr_class* A, mpackint lda, mpfr_class* tau,
+            mpfr_class* work, mpackint* info)
 {
     mpackint i, ii, j, l;
     mpfr_class Zero = 0.0, One = 1.0;
 
     *info = 0;
     if (m < 0) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0 || n > m) {
-	*info = -2;
+        *info = -2;
     } else if (k < 0 || k > n) {
-	*info = -3;
+        *info = -3;
     } else if (lda < max((mpackint)1, m)) {
-	*info = -5;
+        *info = -5;
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rorg2l", -(*info));
-	return;
+        Mxerbla_mpfr("Rorg2l", -(*info));
+        return;
     }
-//quick return if possible
+    //quick return if possible
     if (n <= 0)
-	return;
+        return;
 
-//Initialise columns 1:n-k to columns of the unit matrix
+    //Initialise columns 1:n-k to columns of the unit matrix
     for (j = 0; j < n - k; j++) {
-	for (l = 0; l < m; l++) {
-	    A[l + j * lda] = Zero;
-	}
-	A[m - n + j + j * lda] = One;
+        for (l = 0; l < m; l++) {
+            A[l + j * lda] = Zero;
+        }
+        A[m - n + j + j * lda] = One;
     }
 
     for (i = 1; i <= k; i++) {
-	ii = n - k + i;
-//Apply H(i) to A(1:m-k+i,1:n-k+i) from the left
-	A[(m - n + ii - 1) + (ii - 1) * lda] = One;
-	Rlarf("Left", m - n + ii, ii - 1, &A[0 + (ii - 1) * lda], 1,
-	    tau[i - 1], A, lda, work);
-	Rscal(m - n + ii - 1, -tau[i - 1], &A[0 + (ii - 1) * lda], 1);
-	A[(m - n + ii - 1) + (ii - 1) * lda] = One - tau[i - 1];
-//Set A(m-k+i+1:m,n-k+i) to zero
-	for (l = m - n + ii + 1; l <= m; l++) {
-	    A[(l - 1) + (ii - 1) * lda] = Zero;
-	}
+        ii = n - k + i;
+        //Apply H(i) to A(1:m-k+i,1:n-k+i) from the left
+        A[(m - n + ii - 1) + (ii - 1) * lda] = One;
+        Rlarf("Left", m - n + ii, ii - 1, &A[0 + (ii - 1) * lda], 1, tau[i - 1], A, lda, work);
+        Rscal(m - n + ii - 1, -tau[i - 1], &A[0 + (ii - 1) * lda], 1);
+        A[(m - n + ii - 1) + (ii - 1) * lda] = One - tau[i - 1];
+        //Set A(m-k+i+1:m,n-k+i) to zero
+        for (l = m - n + ii + 1; l <= m; l++) {
+            A[(l - 1) + (ii - 1) * lda] = Zero;
+        }
     }
     return;
 }

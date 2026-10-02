@@ -68,8 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mlapack_mpfr.h>
 #include <stdlib.h>
 
-void
-Rpotf2(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpackint *info)
+void Rpotf2(const char* uplo, mpackint n, mpfr_class* A, mpackint lda, mpackint* info)
 {
     mpackint j, upper, success = 1;
     mpfr_class ajj;
@@ -79,61 +78,61 @@ Rpotf2(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpackint *inf
     *info = 0;
     upper = Mlsame_mpfr(uplo, "U");
     if (!upper && !Mlsame_mpfr(uplo, "L")) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0) {
-	*info = -2;
+        *info = -2;
     } else if (lda < max((mpackint)1, n)) {
-	*info = -4;
+        *info = -4;
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rpotf2", -(*info));
-	return;
+        Mxerbla_mpfr("Rpotf2", -(*info));
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (n == 0)
-	return;
+        return;
 
     if (upper) {
-//Compute the Cholesky factorization A = U'*U.
-	for (j = 0; j < n; j++) {
-//Compute U(J,J) and test for non-positive-definiteness.
-	    ajj = A[j + j * lda] - Rdot(j, &A[j * lda], 1, &A[j * lda], 1);
-	    if (ajj <= Zero) {
-		A[j + j * lda] = ajj;
-		success = 0;
-		break;
-	    }
-	    ajj = sqrt(ajj);
-	    A[j + j * lda] = ajj;
-//Compute elements J+1:N of row J.
-	    if (j < n) {
-		Rgemv("Transpose", j, n - j - 1, -One, &A[(j + 1) * lda], lda,
-		    &A[j * lda], 1, One, &A[j + (j + 1) * lda], lda);
-		Rscal(n - j - 1, One / ajj, &A[j + (j + 1) * lda], lda);
-	    }
-	}
+        //Compute the Cholesky factorization A = U'*U.
+        for (j = 0; j < n; j++) {
+            //Compute U(J,J) and test for non-positive-definiteness.
+            ajj = A[j + j * lda] - Rdot(j, &A[j * lda], 1, &A[j * lda], 1);
+            if (ajj <= Zero) {
+                A[j + j * lda] = ajj;
+                success = 0;
+                break;
+            }
+            ajj = sqrt(ajj);
+            A[j + j * lda] = ajj;
+            //Compute elements J+1:N of row J.
+            if (j < n) {
+                Rgemv("Transpose", j, n - j - 1, -One, &A[(j + 1) * lda], lda, &A[j * lda], 1, One,
+                      &A[j + (j + 1) * lda], lda);
+                Rscal(n - j - 1, One / ajj, &A[j + (j + 1) * lda], lda);
+            }
+        }
     } else {
-//Compute the Cholesky factorization A = L*L'.
-	for (j = 0; j < n; j++) {
-// Compute L(J,J) and test for non-positive-definiteness.
-	    ajj = A[j + j * lda] - Rdot(j, &A[j], lda, &A[j], lda);
-	    if (ajj <= Zero) {
-		A[j + j * lda] = ajj;
-		success = 0;
-		break;
-	    }
-	    ajj = sqrt(ajj);
-	    A[j + j * lda] = ajj;
+        //Compute the Cholesky factorization A = L*L'.
+        for (j = 0; j < n; j++) {
+            // Compute L(J,J) and test for non-positive-definiteness.
+            ajj = A[j + j * lda] - Rdot(j, &A[j], lda, &A[j], lda);
+            if (ajj <= Zero) {
+                A[j + j * lda] = ajj;
+                success = 0;
+                break;
+            }
+            ajj = sqrt(ajj);
+            A[j + j * lda] = ajj;
 
-//Compute elements J+1:N of column J.
-	    if (j < n) {
-		Rgemv("No transpose", n - j - 1, j, -One, &A[j + 1], lda,
-		    &A[j], lda, One, &A[j + 1 + j * lda], 1);
-		Rscal(n - j - 1, One / ajj, &A[j + 1 + j * lda], 1);
-	    }
-	}
+            //Compute elements J+1:N of column J.
+            if (j < n) {
+                Rgemv("No transpose", n - j - 1, j, -One, &A[j + 1], lda, &A[j], lda, One,
+                      &A[j + 1 + j * lda], 1);
+                Rscal(n - j - 1, One / ajj, &A[j + 1 + j * lda], 1);
+            }
+        }
     }
     if (!success)
-	*info = j + 1;
+        *info = j + 1;
     return;
 }

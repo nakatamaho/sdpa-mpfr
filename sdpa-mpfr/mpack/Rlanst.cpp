@@ -69,14 +69,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mlapack_mpfr.h>
 
 #ifndef max
-#define max(a,b) (((a)>(b))?(a):(b))
-#endif
-#ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-mpfr_class
-Rlanst(const char *norm, mpackint n, mpfr_class * d, mpfr_class * e)
+mpfr_class Rlanst(const char* norm, mpackint n, mpfr_class* d, mpfr_class* e)
 {
     mpackint i;
     mpfr_class anorm, scale, sum;
@@ -85,37 +81,35 @@ Rlanst(const char *norm, mpackint n, mpfr_class * d, mpfr_class * e)
     mpfr_class mtmp1, mtmp2;
 
     if (n <= 0) {
-	anorm = Zero;
+        anorm = Zero;
     } else if (Mlsame_mpfr(norm, "M")) {
-//Find max(abs(A(i,j))).
-	anorm = abs(d[n - 1]);
-	for (i = 0; i < n - 1; i++) {
-	    mtmp1 = abs(d[i]);
-	    mtmp2 = abs(e[i]);
-	    anorm = max(anorm, mtmp1);
-	    anorm = max(anorm, mtmp2);
-//          anorm = max(anorm, abs(d[i]));
-//          anorm = max(anorm, abs(e[i]));
-	}
+        //Find max(abs(A(i,j))).
+        anorm = abs(d[n - 1]);
+        for (i = 0; i < n - 1; i++) {
+            mtmp1 = abs(d[i]);
+            mtmp2 = abs(e[i]);
+            anorm = max(anorm, mtmp1);
+            anorm = max(anorm, mtmp2);
+        }
     } else if (Mlsame_mpfr(norm, "O") || Mlsame_mpfr(norm, "1") || Mlsame_mpfr(norm, "I")) {
-	if (n == 1) {
-	    anorm = abs(d[0]);
-	} else {
-	    anorm = max(abs(d[0]) + abs(e[0]), abs(e[n - 2]) + abs(d[n - 1]));
-	    for (i = 1; i < n - 1; i++) {
-		anorm = max(anorm, abs(d[i]) + abs(e[i]) + abs(e[i - 1]));
-	    }
-	}
+        if (n == 1) {
+            anorm = abs(d[0]);
+        } else {
+            anorm = max(abs(d[0]) + abs(e[0]), abs(e[n - 2]) + abs(d[n - 1]));
+            for (i = 1; i < n - 1; i++) {
+                anorm = max(anorm, abs(d[i]) + abs(e[i]) + abs(e[i - 1]));
+            }
+        }
     } else if (Mlsame_mpfr(norm, "F") || Mlsame_mpfr(norm, "E")) {
-//Find normF(A).
-	scale = Zero;
-	sum = One;
-	if (n > 1) {
-	    Rlassq(n - 1, e, 1, &scale, &sum);
-	    sum *= 2.0;
-	}
-	Rlassq(n, d, 1, &scale, &sum);
-	anorm = scale * sqrt(sum);
+        //Find normF(A).
+        scale = Zero;
+        sum = One;
+        if (n > 1) {
+            Rlassq(n - 1, e, 1, &scale, &sum);
+            sum *= 2.0;
+        }
+        Rlassq(n, d, 1, &scale, &sum);
+        anorm = scale * sqrt(sum);
     }
     return anorm;
 }

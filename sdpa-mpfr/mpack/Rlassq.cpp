@@ -68,28 +68,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mlapack_mpfr.h>
 
 //http://www.netlib.org/lapack/double/dlassq.f
-void
-Rlassq(mpackint n, mpfr_class * x, mpackint incx, mpfr_class * scale, mpfr_class * sumsq)
+void Rlassq(mpackint n, mpfr_class* x, mpackint incx, mpfr_class* scale, mpfr_class* sumsq)
 {
     mpackint ix;
     mpfr_class Zero = 0.0, One = 1.0;
     mpfr_class absxi;
 
     if (n > 0) {
-	for (ix = 0; ix <= (n - 1) * incx; ix += incx) {
-	    if (x[ix] != Zero) {
-		absxi = abs(x[ix]);
-		if ((*scale) < absxi) {
-		    (*sumsq) =
-			One +
-			(*sumsq) * ((*scale) / absxi) * ((*scale) / absxi);
-		    (*scale) = absxi;
-		} else {
-		    (*sumsq) =
-			(*sumsq) + (absxi / (*scale)) * (absxi / (*scale));
-		}
-	    }
-	}
+        for (ix = 0; ix <= (n - 1) * incx; ix += incx) {
+            if (x[ix] != Zero) {
+                absxi = abs(x[ix]);
+                if ((*scale) < absxi) {
+                    (*sumsq) = One + (*sumsq) * ((*scale) / absxi) * ((*scale) / absxi);
+                    (*scale) = absxi;
+                } else {
+                    (*sumsq) = (*sumsq) + (absxi / (*scale)) * (absxi / (*scale));
+                }
+            }
+        }
     }
     return;
 }

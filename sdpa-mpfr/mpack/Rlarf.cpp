@@ -67,28 +67,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlarf(const char *side, mpackint m, mpackint n, mpfr_class * v, mpackint incv, mpfr_class tau,
-    mpfr_class * C, mpackint ldc, mpfr_class * work)
+void Rlarf(const char* side, mpackint m, mpackint n, mpfr_class* v, mpackint incv, mpfr_class tau,
+           mpfr_class* C, mpackint ldc, mpfr_class* work)
 {
     mpfr_class One = 1.0, Zero = 0.0;
 
     if (Mlsame_mpfr(side, "L")) {
-//Form  H * C
-	if (tau != Zero) {
-//w := C' * v
-	    Rgemv("Transpose", m, n, One, C, ldc, v, incv, Zero, work, 1);
-//C := C - v * w'
-	    Rger(m, n, -tau, v, incv, work, 1, C, ldc);
-	}
+        //Form  H * C
+        if (tau != Zero) {
+            //w := C' * v
+            Rgemv("Transpose", m, n, One, C, ldc, v, incv, Zero, work, 1);
+            //C := C - v * w'
+            Rger(m, n, -tau, v, incv, work, 1, C, ldc);
+        }
     } else {
-//Form  C * H
-	if (tau != Zero) {
-//w := C * v
-	    Rgemv("No transpose", m, n, One, C, ldc, v, incv, Zero, work, 1);
-//C := C - w * v'
-	    Rger(m, n, -tau, work, 1, v, incv, C, ldc);
-	}
+        //Form  C * H
+        if (tau != Zero) {
+            //w := C * v
+            Rgemv("No transpose", m, n, One, C, ldc, v, incv, Zero, work, 1);
+            //C := C - w * v'
+            Rger(m, n, -tau, work, 1, v, incv, C, ldc);
+        }
     }
     return;
 }

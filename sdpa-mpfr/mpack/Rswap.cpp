@@ -71,28 +71,27 @@ mpackinterchanges two vectors.
 
 #include <mblas_mpfr.h>
 
-void
-Rswap(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
+void Rswap(mpackint n, mpfr_class* dx, mpackint incx, mpfr_class* dy, mpackint incy)
 {
     mpackint ix, iy;
 
     mpfr_class temp;
 
     if (n <= 0)
-	return;
+        return;
     ix = 0;
     iy = 0;
 
     if (incx < 0)
-	ix = (-n + 1) * incx;
+        ix = (-n + 1) * incx;
     if (incy < 0)
-	iy = (-n + 1) * incy;
+        iy = (-n + 1) * incy;
     for (mpackint i = 0; i < n; i++) {
-	temp = dx[ix];
-	dx[ix] = dy[iy];
-	dy[iy] = temp;
-	ix = ix + incx;
-	iy = iy + incy;
+        temp = dx[ix];
+        dx[ix] = dy[iy];
+        dy[iy] = temp;
+        ix = ix + incx;
+        iy = iy + incy;
     }
     return;
 }

@@ -68,8 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mlapack_mpfr.h>
 #include <stdio.h> //for printf
 
-void
-Rlartg(mpfr_class f, mpfr_class g, mpfr_class * cs, mpfr_class * sn, mpfr_class * r)
+void Rlartg(mpfr_class f, mpfr_class g, mpfr_class* cs, mpfr_class* sn, mpfr_class* r)
 {
     mpfr_class Zero;
     mpfr_class One;
@@ -87,69 +86,69 @@ Rlartg(mpfr_class f, mpfr_class g, mpfr_class * cs, mpfr_class * sn, mpfr_class 
 
     safmin = Rlamch_mpfr("S");
     eps = Rlamch_mpfr("E");
-// SAFMN2 = DLAMCH( 'B' )**INT( LOG( SAFMIN / EPS ) / LOG( DLAMCH( 'B' ) ) / TWO );
-//        ~ 2^(ln(safmin/eps) / 2ln2 ) (dlamchB=2)  = sqrt(safmin/eps).
+    // SAFMN2 = DLAMCH( 'B' )**INT( LOG( SAFMIN / EPS ) / LOG( DLAMCH( 'B' ) ) / TWO );
+    //        ~ 2^(ln(safmin/eps) / 2ln2 ) (dlamchB=2)  = sqrt(safmin/eps).
     safmn2 = sqrt(safmin / eps);
     safmx2 = 1.0 / safmn2;
 
     if (g == Zero) {
-	*cs = One;
-	*sn = Zero;
-	*r = f;
+        *cs = One;
+        *sn = Zero;
+        *r = f;
     } else if (f == Zero) {
-	*cs = Zero;
-	*sn = One;
-	*r = g;
+        *cs = Zero;
+        *sn = One;
+        *r = g;
     } else {
-	f1 = f;
-	g1 = g;
-	scale = max(abs(f1), abs(g1));
-	count = 0;
-	if (scale >= safmx2) {
-	    printf("#XXX Rlartg :1: not yet implemented.\n");
-	    while (1) {
-		count++;
-		f1 = f1 * safmn2;
-		g1 = g1 * safmn2;
-		scale = max(abs(f1), abs(g1));
-		if (scale >= safmx2)
-		    continue;
+        f1 = f;
+        g1 = g;
+        scale = max(abs(f1), abs(g1));
+        count = 0;
+        if (scale >= safmx2) {
+            printf("#XXX Rlartg :1: not yet implemented.\n");
+            while (1) {
+                count++;
+                f1 = f1 * safmn2;
+                g1 = g1 * safmn2;
+                scale = max(abs(f1), abs(g1));
+                if (scale >= safmx2)
+                    continue;
 
-		*r = sqrt(f1 * f1 + g1 * g1);
-		*cs = f1 / (*r);
-		*sn = g1 / (*r);
-		for (i = 0; i < count; i++) {
-		    *r = (*r) * safmx2;
-		}
-		break;
-	    }
-	} else if (scale <= safmn2) {
-	    printf("#XXX Rlartg :3:very well tested. \n");
-	    while (1) {
-		count++;
-		f1 = f1 * safmx2;
-		g1 = g1 * safmn2;
-		scale = max(abs(f1), abs(g1));
-		if (scale >= safmx2)
-		    continue;
-		*r = sqrt(f1 * f1 + g1 * g1);
-		*cs = f1 / (*r);
-		*sn = g1 / (*r);
-		for (i = 0; i < count; i++) {
-		    *r = (*r) * safmx2;
-		}
-		break;
-	    }
-	} else {
-	    *r = sqrt(f1 * f1 + g1 * g1);
-	    *cs = f1 / (*r);
-	    *sn = g1 / (*r);
-	}
-	if (abs(f) > abs(g) && (*cs) < Zero) {
-	    *cs = -(*cs);
-	    *sn = -(*sn);
-	    *r = -(*r);
-	}
+                *r = sqrt(f1 * f1 + g1 * g1);
+                *cs = f1 / (*r);
+                *sn = g1 / (*r);
+                for (i = 0; i < count; i++) {
+                    *r = (*r) * safmx2;
+                }
+                break;
+            }
+        } else if (scale <= safmn2) {
+            printf("#XXX Rlartg :3:very well tested. \n");
+            while (1) {
+                count++;
+                f1 = f1 * safmx2;
+                g1 = g1 * safmn2;
+                scale = max(abs(f1), abs(g1));
+                if (scale >= safmx2)
+                    continue;
+                *r = sqrt(f1 * f1 + g1 * g1);
+                *cs = f1 / (*r);
+                *sn = g1 / (*r);
+                for (i = 0; i < count; i++) {
+                    *r = (*r) * safmx2;
+                }
+                break;
+            }
+        } else {
+            *r = sqrt(f1 * f1 + g1 * g1);
+            *cs = f1 / (*r);
+            *sn = g1 / (*r);
+        }
+        if (abs(f) > abs(g) && (*cs) < Zero) {
+            *cs = -(*cs);
+            *sn = -(*sn);
+            *r = -(*r);
+        }
     }
     return;
 }

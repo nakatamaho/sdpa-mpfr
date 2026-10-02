@@ -26,7 +26,7 @@ sdpa_mpfr_LDFLAGS = -static
 endif
 
 sdpa_mpfr_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(MPFR_LIBDIR) -lmpfr -L$(GMP_LIBDIR) -lgmp $(OPENMPLIB)
-sdpa_mpfr_CXXFLAGS= -std=c++17 $(pthread_cflags) -I$(SPOOLES_INCLUDEDIR) -DUseMETIS=0 -I$(GMPFRXX_MKII_INCLUDEDIR) -I$(MPFR_INCLUDEDIR) -I$(GMP_INCLUDEDIR) $(OPENMPFLAGS) -I./mpack
+sdpa_mpfr_CXXFLAGS= -std=c++17 $(pthread_cflags) -I$(SPOOLES_INCLUDEDIR) -I$(GMPFRXX_MKII_INCLUDEDIR) -I$(MPFR_INCLUDEDIR) -I$(GMP_INCLUDEDIR) $(OPENMPFLAGS) -I./mpack
 
 if BUILD_SPOOLES
 SUBDIRS = spooles

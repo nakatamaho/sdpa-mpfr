@@ -71,8 +71,7 @@ Rdot forms the dot product of two vectors.
 
 #include <mblas_mpfr.h>
 
-mpfr_class
-Rdot(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
+mpfr_class Rdot(mpackint n, mpfr_class* dx, mpackint incx, mpfr_class* dy, mpackint incy)
 {
     mpackint ix = 0;
 
@@ -83,17 +82,17 @@ Rdot(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
     temp = 0.0;
 
     if (n <= 0)
-	return temp;
+        return temp;
 
     if (incx < 0)
-	ix = (-n + 1) * incx;
+        ix = (-n + 1) * incx;
     if (incy < 0)
-	iy = (-n + 1) * incy;
+        iy = (-n + 1) * incy;
 
     for (mpackint i = 0; i < n; i++) {
-	temp = temp + dx[ix] * dy[iy];
-	ix = ix + incx;
-	iy = iy + incy;
+        temp = temp + dx[ix] * dy[iy];
+        ix = ix + incx;
+        iy = iy + incy;
     }
     return temp;
 }

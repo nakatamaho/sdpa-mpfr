@@ -70,9 +70,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mlapack_mpfr.h>
 #include <stdio.h> //for printf. shall be removed
 
-void
-Rlaev2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class * rt1, mpfr_class * rt2,
-    mpfr_class * cs1, mpfr_class * sn1)
+void Rlaev2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class* rt1, mpfr_class* rt2,
+            mpfr_class* cs1, mpfr_class* sn1)
 {
     mpfr_class ab, acmn, acmx, acs, adf;
     mpfr_class cs, ct, df, rt, sm, tb, tn;
@@ -91,69 +90,69 @@ Rlaev2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class * rt1, mpfr_class * 
     ab = abs(tb);
 
     if (abs(a) > abs(c)) {
-	acmx = a;
-	acmn = c;
+        acmx = a;
+        acmn = c;
     } else {
-	acmx = c;
-	acmn = a;
+        acmx = c;
+        acmn = a;
     }
     if (adf > ab) {
-	rt = adf * sqrt(one + (ab / adf) * (ab / adf));
+        rt = adf * sqrt(one + (ab / adf) * (ab / adf));
     } else if (adf < ab) {
-	rt = ab * sqrt(one + (adf / ab) * (adf / ab));
+        rt = ab * sqrt(one + (adf / ab) * (adf / ab));
     } else {
-//Includes case AB=ADF=0
-	rt = ab * sqrt(two);
+        //Includes case AB=ADF=0
+        rt = ab * sqrt(two);
     }
     if (sm < zero) {
-	*rt1 = half * (sm - rt);
-	sgn1 = -1;
-//Order of execution important.
-//To get fully accurate smaller eigenvalue,
-//next line needs to be executed in higher precision.
-	*rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
+        *rt1 = half * (sm - rt);
+        sgn1 = -1;
+        //Order of execution important.
+        //To get fully accurate smaller eigenvalue,
+        //next line needs to be executed in higher precision.
+        *rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
     } else if (sm > zero) {
-	*rt1 = half * (sm + rt);
-	sgn1 = 1;
-//Order of execution important.
-//To get fully accurate smaller eigenvalue,
-//next line needs to be executed in higher precision.
-	*rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
+        *rt1 = half * (sm + rt);
+        sgn1 = 1;
+        //Order of execution important.
+        //To get fully accurate smaller eigenvalue,
+        //next line needs to be executed in higher precision.
+        *rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
     } else {
-//Includes case RT1 = RT2 = 0
-	*rt1 = half * rt;
-	*rt2 = -1.0 * half * rt;
-	sgn1 = 1;
+        //Includes case RT1 = RT2 = 0
+        *rt1 = half * rt;
+        *rt2 = -1.0 * half * rt;
+        sgn1 = 1;
     }
-//Compute the eigenvector
+    //Compute the eigenvector
     if (df >= zero) {
-	cs = df + rt;
-	sgn2 = 1;
+        cs = df + rt;
+        sgn2 = 1;
     } else {
-	cs = df - rt;
-	sgn2 = -1;
+        cs = df - rt;
+        sgn2 = -1;
     }
     acs = abs(cs);
     if (acs > ab) {
-	ct = -tb / cs;
-	*sn1 = one / sqrt(one + ct * ct);
-	*cs1 = ct * (*sn1);
+        ct = -tb / cs;
+        *sn1 = one / sqrt(one + ct * ct);
+        *cs1 = ct * (*sn1);
     } else {
-	if (ab == zero) {
-	    *cs1 = one;
-	    *sn1 = zero;
-	} else {
-	    printf("#Rlaev2 Checkpoint 13 Not checked\n");
+        if (ab == zero) {
+            *cs1 = one;
+            *sn1 = zero;
+        } else {
+            printf("#Rlaev2 Checkpoint 13 Not checked\n");
             exit(1);
-	    tn = -cs / tb;
-	    *cs1 = one / sqrt(one + tn * tn);
-	    *sn1 = tn * (*cs1);
-	}
+            tn = -cs / tb;
+            *cs1 = one / sqrt(one + tn * tn);
+            *sn1 = tn * (*cs1);
+        }
     }
     if (sgn1 == sgn2) {
-	tn = *cs1;
-	*cs1 = -(*sn1);
-	*sn1 = tn;
+        tn = *cs1;
+        *cs1 = -(*sn1);
+        *sn1 = tn;
     }
     return;
 }

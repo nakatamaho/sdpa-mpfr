@@ -71,32 +71,31 @@ Rnrm2 returns the euclidean norm of a vector, sqrt( x'*x ).
 
 #include <mblas_mpfr.h>
 
-mpfr_class
-Rnrm2(mpackint n, mpfr_class * x, mpackint incx)
+mpfr_class Rnrm2(mpackint n, mpfr_class* x, mpackint incx)
 {
     mpfr_class Zero = 0.0, One = 1.0;
 
     mpfr_class norm, scale, ssq, absxi;
 
     if (n < 1 || incx < 1) {
-	norm = Zero;
+        norm = Zero;
     } else if (n == 1) {
-	norm = abs(x[0]);
+        norm = abs(x[0]);
     } else {
-	scale = Zero;
-	ssq = One;
-	for (mpackint ix = 0; ix <= (n - 1) * incx; ix = ix + incx) {
-	    if (x[ix] != Zero) {
-		absxi = abs(x[ix]);
-		if (scale < absxi) {
-		    ssq = One + ssq * (scale / absxi) * (scale / absxi);
-		    scale = absxi;
-		} else {
-		    ssq = ssq + (absxi / scale) * (absxi / scale);
-		}
-	    }
-	}
-	norm = scale * sqrt(ssq);
+        scale = Zero;
+        ssq = One;
+        for (mpackint ix = 0; ix <= (n - 1) * incx; ix = ix + incx) {
+            if (x[ix] != Zero) {
+                absxi = abs(x[ix]);
+                if (scale < absxi) {
+                    ssq = One + ssq * (scale / absxi) * (scale / absxi);
+                    scale = absxi;
+                } else {
+                    ssq = ssq + (absxi / scale) * (absxi / scale);
+                }
+            }
+        }
+        norm = scale * sqrt(ssq);
     }
     return norm;
 }

@@ -67,111 +67,108 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rorgql(mpackint m, mpackint n, mpackint k, mpfr_class * A, mpackint lda, mpfr_class * tau,
-    mpfr_class * work, mpackint lwork, mpackint *info)
+void Rorgql(mpackint m, mpackint n, mpackint k, mpfr_class* A, mpackint lda, mpfr_class* tau,
+            mpfr_class* work, mpackint lwork, mpackint* info)
 {
     mpfr_class Zero = 0.0, One = 1.0;
     mpackint nbmin, nx, iws, nb, lwkopt, lquery, kk;
     mpackint i, j, l, iinfo, ldwork, ib;
 
-//Test the input arguments
+    //Test the input arguments
     *info = 0;
     if (lwork == -1)
-	lquery = 1;
+        lquery = 1;
     else
-	lquery = 0;
+        lquery = 0;
 
     if (m < 0) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0 || n > m) {
-	*info = -2;
+        *info = -2;
     } else if (k < 0 || k > n) {
-	*info = -3;
+        *info = -3;
     } else if (lda < max((mpackint)1, m)) {
-	*info = -5;
+        *info = -5;
     }
 
     if (*info == 0) {
-	if (n == 0) {
-	    lwkopt = 1;
-	} else {
-	    nb = iMlaenv_mpfr(1, "Rorgql", " ", m, n, k, -1);
-	    lwkopt = n * nb;
-	}
-	work[0] = (double)lwkopt;	//needs cast mpackint to mpf
-	if (lwork < max((mpackint)1, n) && !lquery) {
-	    *info = -8;
-	}
+        if (n == 0) {
+            lwkopt = 1;
+        } else {
+            nb = iMlaenv_mpfr(1, "Rorgql", " ", m, n, k, -1);
+            lwkopt = n * nb;
+        }
+        work[0] = (double)lwkopt; //needs cast mpackint to mpf
+        if (lwork < max((mpackint)1, n) && !lquery) {
+            *info = -8;
+        }
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rorgql", -(*info));
-	return;
+        Mxerbla_mpfr("Rorgql", -(*info));
+        return;
     } else if (lquery) {
-	return;
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (n <= 0)
-	return;
+        return;
     nbmin = 2;
     nx = 0;
     iws = n;
     if (nb > 1 && nb < k) {
-//Determine when to cross over from blocked to unblocked code.
-	nx = max((mpackint)0, iMlaenv_mpfr(3, "Rorgql", " ", m, n, k, -1));
-	if (nx < k) {
-//Determine if workspace is large enough for blocked code.
-	    ldwork = n;
-	    iws = ldwork * nb;
-	    if (lwork < iws) {
-//Not enough workspace to use optimal NB:  reduce NB and
-//determine the minimum value of NB.
-		nb = lwork / ldwork;
-		nbmin = max((mpackint)2, iMlaenv_mpfr(2, "Rorgql", " ", m, n, k, -1));
-	    }
-	}
+        //Determine when to cross over from blocked to unblocked code.
+        nx = max((mpackint)0, iMlaenv_mpfr(3, "Rorgql", " ", m, n, k, -1));
+        if (nx < k) {
+            //Determine if workspace is large enough for blocked code.
+            ldwork = n;
+            iws = ldwork * nb;
+            if (lwork < iws) {
+                //Not enough workspace to use optimal NB:  reduce NB and
+                //determine the minimum value of NB.
+                nb = lwork / ldwork;
+                nbmin = max((mpackint)2, iMlaenv_mpfr(2, "Rorgql", " ", m, n, k, -1));
+            }
+        }
     }
     if (nb >= nbmin && nb < k && nx < k) {
-//Use blocked code after the first block.
-//The last kk columns are handled by the block method.
-	kk = min(k, (k - nx + nb - 1) / nb * nb);
-//Set A(m-kk+1:m,1:n-kk) to zero.
-	for (j = 1; j <= n - kk; j++) {
-	    for (i = m - kk + 1; i <= m; i++) {
-		A[(i - 1) + (j - 1) * lda] = Zero;
-	    }
-	}
+        //Use blocked code after the first block.
+        //The last kk columns are handled by the block method.
+        kk = min(k, (k - nx + nb - 1) / nb * nb);
+        //Set A(m-kk+1:m,1:n-kk) to zero.
+        for (j = 1; j <= n - kk; j++) {
+            for (i = m - kk + 1; i <= m; i++) {
+                A[(i - 1) + (j - 1) * lda] = Zero;
+            }
+        }
     } else {
-	kk = 0;
+        kk = 0;
     }
-//Use unblocked code for the first or only block.
+    //Use unblocked code for the first or only block.
     Rorg2l(m - kk, n - kk, k - kk, A, lda, tau, work, &iinfo);
     if (kk > 0) {
-	for (i = k - kk + 1; i <= k; i = i + nb) {
-	    ib = min(nb, k - i + 1);
-	    if (n - k + i > 1) {
-//Form the triangular factor of the block reflector
-//H = H(i+ib-1) . . . H(i+1) H(i)
-		Rlarft("Backward", "Columnwise", m - k + i + ib - 1, ib,
-		    &A[0 + (n - k + i - 1) * lda], lda, &tau[i - 1], work,
-		    ldwork);
-//Apply H to A(1:m-k+i+ib-1,1:n-k+i-1) from the left
-		Rlarfb("Left", "No transpose", "Backward", "Columnwise",
-		    m - k + i + ib - 1, n - k + i - 1, ib,
-		    &A[0 + (n - k + i - 1) * lda], lda, work, ldwork, A,
-		    lda, &work[ib], ldwork);
-	    }
-//Apply H to rows 1:m-k+i+ib-1 of current block
-	    Rorg2l(m - k + i + ib - 1, ib, ib, &A[0 + (n - k + i - 1) * lda],
-		lda, &tau[i - 1], work, &iinfo);
-//Set rows m-k+i+ib:m of current block to zero
-	    for (j = n - k + i; j <= n - k + i + ib - 1; j++) {
-		for (l = m - k + i + ib; l <= m; l++) {
-		    A[(l - 1) + (j - 1) * lda] = Zero;
-		}
-	    }
-	}
+        for (i = k - kk + 1; i <= k; i = i + nb) {
+            ib = min(nb, k - i + 1);
+            if (n - k + i > 1) {
+                //Form the triangular factor of the block reflector
+                //H = H(i+ib-1) . . . H(i+1) H(i)
+                Rlarft("Backward", "Columnwise", m - k + i + ib - 1, ib,
+                       &A[0 + (n - k + i - 1) * lda], lda, &tau[i - 1], work, ldwork);
+                //Apply H to A(1:m-k+i+ib-1,1:n-k+i-1) from the left
+                Rlarfb("Left", "No transpose", "Backward", "Columnwise", m - k + i + ib - 1,
+                       n - k + i - 1, ib, &A[0 + (n - k + i - 1) * lda], lda, work, ldwork, A, lda,
+                       &work[ib], ldwork);
+            }
+            //Apply H to rows 1:m-k+i+ib-1 of current block
+            Rorg2l(m - k + i + ib - 1, ib, ib, &A[0 + (n - k + i - 1) * lda], lda, &tau[i - 1],
+                   work, &iinfo);
+            //Set rows m-k+i+ib:m of current block to zero
+            for (j = n - k + i; j <= n - k + i + ib - 1; j++) {
+                for (l = m - k + i + ib; l <= m; l++) {
+                    A[(l - 1) + (j - 1) * lda] = Zero;
+                }
+            }
+        }
     }
-    work[0] = (double)iws;	//needs cast mpackint to mpf
+    work[0] = (double)iws; //needs cast mpackint to mpf
     return;
 }

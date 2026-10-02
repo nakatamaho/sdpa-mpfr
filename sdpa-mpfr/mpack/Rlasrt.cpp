@@ -31,49 +31,46 @@
 #include <mlapack_mpfr.h>
 #include <stdlib.h>
 
-int
-compare_mpf_gt(const mpfr_class * a, const mpfr_class * b)
+int compare_mpf_gt(const mpfr_class* a, const mpfr_class* b)
 {
     if (*a > *b)
-	return 1;
+        return 1;
     if (*a == *b)
-	return 0;
+        return 0;
     if (*a < *b)
-	return -1;
+        return -1;
     return 0; //never occurs
 }
 
-int
-compare_mpf_lt(const mpfr_class * a, const mpfr_class * b)
+int compare_mpf_lt(const mpfr_class* a, const mpfr_class* b)
 {
     if (*a > *b)
-	return -1;
+        return -1;
     if (*a == *b)
-	return 0;
+        return 0;
     if (*a < *b)
-	return 1;
+        return 1;
     return 0; //never occurs
 }
 
-void
-Rlasrt(const char *id, mpackint n, mpfr_class * d, mpackint *info)
+void Rlasrt(const char* id, mpackint n, mpfr_class* d, mpackint* info)
 {
     //Error check
     if (!Mlsame_mpfr(id, "I") && !Mlsame_mpfr(id, "D")) {
-	*info = -1;
-	Mxerbla_mpfr("Rlasrt", -(*info));
-	return;
+        *info = -1;
+        Mxerbla_mpfr("Rlasrt", -(*info));
+        return;
     }
     if (n < 0) {
-	*info = -2;
-	Mxerbla_mpfr("Rlasrt", -(*info));
-	return;
+        *info = -2;
+        Mxerbla_mpfr("Rlasrt", -(*info));
+        return;
     }
     if (Mlsame_mpfr(id, "I")) {
-	qsort(d, n, sizeof(mpfr_class), (int (*)(const void *, const void *))compare_mpf_gt);
+        qsort(d, n, sizeof(mpfr_class), (int (*)(const void*, const void*))compare_mpf_gt);
     }
     if (Mlsame_mpfr(id, "d")) {
-	qsort(d, n, sizeof(mpfr_class), (int (*)(const void *, const void *))compare_mpf_lt);
+        qsort(d, n, sizeof(mpfr_class), (int (*)(const void*, const void*))compare_mpf_lt);
     }
     *info = 0;
 }

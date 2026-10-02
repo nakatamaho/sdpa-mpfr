@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include <sdpa_right.h>
 
 #include <iostream>
-#include <sys/time.h>
 #include <string>
 
 #include <cstdio>
@@ -39,34 +38,18 @@ using mpfrxx::mpfr_class;
 
 namespace sdpa {
 
-#if 1
-#define rMessage(message) \
-cout << message << " :: line " << __LINE__ \
-  << " in " << __FILE__ << endl
-#else
-#define rMessage(message)
-#endif
+#define rMessage(message) cout << message << " :: line " << __LINE__ << " in " << __FILE__ << endl
 
-#define rError(message) \
-cout << message << " :: line " << __LINE__ \
-  << " in " << __FILE__ << endl; \
-exit(false)
+#define rError(message)                                                                            \
+    cout << message << " :: line " << __LINE__ << " in " << __FILE__ << endl;                      \
+    exit(false)
 
-#if 0
-#define rNewCheck() rMessage("new invoked");
-#else
 #define rNewCheck() ;
-#endif
-
-#define REVERSE_PRIMAL_DUAL 1
-
 
 // These are constant. Do NOT change
-extern int IZERO   ; // =  0;
-extern int IONE    ; // =  1;
-extern int IMONE   ; // = -1;
+extern int IONE;         // =  1;
 extern mpfr_class MZERO; // =  0.0;
-extern mpfr_class MONE ; // =  1.0;
+extern mpfr_class MONE;  // =  1.0;
 extern mpfr_class MMONE; // = -1.0;
 
 // Sets the MPFR default precision (in bits) used by subsequently
@@ -75,34 +58,26 @@ extern mpfr_class MMONE; // = -1.0;
 void setDefaultPrecision(int precision);
 
 // Replacement for gmp_fscanf(fp, "%*[^0-9+-]%Fe", value).
-// Skips characters other than [0-9+-], then reads one floating-point
-// number into *value at its current precision.
+// Skips characters other than [0-9+-.], then reads one decimal
+// floating-point number [+-]digits[.digits][(e|E)[+-]digits] into *value
+// at its current precision.  The character following the number is left
+// in the stream.
 // Returns 1 on success, 0 on a malformed number, EOF at end of file.
 int sdpa_fscan_real(FILE* fp, mpfr_class* value);
 
-class Time
-{
+class Time {
 public:
-  static double rGetUseTime();
-  static void rSetTimeVal(struct timeval & targetVal);
-  static double rGetRealTime(const struct timeval & start,
-			     const struct timeval & end);
+    static double rGetUseTime();
 };
 
-#if 1 // count time with process time
-#define TimeStart(START__) \
-   static double START__; START__ = Time::rGetUseTime()
-#define TimeEnd(END__) \
-   static double END__;   END__ = Time::rGetUseTime()
-#define TimeCal(START__,END__) (END__ - START__)
-#else // count time with real time
-#define TimeStart(START__) \
-   static struct timeval START__; Time::rSetTimeVal(START__)
-#define TimeEnd(END__) \
-   static struct timeval END__; Time::rSetTimeVal(END__)
-#define TimeCal(START__,END__) Time::rGetRealTime(START__,END__)
-#endif
+#define TimeStart(START__)                                                                         \
+    static double START__;                                                                         \
+    START__ = Time::rGetUseTime()
+#define TimeEnd(END__)                                                                             \
+    static double END__;                                                                           \
+    END__ = Time::rGetUseTime()
+#define TimeCal(START__, END__) (END__ - START__)
 
-}
+} // namespace sdpa
 
 #endif // __sdpa_tool_h__

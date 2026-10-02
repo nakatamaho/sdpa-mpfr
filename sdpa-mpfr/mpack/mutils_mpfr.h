@@ -37,25 +37,22 @@ int M2int(mpfr_class a);
 
 //implementation of sign transfer function.
 //returns |a| with the sign of b; |a| when b is zero.
-inline mpfr_class
-Msign(mpfr_class a, mpfr_class b)
+inline mpfr_class Msign(mpfr_class a, mpfr_class b)
 {
     mpfr_class mtmp;
     mpfr_abs(mtmp.get_mpfr_t(), a.get_mpfr_t(), MPFR_RNDN);
     if (mpfr_sgn(b.get_mpfr_t()) < 0) {
-	mpfr_neg(mtmp.get_mpfr_t(), mtmp.get_mpfr_t(), MPFR_RNDN);
+        mpfr_neg(mtmp.get_mpfr_t(), mtmp.get_mpfr_t(), MPFR_RNDN);
     }
     return mtmp;
 }
 
-inline double
-cast2double(mpfr_class a)
+inline double cast2double(mpfr_class a)
 {
     return a.get_d();
 }
 
-inline int
-M2int(mpfr_class a)
+inline int M2int(mpfr_class a)
 {
     a = a + 0.5;
     return (int)mpfr_get_si(a.get_mpfr_t(), MPFR_RNDD);

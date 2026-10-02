@@ -74,9 +74,8 @@ by n symmetric matrix.
 
 #include <mblas_mpfr.h>
 
-void
-Rsyr2(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * x,
-    mpackint incx, mpfr_class * y, mpackint incy, mpfr_class * A, mpackint lda)
+void Rsyr2(const char* uplo, mpackint n, mpfr_class alpha, mpfr_class* x, mpackint incx,
+           mpfr_class* y, mpackint incy, mpfr_class* A, mpackint lda)
 {
     mpfr_class temp1, temp2;
 
@@ -88,69 +87,67 @@ Rsyr2(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * x,
     mpackint info = 0;
 
     if (!Mlsame_mpfr(uplo, "U") && !Mlsame_mpfr(uplo, "L"))
-	info = 1;
+        info = 1;
     else if (n < 0)
-	info = 2;
+        info = 2;
     else if (incx == 0)
-	info = 5;
+        info = 5;
     else if (incy == 0)
-	info = 7;
-    else if (lda < max((mpackint) 1, n))
-	info = 9;
+        info = 7;
+    else if (lda < max((mpackint)1, n))
+        info = 9;
     if (info != 0) {
-	Mxerbla_mpfr("Rsyr2 ", info);
-	return;
+        Mxerbla_mpfr("Rsyr2 ", info);
+        return;
     }
     //quick return if possible.
     if ((n == 0) || (alpha == Zero))
-	return;
+        return;
 
     if (incx > 0)
-	kx = 0;
+        kx = 0;
     else
-	kx = -(n - 1) * incx;
+        kx = -(n - 1) * incx;
     if (incy > 0)
-	ky = 0;
+        ky = 0;
     else
-	ky = -(n - 1) * incy;
+        ky = -(n - 1) * incy;
     jx = kx;
     jy = ky;
 
     if (Mlsame_mpfr(uplo, "U")) {
-	for (mpackint j = 0; j < n; j++) {
-	    if ((x[jx] != Zero) || (y[jy] != Zero)) {
-		temp1 = alpha * y[jy];
-		temp2 = alpha * x[jx];
-		ix = kx;
-		iy = ky;
-		for (mpackint i = 0; i <= j; i++) {
-		    A[i + j * lda] =
-			A[i + j * lda] + x[ix] * temp1 + y[iy] * temp2;
-		    ix = ix + incx;
-		    iy = iy + incy;
-		}
-	    }
-	    jx = jx + incx;
-	    jy = jy + incy;
-	}
+        for (mpackint j = 0; j < n; j++) {
+            if ((x[jx] != Zero) || (y[jy] != Zero)) {
+                temp1 = alpha * y[jy];
+                temp2 = alpha * x[jx];
+                ix = kx;
+                iy = ky;
+                for (mpackint i = 0; i <= j; i++) {
+                    A[i + j * lda] = A[i + j * lda] + x[ix] * temp1 + y[iy] * temp2;
+                    ix = ix + incx;
+                    iy = iy + incy;
+                }
+            }
+            jx = jx + incx;
+            jy = jy + incy;
+        }
     } else {
-	//form  a  when a is stored in the lower triangle.
-	for (mpackint j = 0; j < n; j++) {
-	    if ((x[jx] != Zero) || (y[jy] != Zero)) {
-		temp1 = alpha * y[jy];
-		temp2 = alpha * x[jx];
-		ix = jx;
-		iy = jy;
-		for (mpackint i = j; i < n; i++) {
-		    A[i + j * lda] =
-			A[i + j * lda] + x[ix] * temp1 + y[iy] * temp2;
-		    ix = ix + incx;
-		    iy = iy + incy;
-		}
-	    }
-	    jx = jx + incx;
-	    jy = jy + incy;
-	}
+        //form  a  when a is stored in the lower triangle.
+        for (mpackint j = 0; j < n; j++) {
+            if ((x[jx] != Zero) || (y[jy] != Zero)) {
+                temp1 = alpha * y[jy];
+                temp2 = alpha * x[jx];
+                ix = jx;
+                iy = jy;
+                for (mpackint i = j; i < n; i++) {
+                    A[i + j * lda] = A[i + j * lda] + x[ix] * temp1 + y[iy] * temp2;
+                    ix = ix + incx;
+                    iy = iy + incy;
+                }
+            }
+            jx = jx + incx;
+            jy = jy + incy;
+        }
     }
     return;
 }

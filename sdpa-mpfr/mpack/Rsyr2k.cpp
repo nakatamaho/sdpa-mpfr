@@ -77,10 +77,9 @@ matrices in the second case.
 
 #include <mblas_mpfr.h>
 
-void
-Rsyr2k(const char *uplo, const char *trans, mpackint n, mpackint k,
-    mpfr_class alpha, mpfr_class * A, mpackint lda, mpfr_class * B, mpackint ldb,
-    mpfr_class beta, mpfr_class * C, mpackint ldc)
+void Rsyr2k(const char* uplo, const char* trans, mpackint n, mpackint k, mpfr_class alpha,
+            mpfr_class* A, mpackint lda, mpfr_class* B, mpackint ldb, mpfr_class beta,
+            mpfr_class* C, mpackint ldc)
 {
     mpackint nrowa, upper, info;
 
@@ -90,157 +89,150 @@ Rsyr2k(const char *uplo, const char *trans, mpackint n, mpackint k,
 
     //test the input parameters.
     if (Mlsame_mpfr(trans, "N"))
-	nrowa = n;
+        nrowa = n;
     else
-	nrowa = k;
+        nrowa = k;
     upper = Mlsame_mpfr(uplo, "U");
 
     info = 0;
     if ((!upper) && (!Mlsame_mpfr(uplo, "L")))
-	info = 1;
-    else if ((!Mlsame_mpfr(trans, "N")) && (!Mlsame_mpfr(trans, "T"))
-	&& (!Mlsame_mpfr(trans, "C")))
-	info = 2;
+        info = 1;
+    else if ((!Mlsame_mpfr(trans, "N")) && (!Mlsame_mpfr(trans, "T")) && (!Mlsame_mpfr(trans, "C")))
+        info = 2;
     else if (n < 0)
-	info = 3;
+        info = 3;
     else if (k < 0)
-	info = 4;
-    else if (lda < max((mpackint) 1, nrowa))
-	info = 7;
-    else if (ldb < max((mpackint) 1, nrowa))
-	info = 9;
-    else if (ldc < max((mpackint) 1, n))
-	info = 12;
+        info = 4;
+    else if (lda < max((mpackint)1, nrowa))
+        info = 7;
+    else if (ldb < max((mpackint)1, nrowa))
+        info = 9;
+    else if (ldc < max((mpackint)1, n))
+        info = 12;
     if (info != 0) {
-	Mxerbla_mpfr("Rsyr2k", info);
-	return;
+        Mxerbla_mpfr("Rsyr2k", info);
+        return;
     }
     //quick return if possible.
     if ((n == 0) || (((alpha == Zero) || (k == 0)) && (beta == One)))
-	return;
+        return;
 
     //and when alpha==Zero.
     if (alpha == Zero) {
-	if (upper) {
-	    if (beta == Zero) {
-		for (mpackint j = 0; j < n; j++) {
-		    for (mpackint i = 0; i <= j; i++) {
-			C[i + j * ldc] = Zero;
-		    }
-		}
-	    } else {
-		for (mpackint j = 0; j < n; j++) {
-		    for (mpackint i = 0; i <= j; i++) {
-			C[i + j * ldc] = beta * C[i + j * ldc];
-		    }
-		}
-	    }
-	} else {
-	    if (beta == Zero) {
-		for (mpackint j = 0; j < n; j++) {
-		    for (mpackint i = j; i < n; i++) {
-			C[i + j * ldc] = Zero;
-		    }
-		}
-	    } else {
-		for (mpackint j = 0; j < n; j++) {
-		    for (mpackint i = j; i < n; i++) {
-			C[i + j * ldc] = beta * C[i + j * ldc];
-		    }
-		}
-	    }
-	}
-	return;
+        if (upper) {
+            if (beta == Zero) {
+                for (mpackint j = 0; j < n; j++) {
+                    for (mpackint i = 0; i <= j; i++) {
+                        C[i + j * ldc] = Zero;
+                    }
+                }
+            } else {
+                for (mpackint j = 0; j < n; j++) {
+                    for (mpackint i = 0; i <= j; i++) {
+                        C[i + j * ldc] = beta * C[i + j * ldc];
+                    }
+                }
+            }
+        } else {
+            if (beta == Zero) {
+                for (mpackint j = 0; j < n; j++) {
+                    for (mpackint i = j; i < n; i++) {
+                        C[i + j * ldc] = Zero;
+                    }
+                }
+            } else {
+                for (mpackint j = 0; j < n; j++) {
+                    for (mpackint i = j; i < n; i++) {
+                        C[i + j * ldc] = beta * C[i + j * ldc];
+                    }
+                }
+            }
+        }
+        return;
     }
     //start the operations.
     if (Mlsame_mpfr(trans, "N")) {
-	//form C:= alpha*A*B' + alpha*B*A'+C.
-	if (upper) {
-	    for (mpackint j = 0; j < n; j++) {
-		if (beta == Zero) {
-		    for (mpackint i = 0; i <= j; i++) {
-			C[i + j * ldc] = Zero;
-		    }
-		} else if (beta != One) {
-		    for (mpackint i = 0; i <= j; i++) {
-			C[i + j * ldc] = beta * C[i + j * ldc];
-		    }
-		}
-		for (mpackint l = 0; l < k; l++) {
-		    if ((A[j + l * lda] != Zero) || (B[j + l * ldb] != Zero)) {
-			temp1 = alpha * B[j + l * ldb];
-			temp2 = alpha * A[j + l * lda];
-			for (mpackint i = 0; i <= j; i++) {
-			    C[i + j * ldc] =
-				C[i + j * ldc] + A[i + l * lda] * temp1 + B[i +
-				l * ldb] * temp2;
-			}
-		    }
-		}
-	    }
-	} else {
-	    for (mpackint j = 0; j < n; j++) {
-		if (beta == Zero) {
-		    for (mpackint i = j; i < n; i++) {
-			C[i + j * ldc] = Zero;
-		    }
-		} else if (beta != One) {
-		    for (mpackint i = j; i < n; i++) {
-			C[i + j * ldc] = beta * C[i + j * ldc];
-		    }
-		}
-		for (mpackint l = 0; l < k; l++) {
-		    if ((A[j + l * lda] != Zero) || (B[j + l * ldb] != Zero)) {
-			temp1 = alpha * B[j + l * ldb];
-			temp2 = alpha * A[j + l * lda];
-			for (mpackint i = j; i < n; i++) {
-			    C[i + j * ldc] =
-				C[i + j * ldc] + A[i + l * lda] * temp1 + B[i +
-				l * ldb] * temp2;
-			}
-		    }
-		}
-	    }
-	}
+        //form C:= alpha*A*B' + alpha*B*A'+C.
+        if (upper) {
+            for (mpackint j = 0; j < n; j++) {
+                if (beta == Zero) {
+                    for (mpackint i = 0; i <= j; i++) {
+                        C[i + j * ldc] = Zero;
+                    }
+                } else if (beta != One) {
+                    for (mpackint i = 0; i <= j; i++) {
+                        C[i + j * ldc] = beta * C[i + j * ldc];
+                    }
+                }
+                for (mpackint l = 0; l < k; l++) {
+                    if ((A[j + l * lda] != Zero) || (B[j + l * ldb] != Zero)) {
+                        temp1 = alpha * B[j + l * ldb];
+                        temp2 = alpha * A[j + l * lda];
+                        for (mpackint i = 0; i <= j; i++) {
+                            C[i + j * ldc] =
+                                C[i + j * ldc] + A[i + l * lda] * temp1 + B[i + l * ldb] * temp2;
+                        }
+                    }
+                }
+            }
+        } else {
+            for (mpackint j = 0; j < n; j++) {
+                if (beta == Zero) {
+                    for (mpackint i = j; i < n; i++) {
+                        C[i + j * ldc] = Zero;
+                    }
+                } else if (beta != One) {
+                    for (mpackint i = j; i < n; i++) {
+                        C[i + j * ldc] = beta * C[i + j * ldc];
+                    }
+                }
+                for (mpackint l = 0; l < k; l++) {
+                    if ((A[j + l * lda] != Zero) || (B[j + l * ldb] != Zero)) {
+                        temp1 = alpha * B[j + l * ldb];
+                        temp2 = alpha * A[j + l * lda];
+                        for (mpackint i = j; i < n; i++) {
+                            C[i + j * ldc] =
+                                C[i + j * ldc] + A[i + l * lda] * temp1 + B[i + l * ldb] * temp2;
+                        }
+                    }
+                }
+            }
+        }
     } else {
-	//form  C := alpha*A'*B + alpha*B'*A + C.
-	if (upper) {
-	    for (mpackint j = 0; j < n; j++) {
-		for (mpackint i = 0; i <= j; i++) {
-		    temp1 = Zero;
-		    temp2 = Zero;
-		    for (mpackint l = 0; l < k; l++) {
-			temp1 = temp1 + A[l + i * lda] * B[l + j * ldb];
-			temp2 = temp2 + B[l + i * ldb] * A[l + j * lda];
-		    }
-		    if (beta == Zero) {
-			C[i + j * ldc] = alpha * temp1 + alpha * temp2;
-		    } else {
-			C[i + j * ldc] =
-			    beta * C[i + j * ldc] + alpha * temp1 +
-			    alpha * temp2;
-		    }
-		}
-	    }
-	} else {
-	    for (mpackint j = 0; j < n; j++) {
-		for (mpackint i = j; i < n; i++) {
-		    temp1 = Zero;
-		    temp2 = Zero;
-		    for (mpackint l = 0; l < k; l++) {
-			temp1 = temp1 + A[l + i * lda] * B[l + j * ldb];
-			temp2 = temp2 + B[l + i * ldb] * A[l + j * lda];
-		    }
-		    if (beta == Zero) {
-			C[i + j * ldc] = alpha * temp1 + alpha * temp2;
-		    } else {
-			C[i + j * ldc] =
-			    beta * C[i + j * ldc] + alpha * temp1 +
-			    alpha * temp2;
-		    }
-		}
-	    }
-	}
+        //form  C := alpha*A'*B + alpha*B'*A + C.
+        if (upper) {
+            for (mpackint j = 0; j < n; j++) {
+                for (mpackint i = 0; i <= j; i++) {
+                    temp1 = Zero;
+                    temp2 = Zero;
+                    for (mpackint l = 0; l < k; l++) {
+                        temp1 = temp1 + A[l + i * lda] * B[l + j * ldb];
+                        temp2 = temp2 + B[l + i * ldb] * A[l + j * lda];
+                    }
+                    if (beta == Zero) {
+                        C[i + j * ldc] = alpha * temp1 + alpha * temp2;
+                    } else {
+                        C[i + j * ldc] = beta * C[i + j * ldc] + alpha * temp1 + alpha * temp2;
+                    }
+                }
+            }
+        } else {
+            for (mpackint j = 0; j < n; j++) {
+                for (mpackint i = j; i < n; i++) {
+                    temp1 = Zero;
+                    temp2 = Zero;
+                    for (mpackint l = 0; l < k; l++) {
+                        temp1 = temp1 + A[l + i * lda] * B[l + j * ldb];
+                        temp2 = temp2 + B[l + i * ldb] * A[l + j * lda];
+                    }
+                    if (beta == Zero) {
+                        C[i + j * ldc] = alpha * temp1 + alpha * temp2;
+                    } else {
+                        C[i + j * ldc] = beta * C[i + j * ldc] + alpha * temp1 + alpha * temp2;
+                    }
+                }
+            }
+        }
     }
     return;
 }

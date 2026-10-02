@@ -71,25 +71,24 @@ Rcopy copies a vector, x, to a vector, y.
 
 #include <mblas_mpfr.h>
 
-void
-Rcopy(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
+void Rcopy(mpackint n, mpfr_class* dx, mpackint incx, mpfr_class* dy, mpackint incy)
 {
     mpackint ix = 0;
 
     mpackint iy = 0;
 
     if (n <= 0)
-	return;
+        return;
 
     if (incx < 0)
-	ix = (-n + 1) * incx;
+        ix = (-n + 1) * incx;
     if (incy < 0)
-	iy = (-n + 1) * incy;
+        iy = (-n + 1) * incy;
 
     for (mpackint i = 0; i < n; i++) {
-	dy[iy] = dx[ix];
-	ix = ix + incx;
-	iy = iy + incy;
+        dy[iy] = dx[ix];
+        ix = ix + incx;
+        iy = iy + incy;
     }
     return;
 }

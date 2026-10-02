@@ -74,9 +74,8 @@ upper or lower triangular matrix.
 
 #include <mblas_mpfr.h>
 
-void
-Rtrmv(const char *uplo, const char *trans, const char *diag, mpackint n,
-    mpfr_class * A, mpackint lda, mpfr_class * x, mpackint incx)
+void Rtrmv(const char* uplo, const char* trans, const char* diag, mpackint n, mpfr_class* A,
+           mpackint lda, mpfr_class* x, mpackint incx)
 {
     mpackint ix, jx, kx;
 
@@ -88,102 +87,102 @@ Rtrmv(const char *uplo, const char *trans, const char *diag, mpackint n,
     mpackint info = 0;
 
     if (!Mlsame_mpfr(uplo, "U") && !Mlsame_mpfr(uplo, "L"))
-	info = 1;
+        info = 1;
     else if (!Mlsame_mpfr(trans, "N") && !Mlsame_mpfr(trans, "T") && !Mlsame_mpfr(trans, "C"))
-	info = 2;
+        info = 2;
     else if (!Mlsame_mpfr(diag, "U") && !Mlsame_mpfr(diag, "N"))
-	info = 3;
+        info = 3;
     else if (n < 0)
-	info = 4;
-    else if (lda < max((mpackint) 1, n))
-	info = 6;
+        info = 4;
+    else if (lda < max((mpackint)1, n))
+        info = 6;
     else if (incx == 0)
-	info = 8;
+        info = 8;
 
     if (info != 0) {
-	Mxerbla_mpfr("Rtrmv ", info);
-	return;
+        Mxerbla_mpfr("Rtrmv ", info);
+        return;
     }
     //quick return if possible.
     if (n == 0)
-	return;
+        return;
 
     mpackint nounit = Mlsame_mpfr(diag, "N");
 
     //set up the start point in x if the increment is not unity. this
     //will be  (n-1)*incx  too small for descending loops.
     if (incx <= 0)
-	kx = -(n - 1) * incx;
+        kx = -(n - 1) * incx;
     else
-	kx = 0;
+        kx = 0;
 
     //start the operations. in this version the elements of a are
     //accessed sequentially with one pass through A.
     if (Mlsame_mpfr(trans, "N")) {
-	//form  x := A*x.
-	if (Mlsame_mpfr(uplo, "U")) {
-	    jx = kx;
-	    for (mpackint j = 0; j < n; j++) {
-		if (x[jx] != Zero) {
-		    temp = x[jx];
-		    ix = kx;
-		    for (mpackint i = 0; i < j; i++) {
-			x[ix] = x[ix] + temp * A[i + j * lda];
-			ix = ix + incx;
-		    }
-		    if (nounit)
-			x[jx] = x[jx] * A[j + j * lda];
-		}
-		jx = jx + incx;
-	    }
-	} else {
-	    kx = kx + (n - 1) * incx;
-	    jx = kx;
-	    for (mpackint j = n - 1; j >= 0; j--) {
-		if (x[jx] != Zero) {
-		    temp = x[jx];
-		    ix = kx;
-		    for (mpackint i = n - 1; i >= j + 1; i--) {
-			x[ix] = x[ix] + temp * A[i + j * lda];
-			ix = ix - incx;
-		    }
-		    if (nounit)
-			x[jx] = x[jx] * A[j + j * lda];
-		}
-		jx = jx - incx;
-	    }
-	}
+        //form  x := A*x.
+        if (Mlsame_mpfr(uplo, "U")) {
+            jx = kx;
+            for (mpackint j = 0; j < n; j++) {
+                if (x[jx] != Zero) {
+                    temp = x[jx];
+                    ix = kx;
+                    for (mpackint i = 0; i < j; i++) {
+                        x[ix] = x[ix] + temp * A[i + j * lda];
+                        ix = ix + incx;
+                    }
+                    if (nounit)
+                        x[jx] = x[jx] * A[j + j * lda];
+                }
+                jx = jx + incx;
+            }
+        } else {
+            kx = kx + (n - 1) * incx;
+            jx = kx;
+            for (mpackint j = n - 1; j >= 0; j--) {
+                if (x[jx] != Zero) {
+                    temp = x[jx];
+                    ix = kx;
+                    for (mpackint i = n - 1; i >= j + 1; i--) {
+                        x[ix] = x[ix] + temp * A[i + j * lda];
+                        ix = ix - incx;
+                    }
+                    if (nounit)
+                        x[jx] = x[jx] * A[j + j * lda];
+                }
+                jx = jx - incx;
+            }
+        }
     } else {
-	//form  x := A'*x.
-	if (Mlsame_mpfr(uplo, "U")) {
-	    jx = kx + (n - 1) * incx;
-	    for (mpackint j = n - 1; j >= 0; j--) {
-		temp = x[jx];
-		ix = jx;
-		if (nounit)
-		    temp = temp * A[j + j * lda];
-		for (mpackint i = j - 1; i >= 0; i--) {
-		    ix = ix - incx;
-		    temp = temp + A[i + j * lda] * x[ix];
-		}
-		x[jx] = temp;
-		jx = jx - incx;
-	    }
-	} else {
-	    jx = kx;
-	    for (mpackint j = 0; j < n; j++) {
-		temp = x[jx];
-		ix = jx;
-		if (nounit)
-		    temp = temp * A[j + j * lda];
-		for (mpackint i = j + 1; i < n; i++) {
-		    ix = ix + incx;
-		    temp = temp + A[i + j * lda] * x[ix];
-		}
-		x[jx] = temp;
-		jx = jx + incx;
-	    }
-	}
+        //form  x := A'*x.
+        if (Mlsame_mpfr(uplo, "U")) {
+            jx = kx + (n - 1) * incx;
+            for (mpackint j = n - 1; j >= 0; j--) {
+                temp = x[jx];
+                ix = jx;
+                if (nounit)
+                    temp = temp * A[j + j * lda];
+                for (mpackint i = j - 1; i >= 0; i--) {
+                    ix = ix - incx;
+                    temp = temp + A[i + j * lda] * x[ix];
+                }
+                x[jx] = temp;
+                jx = jx - incx;
+            }
+        } else {
+            jx = kx;
+            for (mpackint j = 0; j < n; j++) {
+                temp = x[jx];
+                ix = jx;
+                if (nounit)
+                    temp = temp * A[j + j * lda];
+                for (mpackint i = j + 1; i < n; i++) {
+                    ix = ix + incx;
+                    temp = temp + A[i + j * lda] * x[ix];
+                }
+                x[jx] = temp;
+                jx = jx + incx;
+            }
+        }
     }
     return;
 }

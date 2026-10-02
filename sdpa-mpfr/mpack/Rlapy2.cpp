@@ -67,8 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-mpfr_class
-Rlapy2(mpfr_class x, mpfr_class y)
+mpfr_class Rlapy2(mpfr_class x, mpfr_class y)
 {
     mpfr_class Zero = 0.0;
     mpfr_class One = 1.0;
@@ -81,10 +80,10 @@ Rlapy2(mpfr_class x, mpfr_class y)
     w = max(xabs, yabs);
     z = min(xabs, yabs);
     if (z == Zero) {
-	return w;
+        return w;
     } else {
-	w = w * sqrt(One + (z / w) * (z / w));
-	return w;
+        w = w * sqrt(One + (z / w) * (z / w));
+        return w;
     }
-//not reached
+    //not reached
 }

@@ -67,9 +67,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rorgtr(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpfr_class * tau,
-    mpfr_class * work, mpackint lwork, mpackint *info)
+void Rorgtr(const char* uplo, mpackint n, mpfr_class* A, mpackint lda, mpfr_class* tau,
+            mpfr_class* work, mpackint lwork, mpackint* info)
 {
 
     mpfr_class Zero = 0.0, One = 1.0;
@@ -78,80 +77,79 @@ Rorgtr(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpfr_class * 
 
     *info = 0;
     if (lwork == -1)
-	lquery = 1;
+        lquery = 1;
     else
-	lquery = 0;
+        lquery = 0;
 
     upper = Mlsame_mpfr(uplo, "U");
     if (!upper && !Mlsame_mpfr(uplo, "L")) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0) {
-	*info = -2;
+        *info = -2;
     } else if (lda < max((mpackint)1, n)) {
-	*info = -4;
+        *info = -4;
     } else {
-	if (lwork < max((mpackint)1, n - 1) && !lquery) {
-	    *info = -7;
-	}
+        if (lwork < max((mpackint)1, n - 1) && !lquery) {
+            *info = -7;
+        }
     }
     if (*info == 0) {
-	if (upper) {
-	    nb = iMlaenv_mpfr(1, "Rorgql", " ", n - 1, n - 1, n - 1, -1);
-	} else {
-	    nb = iMlaenv_mpfr(1, "Rorgqr", " ", n - 1, n - 1, n - 1, -1);
-	}
-	lwkopt = max((mpackint)1, n - 1) * nb;
-	work[0] = (double)lwkopt;	//needs cast from double to mpf
+        if (upper) {
+            nb = iMlaenv_mpfr(1, "Rorgql", " ", n - 1, n - 1, n - 1, -1);
+        } else {
+            nb = iMlaenv_mpfr(1, "Rorgqr", " ", n - 1, n - 1, n - 1, -1);
+        }
+        lwkopt = max((mpackint)1, n - 1) * nb;
+        work[0] = (double)lwkopt; //needs cast from double to mpf
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rorgtr", -(*info));
-	return;
+        Mxerbla_mpfr("Rorgtr", -(*info));
+        return;
     } else if (lquery) {
-	return;
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (n == 0) {
-	work[0] = One;
-	return;
+        work[0] = One;
+        return;
     }
     if (upper) {
-//Q was determined by a call to DSYTRD with UPLO = 'U'
-//Shift the vectors which define the elementary reflectors one
-//column to the left, and set the last row and column of Q to
-//those of the unit matrix
-	for (j = 1; j <= n - 1; j++) {
-	    for (i = 1; i <= j - 1; i++) {
-		A[(i - 1) + (j - 1) * lda] = A[(i - 1) + j * lda];
-	    }
-	    A[(n - 1) + (j - 1) * lda] = Zero;
-	}
-	for (i = 1; i <= n - 1; i++) {
-	    A[(i - 1) + (n - 1) * lda] = Zero;
-	}
-	A[(n - 1) + (n - 1) * lda] = One;
-//Generate Q(1:n-1,1:n-1)
-	Rorgql(n - 1, n - 1, n - 1, A, lda, tau, work, lwork, &iinfo);
+        //Q was determined by a call to DSYTRD with UPLO = 'U'
+        //Shift the vectors which define the elementary reflectors one
+        //column to the left, and set the last row and column of Q to
+        //those of the unit matrix
+        for (j = 1; j <= n - 1; j++) {
+            for (i = 1; i <= j - 1; i++) {
+                A[(i - 1) + (j - 1) * lda] = A[(i - 1) + j * lda];
+            }
+            A[(n - 1) + (j - 1) * lda] = Zero;
+        }
+        for (i = 1; i <= n - 1; i++) {
+            A[(i - 1) + (n - 1) * lda] = Zero;
+        }
+        A[(n - 1) + (n - 1) * lda] = One;
+        //Generate Q(1:n-1,1:n-1)
+        Rorgql(n - 1, n - 1, n - 1, A, lda, tau, work, lwork, &iinfo);
     } else {
-//Q was determined by a call to DSYTRD with UPLO = 'L'.
-//Shift the vectors which define the elementary reflectors one
-//column to the right, and set the first row and column of Q to
-//those of the unit matrix
-	for (j = n; j >= 2; j--) {
-	    A[0 + (j - 1) * lda] = Zero;
-	    for (i = j + 1; i <= n; i++) {
-		A[(i - 1) + (j - 1) * lda] = A[(i - 1) + (j - 2) * lda];
-	    }
-	}
-	A[0 + 0 * lda] = One;
-	for (i = 2; i <= n; i++) {
-	    A[(i - 1) + 0 * lda] = Zero;
-	}
-	if (n > 1) {
-//Generate Q(2:n,2:n)
-	    Rorgqr(n - 1, n - 1, n - 1, &A[1 + (1 * lda)], lda, tau,
-		work, lwork, &iinfo);
-	}
+        //Q was determined by a call to DSYTRD with UPLO = 'L'.
+        //Shift the vectors which define the elementary reflectors one
+        //column to the right, and set the first row and column of Q to
+        //those of the unit matrix
+        for (j = n; j >= 2; j--) {
+            A[0 + (j - 1) * lda] = Zero;
+            for (i = j + 1; i <= n; i++) {
+                A[(i - 1) + (j - 1) * lda] = A[(i - 1) + (j - 2) * lda];
+            }
+        }
+        A[0 + 0 * lda] = One;
+        for (i = 2; i <= n; i++) {
+            A[(i - 1) + 0 * lda] = Zero;
+        }
+        if (n > 1) {
+            //Generate Q(2:n,2:n)
+            Rorgqr(n - 1, n - 1, n - 1, &A[1 + (1 * lda)], lda, tau, work, lwork, &iinfo);
+        }
     }
-    work[0] = (double)lwkopt;	//needs cast from double to mpf
+    work[0] = (double)lwkopt; //needs cast from double to mpf
     return;
 }

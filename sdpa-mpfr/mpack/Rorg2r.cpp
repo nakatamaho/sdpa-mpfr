@@ -67,54 +67,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rorg2r(mpackint m, mpackint n, mpackint k, mpfr_class * A, mpackint lda, mpfr_class * tau,
-    mpfr_class * work, mpackint *info)
+void Rorg2r(mpackint m, mpackint n, mpackint k, mpfr_class* A, mpackint lda, mpfr_class* tau,
+            mpfr_class* work, mpackint* info)
 {
     mpackint i, j, l;
     mpfr_class One = 1.0, Zero = 0.0;
 
     *info = 0;
     if (m < 0) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0 || n > m) {
-	*info = -2;
+        *info = -2;
     } else if (k < 0 || k > n) {
-	*info = -3;
+        *info = -3;
     } else if (lda < max((mpackint)1, m)) {
-	*info = -5;
+        *info = -5;
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rorg2r", -(*info));
-	return;
+        Mxerbla_mpfr("Rorg2r", -(*info));
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (n <= 0)
-	return;
+        return;
 
-//Initialise columns k+1:n to columns of the unit matrix
+    //Initialise columns k+1:n to columns of the unit matrix
     for (j = k; j < n; j++) {
-	for (l = 0; l < m; l++) {
-	    A[l + j * lda] = Zero;
-	}
-	A[j + j * lda] = One;
+        for (l = 0; l < m; l++) {
+            A[l + j * lda] = Zero;
+        }
+        A[j + j * lda] = One;
     }
     for (i = k; i >= 1; i--) {
-//Apply H(i) to A(i:m,i:n) from the left
-	if (i < n) {
-	    A[(i - 1) + (i - 1) * lda] = One;
-	    Rlarf("Left", m - i + 1, n - i, &A[(i - 1) + (i - 1) * lda], 1,
-		tau[i - 1], &A[(i - 1) + i * lda], lda, work);
-	}
-	if (i < m) {
-	    Rscal(m - i, -tau[i - 1], &A[i + (i - 1) * lda], 1);
-	}
-	A[(i - 1) + (i - 1) * lda] = One - tau[i - 1];
+        //Apply H(i) to A(i:m,i:n) from the left
+        if (i < n) {
+            A[(i - 1) + (i - 1) * lda] = One;
+            Rlarf("Left", m - i + 1, n - i, &A[(i - 1) + (i - 1) * lda], 1, tau[i - 1],
+                  &A[(i - 1) + i * lda], lda, work);
+        }
+        if (i < m) {
+            Rscal(m - i, -tau[i - 1], &A[i + (i - 1) * lda], 1);
+        }
+        A[(i - 1) + (i - 1) * lda] = One - tau[i - 1];
 
-//Set A(1:i-1,i) to zero
-	for (l = 0; l < i - 1; l++) {
-	    A[l + (i - 1) * lda] = Zero;
-	}
+        //Set A(1:i-1,i) to zero
+        for (l = 0; l < i - 1; l++) {
+            A[l + (i - 1) * lda] = Zero;
+        }
     }
     return;
 }

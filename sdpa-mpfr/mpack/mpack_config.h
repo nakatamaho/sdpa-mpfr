@@ -52,19 +52,19 @@ typedef int32_t mpackint;
 #ifdef USE64BITINT
 inline mpackint mpackabs(mpackint i)
 {
-  return labs(i);
+    return labs(i);
 }
 #else
 inline mpackint mpackabs(mpackint i)
 {
-  return abs(i);
+    return abs(i);
 }
 #endif
 
 typedef mpackint mpacklogical;
 
 #ifdef __cplusplus
-typedef mpacklogical(*ML_fp) (...);
+typedef mpacklogical (*ML_fp)(...);
 #else
 typedef mpacklogical(*ML_fp);
 #endif

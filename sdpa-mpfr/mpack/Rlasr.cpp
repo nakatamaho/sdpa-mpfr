@@ -67,9 +67,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
-    mpackint n, mpfr_class * c, mpfr_class * s, mpfr_class * A, mpackint lda)
+void Rlasr(const char* side, const char* pivot, const char* direct, mpackint m, mpackint n,
+           mpfr_class* c, mpfr_class* s, mpfr_class* A, mpackint lda)
 {
     mpfr_class Zero = 0.0;
     mpfr_class One = 1.0;
@@ -79,211 +78,194 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 
     info = 0;
     if (!(Mlsame_mpfr(side, "L") || Mlsame_mpfr(side, "R")))
-	info = 1;
-    else if (!(Mlsame_mpfr(pivot, "V") || Mlsame_mpfr(pivot, "T")
-	    || Mlsame_mpfr(pivot, "B")))
-	info = 2;
+        info = 1;
+    else if (!(Mlsame_mpfr(pivot, "V") || Mlsame_mpfr(pivot, "T") || Mlsame_mpfr(pivot, "B")))
+        info = 2;
     else if (!(Mlsame_mpfr(direct, "F") || Mlsame_mpfr(direct, "B")))
-	info = 3;
+        info = 3;
     else if (m < 0)
-	info = 4;
+        info = 4;
     else if (n < 0)
-	info = 5;
+        info = 5;
     else if (lda < max((mpackint)1, m))
-	info = 9;
+        info = 9;
     if (info != 0) {
-	Mxerbla_mpfr("Rlasr ", info);
-	return;
+        Mxerbla_mpfr("Rlasr ", info);
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (m == 0 || n == 0) {
-	return;
+        return;
     }
 
     if (Mlsame_mpfr(side, "L")) {
-//Form  P * A
-	if (Mlsame_mpfr(pivot, "V")) {
-	    if (Mlsame_mpfr(direct, "F")) {
-		for (j = 0; j < m - 1; j++) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < n; i++) {
-			    temp = A[(j + 1) + i * lda];
-			    A[(j + 1) + i * lda] = ctemp * temp - stemp *
-				A[j + i * lda];
-			    A[j + i * lda] =
-				stemp * temp + ctemp * A[j + i * lda];
-			}
-		    }
-		}
-	    } else if (Mlsame_mpfr(direct, "B")) {
-		for (j = m - 2; j >= 0; j--) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < n; i++) {
-			    temp = A[(j + 1) + i * lda];
-			    A[(j + 1) + i * lda] = ctemp * temp - stemp *
-				A[j + i * lda];
-			    A[j + i * lda] = stemp * temp + ctemp * A[j
-				+ i * lda];
-			}
-		    }
-		}
-	    }
-	}
+        //Form  P * A
+        if (Mlsame_mpfr(pivot, "V")) {
+            if (Mlsame_mpfr(direct, "F")) {
+                for (j = 0; j < m - 1; j++) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < n; i++) {
+                            temp = A[(j + 1) + i * lda];
+                            A[(j + 1) + i * lda] = ctemp * temp - stemp * A[j + i * lda];
+                            A[j + i * lda] = stemp * temp + ctemp * A[j + i * lda];
+                        }
+                    }
+                }
+            } else if (Mlsame_mpfr(direct, "B")) {
+                for (j = m - 2; j >= 0; j--) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < n; i++) {
+                            temp = A[(j + 1) + i * lda];
+                            A[(j + 1) + i * lda] = ctemp * temp - stemp * A[j + i * lda];
+                            A[j + i * lda] = stemp * temp + ctemp * A[j + i * lda];
+                        }
+                    }
+                }
+            }
+        }
 
-	else if (Mlsame_mpfr(pivot, "T")) {
-	    if (Mlsame_mpfr(direct, "F")) {
-		for (j = 1; j < m; j++) {
-		    ctemp = c[j - 1];
-		    stemp = s[j - 1];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < n; i++) {
-			    temp = A[j + i * lda];
-			    A[j + i * lda] = ctemp * temp - stemp * A[i * lda];
-			    A[i * lda] = stemp * temp + ctemp * A[i * lda];
-			}
-		    }
-		}
-	    } else if (Mlsame_mpfr(direct, "B")) {
-		for (j = m - 1; j >= 1; j--) {
-		    ctemp = c[j - 1];
-		    stemp = s[j - 1];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < n; i++) {
-			    temp = A[j + i * lda];
-			    A[j + i * lda] = ctemp * temp - stemp * A[i * lda];
-			    A[i * lda] = stemp * temp + ctemp * A[i * lda];
-			}
-		    }
-		}
-	    }
-	}
+        else if (Mlsame_mpfr(pivot, "T")) {
+            if (Mlsame_mpfr(direct, "F")) {
+                for (j = 1; j < m; j++) {
+                    ctemp = c[j - 1];
+                    stemp = s[j - 1];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < n; i++) {
+                            temp = A[j + i * lda];
+                            A[j + i * lda] = ctemp * temp - stemp * A[i * lda];
+                            A[i * lda] = stemp * temp + ctemp * A[i * lda];
+                        }
+                    }
+                }
+            } else if (Mlsame_mpfr(direct, "B")) {
+                for (j = m - 1; j >= 1; j--) {
+                    ctemp = c[j - 1];
+                    stemp = s[j - 1];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < n; i++) {
+                            temp = A[j + i * lda];
+                            A[j + i * lda] = ctemp * temp - stemp * A[i * lda];
+                            A[i * lda] = stemp * temp + ctemp * A[i * lda];
+                        }
+                    }
+                }
+            }
+        }
 
-	else if (Mlsame_mpfr(pivot, "B")) {
-	    if (Mlsame_mpfr(direct, "F")) {
-		for (j = 0; j < m - 1; j++) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < n; i++) {
-			    temp = A[j + i * lda];
-			    A[j + i * lda] = stemp * A[(m - 1) + i * lda]
-				+ ctemp * temp;
-			    A[(m - 1) + i * lda] =
-				ctemp * A[(m - 1) + i * lda] - stemp * temp;
-			}
-		    }
-		}
-	    } else if (Mlsame_mpfr(direct, "B")) {
-		for (j = m - 2; j >= 0; j--) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < n; i++) {
-			    temp = A[j + i * lda];
-			    A[j + i * lda] = stemp * A[(m - 1) + i * lda]
-				+ ctemp * temp;
-			    A[(m - 1) + i * lda] =
-				ctemp * A[(m - 1) + i * lda] - stemp * temp;
-			}
-		    }
-		}
-	    }
-	}
+        else if (Mlsame_mpfr(pivot, "B")) {
+            if (Mlsame_mpfr(direct, "F")) {
+                for (j = 0; j < m - 1; j++) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < n; i++) {
+                            temp = A[j + i * lda];
+                            A[j + i * lda] = stemp * A[(m - 1) + i * lda] + ctemp * temp;
+                            A[(m - 1) + i * lda] = ctemp * A[(m - 1) + i * lda] - stemp * temp;
+                        }
+                    }
+                }
+            } else if (Mlsame_mpfr(direct, "B")) {
+                for (j = m - 2; j >= 0; j--) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < n; i++) {
+                            temp = A[j + i * lda];
+                            A[j + i * lda] = stemp * A[(m - 1) + i * lda] + ctemp * temp;
+                            A[(m - 1) + i * lda] = ctemp * A[(m - 1) + i * lda] - stemp * temp;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     else if (Mlsame_mpfr(side, "R")) {
-//Form A * P'
-	if (Mlsame_mpfr(pivot, "V")) {
-	    if (Mlsame_mpfr(direct, "F")) {
-		for (j = 0; j < n - 1; j++) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < m; i++) {
-			    temp = A[i + (j + 1) * lda];
-			    A[i + (j + 1) * lda] =
-				ctemp * temp - stemp * A[i + j * lda];
-			    A[i + j * lda] =
-				stemp * temp + ctemp * A[i + j * lda];
-			}
-		    }
-		}
-	    } else if (Mlsame_mpfr(direct, "B")) {
-		for (j = n - 2; j >= 0; j--) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < m; i++) {
-			    temp = A[i + (j + 1) * lda];
-			    A[i + (j + 1) * lda] =
-				ctemp * temp - stemp * A[i + j * lda];
-			    A[i + j * lda] =
-				stemp * temp + ctemp * A[i + j * lda];
-			}
-		    }
-		}
-	    }
-	} else if (Mlsame_mpfr(pivot, "T")) {
-	    if (Mlsame_mpfr(direct, "F")) {
-		for (j = 1; j < n; j++) {
-		    ctemp = c[j - 1];
-		    stemp = s[j - 1];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < m; i++) {
-			    temp = A[i + j * lda];
-			    A[i + j * lda] = ctemp * temp - stemp * A[i];
-			    A[i] = stemp * temp + ctemp * A[i];
-			}
-		    }
-		}
-	    } else if (Mlsame_mpfr(direct, "B")) {
-		for (j = n - 1; j >= 1; j--) {
-		    ctemp = c[j - 1];
-		    stemp = s[j - 1];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < m; i++) {
-			    temp = A[i + j * lda];
-			    A[i + j * lda] = ctemp * temp - stemp * A[i];
-			    A[i] = stemp * temp + ctemp * A[i];
-			}
-		    }
-		}
-	    }
-	} else if (Mlsame_mpfr(pivot, "B")) {
-	    if (Mlsame_mpfr(direct, "F")) {
-		for (j = 0; j < n - 1; j++) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < m; i++) {
-			    temp = A[i + j * lda];
-			    A[i + j * lda] = stemp * A[i + (n - 1) * lda]
-				+ ctemp * temp;
-			    A[i + (n - 1) * lda] =
-				ctemp * A[i + (n - 1) * lda] - stemp * temp;
-			}
-		    }
-		}
-	    } else if (Mlsame_mpfr(direct, "B")) {
-		for (j = n - 2; j >= 0; j--) {
-		    ctemp = c[j];
-		    stemp = s[j];
-		    if (ctemp != One || stemp != Zero) {
-			for (i = 0; i < m; i++) {
-			    temp = A[i + j * lda];
-			    A[i + j * lda] = stemp * A[i + (n - 1) * lda]
-				+ ctemp * temp;
-			    A[i + (n - 1) * lda] =
-				ctemp * A[i + (n - 1) * lda] - stemp * temp;
-			}
-		    }
-		}
-	    }
-	}
+        //Form A * P'
+        if (Mlsame_mpfr(pivot, "V")) {
+            if (Mlsame_mpfr(direct, "F")) {
+                for (j = 0; j < n - 1; j++) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < m; i++) {
+                            temp = A[i + (j + 1) * lda];
+                            A[i + (j + 1) * lda] = ctemp * temp - stemp * A[i + j * lda];
+                            A[i + j * lda] = stemp * temp + ctemp * A[i + j * lda];
+                        }
+                    }
+                }
+            } else if (Mlsame_mpfr(direct, "B")) {
+                for (j = n - 2; j >= 0; j--) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < m; i++) {
+                            temp = A[i + (j + 1) * lda];
+                            A[i + (j + 1) * lda] = ctemp * temp - stemp * A[i + j * lda];
+                            A[i + j * lda] = stemp * temp + ctemp * A[i + j * lda];
+                        }
+                    }
+                }
+            }
+        } else if (Mlsame_mpfr(pivot, "T")) {
+            if (Mlsame_mpfr(direct, "F")) {
+                for (j = 1; j < n; j++) {
+                    ctemp = c[j - 1];
+                    stemp = s[j - 1];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < m; i++) {
+                            temp = A[i + j * lda];
+                            A[i + j * lda] = ctemp * temp - stemp * A[i];
+                            A[i] = stemp * temp + ctemp * A[i];
+                        }
+                    }
+                }
+            } else if (Mlsame_mpfr(direct, "B")) {
+                for (j = n - 1; j >= 1; j--) {
+                    ctemp = c[j - 1];
+                    stemp = s[j - 1];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < m; i++) {
+                            temp = A[i + j * lda];
+                            A[i + j * lda] = ctemp * temp - stemp * A[i];
+                            A[i] = stemp * temp + ctemp * A[i];
+                        }
+                    }
+                }
+            }
+        } else if (Mlsame_mpfr(pivot, "B")) {
+            if (Mlsame_mpfr(direct, "F")) {
+                for (j = 0; j < n - 1; j++) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < m; i++) {
+                            temp = A[i + j * lda];
+                            A[i + j * lda] = stemp * A[i + (n - 1) * lda] + ctemp * temp;
+                            A[i + (n - 1) * lda] = ctemp * A[i + (n - 1) * lda] - stemp * temp;
+                        }
+                    }
+                }
+            } else if (Mlsame_mpfr(direct, "B")) {
+                for (j = n - 2; j >= 0; j--) {
+                    ctemp = c[j];
+                    stemp = s[j];
+                    if (ctemp != One || stemp != Zero) {
+                        for (i = 0; i < m; i++) {
+                            temp = A[i + j * lda];
+                            A[i + j * lda] = stemp * A[i + (n - 1) * lda] + ctemp * temp;
+                            A[i + (n - 1) * lda] = ctemp * A[i + (n - 1) * lda] - stemp * temp;
+                        }
+                    }
+                }
+            }
+        }
     }
     return;
 }

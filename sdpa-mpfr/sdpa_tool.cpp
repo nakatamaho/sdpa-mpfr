@@ -25,12 +25,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 #include <sdpa_tool.h>
 #include <sys/times.h>
-#include <sys/time.h>
 #include <time.h>
 
 #include <unistd.h>
 #ifndef CLK_TCK
-#define  CLK_TCK  sysconf(_SC_CLK_TCK)
+#define CLK_TCK sysconf(_SC_CLK_TCK)
 #endif
 
 using std::cout;
@@ -40,75 +39,92 @@ namespace sdpa {
 
 // These are constant.
 // Do Not Change .
-int IZERO =  0;
-int IONE  =  1;
-int IMONE = -1;
-mpfr_class MZERO =  0.0;
-mpfr_class MONE  =  1.0;
+int IONE = 1;
+mpfr_class MZERO = 0.0;
+mpfr_class MONE = 1.0;
 mpfr_class MMONE = -1.0;
 
 void setDefaultPrecision(int precision)
 {
-  if (precision < (int)MPFR_PREC_MIN) {
-    rError("precision must be at least " << (int)MPFR_PREC_MIN << " bits");
-  }
-  mpfrxx::set_default_precision_bits((mpfr_prec_t)precision);
-  MZERO.set_prec(precision); MZERO =  0.0;
-  MONE .set_prec(precision); MONE  =  1.0;
-  MMONE.set_prec(precision); MMONE = -1.0;
+    if (precision < (int)MPFR_PREC_MIN) {
+        rError("precision must be at least " << (int)MPFR_PREC_MIN << " bits");
+    }
+    mpfrxx::set_default_precision_bits((mpfr_prec_t)precision);
+    MZERO.set_prec(precision);
+    MZERO = 0.0;
+    MONE.set_prec(precision);
+    MONE = 1.0;
+    MMONE.set_prec(precision);
+    MMONE = -1.0;
+}
+
+static inline bool isDigit(int c)
+{
+    return '0' <= c && c <= '9';
+}
+
+// Appends a run of decimal digits to token; returns the number of digits.
+static int scanDigits(FILE* fp, std::string& token, int& c)
+{
+    int n = 0;
+    while (isDigit(c)) {
+        token += (char)c;
+        c = getc(fp);
+        ++n;
+    }
+    return n;
 }
 
 int sdpa_fscan_real(FILE* fp, mpfr_class* value)
 {
-  int c;
-  // skip separators such as spaces, commas, braces and parentheses
-  while ((c = getc(fp)) != EOF) {
-    if (('0' <= c && c <= '9') || c == '+' || c == '-' || c == '.') {
-      break;
+    int c;
+    // skip separators such as spaces, commas, braces and parentheses
+    while ((c = getc(fp)) != EOF) {
+        if (isDigit(c) || c == '+' || c == '-' || c == '.') {
+            break;
+        }
     }
-  }
-  if (c == EOF) {
-    return EOF;
-  }
-  std::string token;
-  // accept the characters of a decimal floating-point literal
-  while (c != EOF
-	 && (('0' <= c && c <= '9') || c == '+' || c == '-'
-	     || c == '.' || c == 'e' || c == 'E')) {
-    token += (char)c;
-    c = getc(fp);
-  }
-  if (c != EOF) {
-    ungetc(c, fp);
-  }
-  char* end = NULL;
-  mpfr_strtofr(value->get_mpfr_t(), token.c_str(), &end, 10, MPFR_RNDN);
-  if (end == token.c_str()) {
-    return 0;
-  }
-  return 1;
+    if (c == EOF) {
+        return EOF;
+    }
+    // [+-] digits [. digits] [(e|E) [+-] digits]
+    std::string token;
+    if (c == '+' || c == '-') {
+        token += (char)c;
+        c = getc(fp);
+    }
+    int nDigits = scanDigits(fp, token, c);
+    if (c == '.') {
+        token += (char)c;
+        c = getc(fp);
+        nDigits += scanDigits(fp, token, c);
+    }
+    bool valid = nDigits > 0;
+    if (valid && (c == 'e' || c == 'E')) {
+        token += (char)c;
+        c = getc(fp);
+        if (c == '+' || c == '-') {
+            token += (char)c;
+            c = getc(fp);
+        }
+        valid = scanDigits(fp, token, c) > 0;
+    }
+    // the first character after the number is left in the stream
+    if (c != EOF) {
+        ungetc(c, fp);
+    }
+    if (!valid) {
+        return 0;
+    }
+    mpfr_set_str(value->get_mpfr_t(), token.c_str(), 10, MPFR_RNDN);
+    return 1;
 }
 
 double Time::rGetUseTime()
 {
-  struct tms TIME;
-  times(&TIME);
-  return (double)TIME.tms_utime/(double)CLK_TCK; 
+    struct tms TIME;
+    times(&TIME);
+    return (double)TIME.tms_utime / (double)CLK_TCK;
 }
 
-void Time::rSetTimeVal(struct timeval& targetVal)
-{
-  static struct timezone tz;
-  gettimeofday(&targetVal,&tz);
-}
-
-double Time::rGetRealTime(const struct timeval& start,
-			   const struct timeval& end)
-{
-  const long int second = end.tv_sec - start.tv_sec;
-  const long int usecond = end.tv_usec - start.tv_usec;
-  return ((double)second) + ((double)usecond)*(1.0e-6);
-}
-
-}
-
+} // namespace sdpa

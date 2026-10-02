@@ -67,8 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 #include <stdio.h> //for untested part
-void
-Rsterf(mpackint n, mpfr_class * d, mpfr_class * e, mpackint *info)
+void Rsterf(mpackint n, mpfr_class* d, mpfr_class* e, mpackint* info)
 {
     mpfr_class Zero = 0.0, One = 1.0, Two = 2.0, Three = 3.0;
     mpfr_class sigma;
@@ -83,257 +82,255 @@ Rsterf(mpackint n, mpfr_class * d, mpfr_class * e, mpackint *info)
     mpackint lsv, lend, lendsv;
 
     *info = 0;
-//Quick return if possible
+    //Quick return if possible
     if (n < 0) {
-	*info = -1;
-	Mxerbla_mpfr("Rsterf", -(*info));
-	return;
+        *info = -1;
+        Mxerbla_mpfr("Rsterf", -(*info));
+        return;
     }
     if (n <= 1)
-	return;
-//Determine the unit roundoff for this environment.
+        return;
+    //Determine the unit roundoff for this environment.
     eps = Rlamch_mpfr("E");
     eps2 = eps * eps;
     safmin = Rlamch_mpfr("S");
     safmax = One / safmin;
     ssfmax = sqrt(safmax) / Three;
     ssfmin = sqrt(safmin) / eps2;
-//Compute the eigenvalues of the tridiagonal matrix.
+    //Compute the eigenvalues of the tridiagonal matrix.
     nmaxit = n * 30;
     sigma = Zero;
     jtot = 0;
-//Determine where the matrix splits and choose QL or QR iteration
-//for each block, according to whether top or bottom diagonal
-//element is smaller.
+    //Determine where the matrix splits and choose QL or QR iteration
+    //for each block, according to whether top or bottom diagonal
+    //element is smaller.
     l1 = 1;
-  L10:
+L10:
     if (l1 > n) {
-	goto L170;
+        goto L170;
     }
     if (l1 > 1) {
-	e[l1 - 2] = Zero;
+        e[l1 - 2] = Zero;
     }
     for (m = l1; m <= n - 1; m++) {
-	if (abs(e[m - 1]) <= sqrt(abs(d[m - 1])) * sqrt(abs(d[m])) * eps) {
-	    e[m - 1] = Zero;
-	    goto L30;
-	}
+        if (abs(e[m - 1]) <= sqrt(abs(d[m - 1])) * sqrt(abs(d[m])) * eps) {
+            e[m - 1] = Zero;
+            goto L30;
+        }
     }
     m = n;
-  L30:
+L30:
     l = l1;
     lsv = l;
     lend = m;
     lendsv = lend;
     l1 = m + 1;
     if (lend == l) {
-	goto L10;
+        goto L10;
     }
-//Scale submatrix in rows and columns L to LEND
+    //Scale submatrix in rows and columns L to LEND
     anorm = Rlanst("I", lend - l + 1, &d[l - 1], &e[l - 1]);
     iscale = 0;
     if (anorm > ssfmax) {
-	printf("XXX not tested #1\n");
-	iscale = 1;
-	Rlascl("G", 0, 0, anorm, ssfmax, lend - l + 1, 1, &d[l - 1], n, info);
-	Rlascl("G", 0, 0, anorm, ssfmax, lend - l, 1, &e[l - 1], n, info);
+        printf("XXX not tested #1\n");
+        iscale = 1;
+        Rlascl("G", 0, 0, anorm, ssfmax, lend - l + 1, 1, &d[l - 1], n, info);
+        Rlascl("G", 0, 0, anorm, ssfmax, lend - l, 1, &e[l - 1], n, info);
     } else if (anorm < ssfmin) {
-	printf("XXX not tested #2\n");
-	iscale = 2;
-	Rlascl("G", 0, 0, anorm, ssfmin, lend - l + 1, 1, &d[l - 1], n, info);
-	Rlascl("G", 0, 0, anorm, ssfmin, lend - l, 1, &e[l - 1], n, info);
+        printf("XXX not tested #2\n");
+        iscale = 2;
+        Rlascl("G", 0, 0, anorm, ssfmin, lend - l + 1, 1, &d[l - 1], n, info);
+        Rlascl("G", 0, 0, anorm, ssfmin, lend - l, 1, &e[l - 1], n, info);
     }
     for (i = l; i <= lend - 1; i++) {
-	e[i - 1] = e[i - 1] * e[i - 1];
+        e[i - 1] = e[i - 1] * e[i - 1];
     }
-//Choose between QL and QR iteration
+    //Choose between QL and QR iteration
     if (abs(d[lend - 1]) < abs(d[l - 1])) {
-	lend = lsv;
-	l = lendsv;
+        lend = lsv;
+        l = lendsv;
     }
     if (lend >= l) {
-//QL Iteration
-//Look for small subdiagonal element.
-      L50:
-	if (l != lend) {
-	    for (m = l; m <= lend - 1; m++) {
-		if (abs(e[m - 1]) <= eps2 * abs(d[m - 1] * d[m])) {
-		    goto L70;
-		}
-	    }
-	}
-	m = lend;
-      L70:
-	if (m < lend) {
-	    e[m - 1] = Zero;
-	}
-	p = d[l - 1];
-	if (m == l) {
-	    goto L90;
-	}
-//If remaining matrix is 2 by 2, use DLAE2 to compute its
-//eigenvalues.
-	if (m == l + 1) {
-	    rte = sqrt(e[l - 1]);
-	    Rlae2(d[l - 1], rte, d[l], &rt1, &rt2);
-	    d[l - 1] = rt1;
-	    d[l] = rt2;
-	    e[l - 1] = Zero;
-	    l = l + 2;
-	    if (l <= lend) {
-		goto L50;
-	    }
-	    goto L150;
-	}
-	if (jtot == nmaxit) {
-	    goto L150;
-	}
-	jtot++;
-//Form shift.
-	rte = sqrt(e[l - 1]);
-	sigma = (d[l] - p) / (rte * Two);
-	r = Rlapy2(sigma, One);
-	sigma = p - rte / (sigma + Msign(r, sigma));
-	c = One;
-	s = Zero;
-	gamma = d[m - 1] - sigma;
-	p = gamma * gamma;
-//Inner loop 
-	for (i = m - 1; i >= l; i--) {
-	    bb = e[i - 1];
-	    r = p + bb;
-	    if (i != m - 1) {
-		e[i] = s * r;
-	    }
-	    oldc = c;
-	    c = p / r;
-	    s = bb / r;
-	    oldgam = gamma;
-	    alpha = d[i - 1];
-	    gamma = c * (alpha - sigma) - s * oldgam;
-	    d[i] = oldgam + (alpha - gamma);
-	    if (c != Zero) {
-		p = gamma * gamma / c;
-	    } else {
-		p = oldc * bb;
-	    }
-	}
-	e[l - 1] = s * p;
-	d[l - 1] = sigma + gamma;
-	goto L50;
-//Eigenvalue found.
-      L90:
-	d[l - 1] = p;
-	l++;
-	if (l <= lend) {
-	    goto L50;
-	}
-	goto L150;
+        //QL Iteration
+        //Look for small subdiagonal element.
+    L50:
+        if (l != lend) {
+            for (m = l; m <= lend - 1; m++) {
+                if (abs(e[m - 1]) <= eps2 * abs(d[m - 1] * d[m])) {
+                    goto L70;
+                }
+            }
+        }
+        m = lend;
+    L70:
+        if (m < lend) {
+            e[m - 1] = Zero;
+        }
+        p = d[l - 1];
+        if (m == l) {
+            goto L90;
+        }
+        //If remaining matrix is 2 by 2, use DLAE2 to compute its
+        //eigenvalues.
+        if (m == l + 1) {
+            rte = sqrt(e[l - 1]);
+            Rlae2(d[l - 1], rte, d[l], &rt1, &rt2);
+            d[l - 1] = rt1;
+            d[l] = rt2;
+            e[l - 1] = Zero;
+            l = l + 2;
+            if (l <= lend) {
+                goto L50;
+            }
+            goto L150;
+        }
+        if (jtot == nmaxit) {
+            goto L150;
+        }
+        jtot++;
+        //Form shift.
+        rte = sqrt(e[l - 1]);
+        sigma = (d[l] - p) / (rte * Two);
+        r = Rlapy2(sigma, One);
+        sigma = p - rte / (sigma + Msign(r, sigma));
+        c = One;
+        s = Zero;
+        gamma = d[m - 1] - sigma;
+        p = gamma * gamma;
+        //Inner loop
+        for (i = m - 1; i >= l; i--) {
+            bb = e[i - 1];
+            r = p + bb;
+            if (i != m - 1) {
+                e[i] = s * r;
+            }
+            oldc = c;
+            c = p / r;
+            s = bb / r;
+            oldgam = gamma;
+            alpha = d[i - 1];
+            gamma = c * (alpha - sigma) - s * oldgam;
+            d[i] = oldgam + (alpha - gamma);
+            if (c != Zero) {
+                p = gamma * gamma / c;
+            } else {
+                p = oldc * bb;
+            }
+        }
+        e[l - 1] = s * p;
+        d[l - 1] = sigma + gamma;
+        goto L50;
+        //Eigenvalue found.
+    L90:
+        d[l - 1] = p;
+        l++;
+        if (l <= lend) {
+            goto L50;
+        }
+        goto L150;
     } else {
-//QR Iteration
-//Look for small superdiagonal element.
-      L100:
-	for (m = l; m >= lend + 1; m--) {
-	    if (abs(e[m - 2]) <= eps2 * abs(d[m - 1] * d[m - 2])) {
-		goto L120;
-	    }
-	}
-	m = lend;
-      L120:
-	if (m > lend) {
-	    e[m - 2] = Zero;
-	}
-	p = d[l - 1];
-	if (m == l) {
-	    goto L140;
-	}
-//If remaining matrix is 2 by 2, use DLAE2 to compute its
-//eigenvalues.
-	if (m == l - 1) {
-	    rte = sqrt(e[l - 2]);
-	    Rlae2(d[l - 1], rte, d[l - 2], &rt1, &rt2);
-	    d[l - 1] = rt1;
-	    d[l - 2] = rt2;
-	    e[l - 2] = Zero;
-	    l = l - 2;
-	    if (l >= lend) {
-		goto L100;
-	    }
-	    goto L150;
-	}
+        //QR Iteration
+        //Look for small superdiagonal element.
+    L100:
+        for (m = l; m >= lend + 1; m--) {
+            if (abs(e[m - 2]) <= eps2 * abs(d[m - 1] * d[m - 2])) {
+                goto L120;
+            }
+        }
+        m = lend;
+    L120:
+        if (m > lend) {
+            e[m - 2] = Zero;
+        }
+        p = d[l - 1];
+        if (m == l) {
+            goto L140;
+        }
+        //If remaining matrix is 2 by 2, use DLAE2 to compute its
+        //eigenvalues.
+        if (m == l - 1) {
+            rte = sqrt(e[l - 2]);
+            Rlae2(d[l - 1], rte, d[l - 2], &rt1, &rt2);
+            d[l - 1] = rt1;
+            d[l - 2] = rt2;
+            e[l - 2] = Zero;
+            l = l - 2;
+            if (l >= lend) {
+                goto L100;
+            }
+            goto L150;
+        }
 
-	if (jtot == nmaxit) {
-	    goto L150;
-	}
-	jtot++;
-//Form shift.
-	rte = sqrt(e[l - 2]);
-	sigma = (d[l - 2] - p) / (rte * Two);
-	r = Rlapy2(sigma, One);
-	sigma = p - rte / (sigma + Msign(r, sigma));
+        if (jtot == nmaxit) {
+            goto L150;
+        }
+        jtot++;
+        //Form shift.
+        rte = sqrt(e[l - 2]);
+        sigma = (d[l - 2] - p) / (rte * Two);
+        r = Rlapy2(sigma, One);
+        sigma = p - rte / (sigma + Msign(r, sigma));
 
-	c = One;
-	s = Zero;
-	gamma = d[m - 1] - sigma;
-	p = gamma * gamma;
-//Inner loop
-	for (i = m; i <= l - 1; i++) {
-	    bb = e[i - 1];
-	    r = p + bb;
-	    if (i != m) {
-		e[i - 2] = s * r;
-	    }
-	    oldc = c;
-	    c = p / r;
-	    s = bb / r;
-	    oldgam = gamma;
-	    alpha = d[i];
-	    gamma = c * (alpha - sigma) - s * oldgam;
-	    d[i - 1] = oldgam + (alpha - gamma);
-	    if (c != Zero) {
-		p = gamma * gamma / c;
-	    } else {
-		p = oldc * bb;
-	    }
-	}
+        c = One;
+        s = Zero;
+        gamma = d[m - 1] - sigma;
+        p = gamma * gamma;
+        //Inner loop
+        for (i = m; i <= l - 1; i++) {
+            bb = e[i - 1];
+            r = p + bb;
+            if (i != m) {
+                e[i - 2] = s * r;
+            }
+            oldc = c;
+            c = p / r;
+            s = bb / r;
+            oldgam = gamma;
+            alpha = d[i];
+            gamma = c * (alpha - sigma) - s * oldgam;
+            d[i - 1] = oldgam + (alpha - gamma);
+            if (c != Zero) {
+                p = gamma * gamma / c;
+            } else {
+                p = oldc * bb;
+            }
+        }
 
-	e[l - 2] = s * p;
-	d[l - 1] = sigma + gamma;
-	goto L100;
-//Eigenvalue found.
-      L140:
-	d[l - 1] = p;
+        e[l - 2] = s * p;
+        d[l - 1] = sigma + gamma;
+        goto L100;
+        //Eigenvalue found.
+    L140:
+        d[l - 1] = p;
 
-	l--;
-	if (l >= lend) {
-	    goto L100;
-	}
-	goto L150;
+        l--;
+        if (l >= lend) {
+            goto L100;
+        }
+        goto L150;
     }
-//Undo scaling if necessary
-  L150:
+    //Undo scaling if necessary
+L150:
     if (iscale == 1) {
-	Rlascl("G", 0, 0, ssfmax, anorm, lendsv - lsv + 1, 1, &d[lsv - 1], n,
-	    info);
+        Rlascl("G", 0, 0, ssfmax, anorm, lendsv - lsv + 1, 1, &d[lsv - 1], n, info);
     }
     if (iscale == 2) {
-	Rlascl("G", 0, 0, ssfmin, anorm, lendsv - lsv + 1, 1, &d[lsv - 1], n,
-	    info);
+        Rlascl("G", 0, 0, ssfmin, anorm, lendsv - lsv + 1, 1, &d[lsv - 1], n, info);
     }
-//Check for no convergence to an eigenvalue after a total
-//of N*MAXIT iterations.
+    //Check for no convergence to an eigenvalue after a total
+    //of N*MAXIT iterations.
     if (jtot < nmaxit) {
-	goto L10;
+        goto L10;
     }
     for (i = 1; i <= n - 1; i++) {
-	if (e[i - 1] != Zero) {
-	    ++(*info);
-	}
+        if (e[i - 1] != Zero) {
+            ++(*info);
+        }
     }
     return;
 
-//Sort eigenvalues in increasing order.
-  L170:
+    //Sort eigenvalues in increasing order.
+L170:
     Rlasrt("I", n, &d[0], info);
     return;
 }

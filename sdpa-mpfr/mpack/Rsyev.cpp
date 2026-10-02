@@ -67,9 +67,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rsyev(const char *jobz, const char *uplo, mpackint n, mpfr_class * A,
-    mpackint lda, mpfr_class * w, mpfr_class * work, mpackint *lwork, mpackint *info)
+void Rsyev(const char* jobz, const char* uplo, mpackint n, mpfr_class* A, mpackint lda,
+           mpfr_class* w, mpfr_class* work, mpackint* lwork, mpackint* info)
 {
 
     mpackint wantz, lower, lquery, nb, lwkopt, iscale, imax;
@@ -84,47 +83,47 @@ Rsyev(const char *jobz, const char *uplo, mpackint n, mpfr_class * A,
     lower = Mlsame_mpfr(uplo, "L");
     lquery = 0;
     if (*lwork == -1)
-	lquery = 1;
+        lquery = 1;
 
     *info = 0;
     if (!(wantz || Mlsame_mpfr(jobz, "N"))) {
-	*info = -1;
+        *info = -1;
     } else if (!(lower || Mlsame_mpfr(uplo, "U"))) {
-	*info = -2;
+        *info = -2;
     } else if (n < 0) {
-	*info = -3;
+        *info = -3;
     } else if (lda < max((mpackint)1, n)) {
-	*info = -5;
+        *info = -5;
     }
 
     if (*info == 0) {
-	nb = iMlaenv_mpfr(1, "Rsytrd", uplo, n, -1, -1, -1);
-	lwkopt = max((mpackint)1, (nb + 2) * n);
-	work[0] = (double)lwkopt;	//needs cast mpackint to mpf
-	if (*lwork < max((mpackint)1, 3 * n - 1) && !lquery) {
-	    *info = -8;
-	}
+        nb = iMlaenv_mpfr(1, "Rsytrd", uplo, n, -1, -1, -1);
+        lwkopt = max((mpackint)1, (nb + 2) * n);
+        work[0] = (double)lwkopt; //needs cast mpackint to mpf
+        if (*lwork < max((mpackint)1, 3 * n - 1) && !lquery) {
+            *info = -8;
+        }
     }
 
     if (*info != 0) {
-	Mxerbla_mpfr("Rsyev ", -(*info));
-	return;
+        Mxerbla_mpfr("Rsyev ", -(*info));
+        return;
     } else if (lquery) {
-	return;
+        return;
     }
-//Quick return if possible
+    //Quick return if possible
     if (n == 0) {
-	return;
+        return;
     }
     if (n == 1) {
-	w[0] = A[0];
-	work[0] = Two;
-	if (wantz) {
-	    A[0] = One;
-	}
-	return;
+        w[0] = A[0];
+        work[0] = Two;
+        if (wantz) {
+            A[0] = One;
+        }
+        return;
     }
-//Get machine constants.
+    //Get machine constants.
     safmin = Rlamch_mpfr("Safe minimum");
     eps = Rlamch_mpfr("Precision");
     smlnum = safmin / eps;
@@ -132,49 +131,48 @@ Rsyev(const char *jobz, const char *uplo, mpackint n, mpfr_class * A,
     rmin = sqrt(smlnum);
     rmax = sqrt(bignum);
 
-//Scale matrix to allowable range, if necessary.
+    //Scale matrix to allowable range, if necessary.
     anrm = Rlansy("M", uplo, n, A, lda, work);
     iscale = 0;
     if (anrm > Zero && anrm < rmin) {
-	iscale = 1;
-	sigma = rmin / anrm;
+        iscale = 1;
+        sigma = rmin / anrm;
     } else if (anrm > rmax) {
-	iscale = 1;
-	sigma = rmax / anrm;
+        iscale = 1;
+        sigma = rmax / anrm;
     }
     if (iscale == 1) {
-	Rlascl(uplo, 0, 0, One, sigma, n, n, A, lda, info);
+        Rlascl(uplo, 0, 0, One, sigma, n, n, A, lda, info);
     }
-//Call DSYTRD to reduce symmetric matrix to tridiagonal form.
+    //Call DSYTRD to reduce symmetric matrix to tridiagonal form.
     inde = 1;
     indtau = inde + n;
     indwrk = indtau + n;
     llwork = *lwork - indwrk + 1;
-    Rsytrd(uplo, n, &A[0], lda, &w[0], &work[inde - 1], &work[indtau - 1],
-	&work[indwrk - 1], llwork, &iinfo);
+    Rsytrd(uplo, n, &A[0], lda, &w[0], &work[inde - 1], &work[indtau - 1], &work[indwrk - 1],
+           llwork, &iinfo);
 
-//For eigenvalues only, call DSTERF.  For eigenvectors, first call
-//DORGTR to generate the orthogonal matrix, then call DSTEQR.
+    //For eigenvalues only, call DSTERF.  For eigenvectors, first call
+    //DORGTR to generate the orthogonal matrix, then call DSTEQR.
     if (!wantz) {
-	Rsterf(n, &w[0], &work[inde - 1], info);
+        Rsterf(n, &w[0], &work[inde - 1], info);
     } else {
-	Rorgtr(uplo, n, A, lda, &work[indtau - 1], &work[indwrk - 1], llwork,
-	    &iinfo);
-	Rsteqr(jobz, n, w, &work[inde - 1], A, lda, &work[indtau - 1], info);
+        Rorgtr(uplo, n, A, lda, &work[indtau - 1], &work[indwrk - 1], llwork, &iinfo);
+        Rsteqr(jobz, n, w, &work[inde - 1], A, lda, &work[indtau - 1], info);
     }
 
-//If matrix was scaled, then rescale eigenvalues appropriately.
+    //If matrix was scaled, then rescale eigenvalues appropriately.
     if (iscale == 1) {
-	if (*info == 0) {
-	    imax = n;
-	} else {
-	    imax = *info - 1;
-	}
-	rtmp = One / sigma;
-	Rscal(imax, rtmp, &w[0], 1);
+        if (*info == 0) {
+            imax = n;
+        } else {
+            imax = *info - 1;
+        }
+        rtmp = One / sigma;
+        Rscal(imax, rtmp, &w[0], 1);
     }
-//Set WORK(1) to optimal workspace size.
-    work[0] = (double)lwkopt;	//needs cast from mpackint to mpf
+    //Set WORK(1) to optimal workspace size.
+    work[0] = (double)lwkopt; //needs cast from mpackint to mpf
 
     return;
 }

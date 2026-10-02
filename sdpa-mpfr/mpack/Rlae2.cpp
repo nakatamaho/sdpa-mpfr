@@ -68,8 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlae2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class * rt1, mpfr_class * rt2)
+void Rlae2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class* rt1, mpfr_class* rt2)
 {
     mpfr_class sm, df, adf, tb, ab;
     mpfr_class acmx, acmn, rt;
@@ -82,29 +81,29 @@ Rlae2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class * rt1, mpfr_class * r
     ab = abs(tb);
 
     if (abs(a) > abs(c)) {
-	acmx = a;
-	acmn = c;
+        acmx = a;
+        acmn = c;
     } else {
-	acmx = c;
-	acmn = a;
+        acmx = c;
+        acmn = a;
     }
     if (adf > ab) {
-	rt = adf * sqrt(One + (ab / adf) * (ab / adf));
+        rt = adf * sqrt(One + (ab / adf) * (ab / adf));
     } else if (adf < ab) {
-	rt = ab * sqrt(One + (adf / ab) * (adf / ab));
+        rt = ab * sqrt(One + (adf / ab) * (adf / ab));
     } else {
-	rt = ab * sqrt(Two);
+        rt = ab * sqrt(Two);
     }
 
     if (sm < 0.0) {
-	*rt1 = Half * (sm - rt);
-	*rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
+        *rt1 = Half * (sm - rt);
+        *rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
     } else if (sm > 0.0) {
-	*rt1 = Half * (sm + rt);
-	*rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
+        *rt1 = Half * (sm + rt);
+        *rt2 = (acmx / (*rt1)) * acmn - (b / (*rt1)) * b;
     } else {
-	*rt1 = Half * rt;
-	*rt2 = -Half * rt;
+        *rt1 = Half * rt;
+        *rt2 = -Half * rt;
     }
     return;
 }

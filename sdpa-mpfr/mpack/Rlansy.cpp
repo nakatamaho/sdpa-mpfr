@@ -67,9 +67,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-mpfr_class
-Rlansy(const char *norm, const char *uplo, mpackint n, mpfr_class * A, mpackint lda,
-    mpfr_class * work)
+mpfr_class Rlansy(const char* norm, const char* uplo, mpackint n, mpfr_class* A, mpackint lda,
+                  mpfr_class* work)
 {
     mpfr_class One = 1.0, Zero = 0.0;
     mpackint i, j;
@@ -77,73 +76,73 @@ Rlansy(const char *norm, const char *uplo, mpackint n, mpfr_class * A, mpackint 
     mpfr_class mtmp;
 
     if (n == 0) {
-	value = Zero;
-	return value;
+        value = Zero;
+        return value;
     }
     if (Mlsame_mpfr(norm, "M")) {
-//Find max(abs(A(i,j))).
-	value = Zero;
-	if (Mlsame_mpfr(uplo, "U")) {
-	    for (j = 0; j < n; j++) {
-		for (i = 0; i <= j; i++) {
-		    mtmp = abs(A[i + j * lda]);
-		    value = max(value, mtmp);
-		}
-	    }
-	} else {
-	    for (j = 0; j < n; j++) {
-		for (i = j; i < n; i++) {
-		    mtmp = abs(A[i + j * lda]);
-		    value = max(value, mtmp);
-		}
-	    }
-	}
+        //Find max(abs(A(i,j))).
+        value = Zero;
+        if (Mlsame_mpfr(uplo, "U")) {
+            for (j = 0; j < n; j++) {
+                for (i = 0; i <= j; i++) {
+                    mtmp = abs(A[i + j * lda]);
+                    value = max(value, mtmp);
+                }
+            }
+        } else {
+            for (j = 0; j < n; j++) {
+                for (i = j; i < n; i++) {
+                    mtmp = abs(A[i + j * lda]);
+                    value = max(value, mtmp);
+                }
+            }
+        }
     } else if (Mlsame_mpfr(norm, "I") || Mlsame_mpfr(norm, "O") || Mlsame_mpfr(norm, "1")) {
-// Find normI(A) ( = norm1(A), since A is symmetric).
-	value = Zero;
-	if (Mlsame_mpfr(uplo, "U")) {
-	    for (j = 0; j < n; j++) {
-		sum = Zero;
-		for (i = 0; i < j; i++) {
-		    absa = abs(A[i + j * lda]);
-		    sum += absa;
-		    work[i] += absa;
-		}
-		work[j] = sum + abs(A[j + j * lda]);
-	    }
-	    for (i = 0; i < n; i++) {
-		value = max(value, work[i]);
-	    }
-	} else {
-	    for (i = 0; i < n; i++) {
-		work[i] = Zero;
-	    }
-	    for (j = 0; j < n; j++) {
-		sum = work[j] + abs(A[j + j * lda]);
-		for (i = j + 1; i < n; i++) {
-		    absa = abs(A[i + j * lda]);
-		    sum += absa;
-		    work[i] += absa;
-		}
-		value = max(value, sum);
-	    }
-	}
+        // Find normI(A) ( = norm1(A), since A is symmetric).
+        value = Zero;
+        if (Mlsame_mpfr(uplo, "U")) {
+            for (j = 0; j < n; j++) {
+                sum = Zero;
+                for (i = 0; i < j; i++) {
+                    absa = abs(A[i + j * lda]);
+                    sum += absa;
+                    work[i] += absa;
+                }
+                work[j] = sum + abs(A[j + j * lda]);
+            }
+            for (i = 0; i < n; i++) {
+                value = max(value, work[i]);
+            }
+        } else {
+            for (i = 0; i < n; i++) {
+                work[i] = Zero;
+            }
+            for (j = 0; j < n; j++) {
+                sum = work[j] + abs(A[j + j * lda]);
+                for (i = j + 1; i < n; i++) {
+                    absa = abs(A[i + j * lda]);
+                    sum += absa;
+                    work[i] += absa;
+                }
+                value = max(value, sum);
+            }
+        }
     } else if (Mlsame_mpfr(norm, "F") || Mlsame_mpfr(norm, "E")) {
-//Find normF(A).
-	scale = Zero;
-	sum = One;
-	if (Mlsame_mpfr(uplo, "U")) {
-	    for (j = 1; j < n; j++) {
-		Rlassq(j, &A[j * lda], 1, &scale, &sum);
-	    }
-	} else {
-	    for (j = 0; j < n - 1; j++) {
-		Rlassq(n - j - 1, &A[(j + 1) + j * lda], 1, &scale, &sum);
-	    }
-	}
-	sum *= 2.0;
-	Rlassq(n, A, lda + 1, &scale, &sum);
-	value = scale * sqrt(sum);
+        //Find normF(A).
+        scale = Zero;
+        sum = One;
+        if (Mlsame_mpfr(uplo, "U")) {
+            for (j = 1; j < n; j++) {
+                Rlassq(j, &A[j * lda], 1, &scale, &sum);
+            }
+        } else {
+            for (j = 0; j < n - 1; j++) {
+                Rlassq(n - j - 1, &A[(j + 1) + j * lda], 1, &scale, &sum);
+            }
+        }
+        sum *= 2.0;
+        Rlassq(n, A, lda + 1, &scale, &sum);
+        value = scale * sqrt(sum);
     }
     return value;
 }

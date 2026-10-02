@@ -67,11 +67,9 @@
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlarfb(const char *side, const char *trans, const char *direct,
-    const char *storev, mpackint m, mpackint n, mpackint k, mpfr_class * V, mpackint ldv,
-    mpfr_class * T, mpackint ldt, mpfr_class * C, mpackint ldc, mpfr_class * work,
-    mpackint ldwork)
+void Rlarfb(const char* side, const char* trans, const char* direct, const char* storev, mpackint m,
+            mpackint n, mpackint k, mpfr_class* V, mpackint ldv, mpfr_class* T, mpackint ldt,
+            mpfr_class* C, mpackint ldc, mpfr_class* work, mpackint ldwork)
 {
     mpackint i, j;
     mpfr_class One = 1.0;
@@ -80,314 +78,308 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 
     //Quick return if possible
     if (m <= 0 || n <= 0)
-	return;
+        return;
 
     if (Mlsame_mpfr(trans, "N")) {
-	transt = 'T';
+        transt = 'T';
     } else {
-	transt = 'N';
+        transt = 'N';
     }
 
     if (Mlsame_mpfr(storev, "C")) {
-	if (Mlsame_mpfr(direct, "F")) {
+        if (Mlsame_mpfr(direct, "F")) {
 
-//Let V = (V1) (first K rows)
-//        (V2)
-// where V1 is unit lower triangular.
-	    if (Mlsame_mpfr(side, "L")) {
+            //Let V = (V1) (first K rows)
+            //        (V2)
+            // where V1 is unit lower triangular.
+            if (Mlsame_mpfr(side, "L")) {
 
-//Form H * C or H ' * C  where  C = ( C1 )
-//                                  ( C2 )
-// W: = C ' * V  =  (C1' * V1 + C2 '*V2)  (stored in WORK)
-// W: = C1 '
-		for (j = 0; j < k; j++) {
-		    Rcopy(n, &C[j], ldc, &work[j * ldwork], 1);
-		}
-//W: = W * V1
-		Rtrmm("Right", "Lower", "No transpose", "Unit", n, k, One,
-		    &V[0], ldv, &work[0], ldwork);
-		if (m > k) {
-//W: = W + C2 '*V2
-		    Rgemm("Transpose", "No transpose", n, k, m - k, One,
-			&C[k], ldc, &V[k], ldv, One, &work[0], ldwork);
-		}
-//W: = W * T '  or  W * T
-		Rtrmm("Right", "Upper", &transt, "Non-unit", n, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C: = C - V * W '
-		if (m > k) {
-//C2: = C2 - V2 * W '
-		    Rgemm("No transpose", "Transpose", m - k, n, k, mOne,
-			&V[k], ldv, &work[0], ldwork, One, &C[k], ldc);
-		}
-//W: = W * V1 '
-		Rtrmm("Right", "Lower", "Transpose", "Unit", n, k, One, &V[0],
-		    ldv, &work[0], ldwork);
+                //Form H * C or H ' * C  where  C = ( C1 )
+                //                                  ( C2 )
+                // W: = C ' * V  =  (C1' * V1 + C2 '*V2)  (stored in WORK)
+                // W: = C1 '
+                for (j = 0; j < k; j++) {
+                    Rcopy(n, &C[j], ldc, &work[j * ldwork], 1);
+                }
+                //W: = W * V1
+                Rtrmm("Right", "Lower", "No transpose", "Unit", n, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                if (m > k) {
+                    //W: = W + C2 '*V2
+                    Rgemm("Transpose", "No transpose", n, k, m - k, One, &C[k], ldc, &V[k], ldv,
+                          One, &work[0], ldwork);
+                }
+                //W: = W * T '  or  W * T
+                Rtrmm("Right", "Upper", &transt, "Non-unit", n, k, One, &T[0], ldt, &work[0],
+                      ldwork);
+                //C: = C - V * W '
+                if (m > k) {
+                    //C2: = C2 - V2 * W '
+                    Rgemm("No transpose", "Transpose", m - k, n, k, mOne, &V[k], ldv, &work[0],
+                          ldwork, One, &C[k], ldc);
+                }
+                //W: = W * V1 '
+                Rtrmm("Right", "Lower", "Transpose", "Unit", n, k, One, &V[0], ldv, &work[0],
+                      ldwork);
 
-//C1: = C1 - W '
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < n; i++) {
-			C[j + i * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    } else if (Mlsame_mpfr(side, "R")) {
-//Form C * H or C * H '  where  C = ( C1  C2 )
-//W: = C * V = (C1 * V1 + C2 * V2) (stored in WORK)
-//W: = C1
-		for (j = 0; j < k; j++) {
-		    Rcopy(m, &C[j * ldc], 1, &work[j * ldwork], 1);
-		}
-//W: = W * V1
-		Rtrmm("Right", "Lower", "No transpose", "Unit", m, k, One,
-		    &V[0], ldv, &work[0], ldwork);
-		if (n > k) {
-//W: = W + C2 * V2
-		    Rgemm("No transpose", "No transpose", m, k, n - k, One,
-			&C[k * ldc], ldc, &V[k], ldv, One, &work[0], ldwork);
-		}
-//W: = W * T or W * T '
-		Rtrmm("Right", "Upper", trans, "Non-unit", m, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C: = C - W * V '
-		if (n > k) {
-//C2: = C2 - W * V2'
-		    Rgemm("No transpose", "Transpose", m, n - k, k, mOne,
-			&work[0], ldwork, &V[k], ldv, One, &C[k * ldc], ldc);
-		}
-//W: = W * V1 '
-		Rtrmm("Right", "Lower", "Transpose", "Unit", m, k, One, &V[0],
-		    ldv, &work[0], ldwork);
-//C1: = C1 - W
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < m; i++) {
-			C[i + j * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    }
-	} else {
-//Let V = (V1)
-//        (V2) (last K rows)
-// where V2 is unit upper triangular.
-	    if (Mlsame_mpfr(side, "L")) {
-//Form H * C or H ' * C  where  C = ( C1 )
-//                                  ( C2 )
-//W: = C ' * V  =  (C1' * V1 + C2 '*V2)  (stored in WORK)
-//W: = C2 '
-		for (j = 0; j < k; j++) {
-		    Rcopy(n, &C[m - k + j], ldc, &work[j * ldwork], 1);
-		}
-//W: = W * V2
-		Rtrmm("Right", "Upper", "No transpose", "Unit", n, k, One,
-		    &V[m - k], ldv, &work[0], ldwork);
-		if (m > k) {
-//W: = W + C1 '*V1
-		    Rgemm("Transpose", "No transpose", n, k, m - k, One,
-			&C[0], ldc, &V[0], ldv, One, &work[0], ldwork);
-		}
-//W: = W * T '  or  W * T
-		Rtrmm("Right", "Lower", &transt, "Non-unit", n, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C: = C - V * W '
-		if (m > k) {
-//C1:= C1 - V1 * W '
-		    Rgemm("No transpose", "Transpose", m - k, n, k, mOne,
-			&V[0], ldv, &work[0], ldwork, One, &C[0], ldc);
-		}
-//W: = W * V2 '
-		Rtrmm("Right", "Upper", "Transpose", "Unit", n, k, One,
-		    &V[m - k], ldv, &work[0], ldwork);
-//C2:= C2 - W '
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < n; i++) {
-			C[m - k + j + i * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    } else if (Mlsame_mpfr(side, "R")) {
-//Form C * H or C * H '  where  C = ( C1  C2 )
-// W: = C * V = (C1 * V1 + C2 * V2) (stored in WORK)
-// W: = C2
-		for (j = 0; j < k; j++) {
-		    Rcopy(m, &C[(n - k + j) * ldc], 1, &work[j * ldwork], 1);
-		}
-//W:= W * V2
-		Rtrmm("Right", "Upper", "No transpose", "Unit", m, k, One,
-		    &V[n - k], ldv, &work[0], ldwork);
-		if (n > k) {
-//W:= W + C1 * V1
-		    Rgemm("No transpose", "No transpose", m, k, n - k, One,
-			&C[0], ldc, &V[0], ldv, One, &work[0], ldwork);
-		}
-//W:= W * T or W * T
-		Rtrmm("Right", "Lower", trans, "Non-unit", m, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C:= C - W * V '
-		if (n > k) {
-//C1:= C1 - W * V1 '
-		    Rgemm("No transpose", "Transpose", m, n - k, k, mOne,
-			&work[0], ldwork, &V[0], ldv, One, &C[0], ldc);
-		}
-//W: = W * V2 '
-		Rtrmm("Right", "Upper", "Transpose", "Unit", m, k, One,
-		    &V[n - k], ldv, &work[0], ldwork);
-//C2:= C2 - W
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < m; i++) {
-			C[i + (n - k + j) * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    }
-	}
+                //C1: = C1 - W '
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < n; i++) {
+                        C[j + i * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            } else if (Mlsame_mpfr(side, "R")) {
+                //Form C * H or C * H '  where  C = ( C1  C2 )
+                //W: = C * V = (C1 * V1 + C2 * V2) (stored in WORK)
+                //W: = C1
+                for (j = 0; j < k; j++) {
+                    Rcopy(m, &C[j * ldc], 1, &work[j * ldwork], 1);
+                }
+                //W: = W * V1
+                Rtrmm("Right", "Lower", "No transpose", "Unit", m, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                if (n > k) {
+                    //W: = W + C2 * V2
+                    Rgemm("No transpose", "No transpose", m, k, n - k, One, &C[k * ldc], ldc, &V[k],
+                          ldv, One, &work[0], ldwork);
+                }
+                //W: = W * T or W * T '
+                Rtrmm("Right", "Upper", trans, "Non-unit", m, k, One, &T[0], ldt, &work[0], ldwork);
+                //C: = C - W * V '
+                if (n > k) {
+                    //C2: = C2 - W * V2'
+                    Rgemm("No transpose", "Transpose", m, n - k, k, mOne, &work[0], ldwork, &V[k],
+                          ldv, One, &C[k * ldc], ldc);
+                }
+                //W: = W * V1 '
+                Rtrmm("Right", "Lower", "Transpose", "Unit", m, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                //C1: = C1 - W
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < m; i++) {
+                        C[i + j * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            }
+        } else {
+            //Let V = (V1)
+            //        (V2) (last K rows)
+            // where V2 is unit upper triangular.
+            if (Mlsame_mpfr(side, "L")) {
+                //Form H * C or H ' * C  where  C = ( C1 )
+                //                                  ( C2 )
+                //W: = C ' * V  =  (C1' * V1 + C2 '*V2)  (stored in WORK)
+                //W: = C2 '
+                for (j = 0; j < k; j++) {
+                    Rcopy(n, &C[m - k + j], ldc, &work[j * ldwork], 1);
+                }
+                //W: = W * V2
+                Rtrmm("Right", "Upper", "No transpose", "Unit", n, k, One, &V[m - k], ldv, &work[0],
+                      ldwork);
+                if (m > k) {
+                    //W: = W + C1 '*V1
+                    Rgemm("Transpose", "No transpose", n, k, m - k, One, &C[0], ldc, &V[0], ldv,
+                          One, &work[0], ldwork);
+                }
+                //W: = W * T '  or  W * T
+                Rtrmm("Right", "Lower", &transt, "Non-unit", n, k, One, &T[0], ldt, &work[0],
+                      ldwork);
+                //C: = C - V * W '
+                if (m > k) {
+                    //C1:= C1 - V1 * W '
+                    Rgemm("No transpose", "Transpose", m - k, n, k, mOne, &V[0], ldv, &work[0],
+                          ldwork, One, &C[0], ldc);
+                }
+                //W: = W * V2 '
+                Rtrmm("Right", "Upper", "Transpose", "Unit", n, k, One, &V[m - k], ldv, &work[0],
+                      ldwork);
+                //C2:= C2 - W '
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < n; i++) {
+                        C[m - k + j + i * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            } else if (Mlsame_mpfr(side, "R")) {
+                //Form C * H or C * H '  where  C = ( C1  C2 )
+                // W: = C * V = (C1 * V1 + C2 * V2) (stored in WORK)
+                // W: = C2
+                for (j = 0; j < k; j++) {
+                    Rcopy(m, &C[(n - k + j) * ldc], 1, &work[j * ldwork], 1);
+                }
+                //W:= W * V2
+                Rtrmm("Right", "Upper", "No transpose", "Unit", m, k, One, &V[n - k], ldv, &work[0],
+                      ldwork);
+                if (n > k) {
+                    //W:= W + C1 * V1
+                    Rgemm("No transpose", "No transpose", m, k, n - k, One, &C[0], ldc, &V[0], ldv,
+                          One, &work[0], ldwork);
+                }
+                //W:= W * T or W * T
+                Rtrmm("Right", "Lower", trans, "Non-unit", m, k, One, &T[0], ldt, &work[0], ldwork);
+                //C:= C - W * V '
+                if (n > k) {
+                    //C1:= C1 - W * V1 '
+                    Rgemm("No transpose", "Transpose", m, n - k, k, mOne, &work[0], ldwork, &V[0],
+                          ldv, One, &C[0], ldc);
+                }
+                //W: = W * V2 '
+                Rtrmm("Right", "Upper", "Transpose", "Unit", m, k, One, &V[n - k], ldv, &work[0],
+                      ldwork);
+                //C2:= C2 - W
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < m; i++) {
+                        C[i + (n - k + j) * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            }
+        }
     } else if (Mlsame_mpfr(storev, "R")) {
-	if (Mlsame_mpfr(direct, "F")) {
-//Let V = (V1 V2) (V1:first K columns)
-//where V1 is unit upper triangular.
+        if (Mlsame_mpfr(direct, "F")) {
+            //Let V = (V1 V2) (V1:first K columns)
+            //where V1 is unit upper triangular.
 
-	    if (Mlsame_mpfr(side, "L")) {
-//Form H * C or H ' * C  where  C = ( C1 )
-//                                  ( C2 )
-// W:= C ' * V' = (C1 '*V1' + C2 '*V2') (stored in WORK)
-// W:= C1 '
-		for (j = 0; j < k; j++) {
-		    Rcopy(n, &C[j], ldc, &work[j * ldwork], 1);
-		}
-//W:= W * V1 '
-		Rtrmm("Right", "Upper", "Transpose", "Unit", n, k, One, &V[0],
-		    ldv, &work[0], ldwork);
-		if (m > k) {
-//W:= W + C2 '*V2'
-		    Rgemm("Transpose", "Transpose", n, k, m - k, One,
-			&C[k], ldc, &V[k * ldv], ldv, One, &work[0], ldwork);
-		}
-//W:= W * T '  or  W * T
-		Rtrmm("Right", "Upper", &transt, "Non-unit", n, k, One,
-		    &T[0], ldt, &work[0], ldwork);
-//C:= C - V ' * W'
-		if (m > k) {
-//C2:= C2 - V2 ' * W'
-		    Rgemm("Transpose", "Transpose", m - k, n, k, mOne,
-			&V[k * ldv], ldv, &work[0], ldwork, One, &C[k], ldc);
-		}
-//W:= W * V1
-		Rtrmm("Right", "Upper", "No transpose", "Unit", n, k, One,
-		    &V[0], ldv, &work[0], ldwork);
-//C1:= C1 - W '
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < n; i++) {
-			C[j + i * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    } else if (Mlsame_mpfr(side, "R")) {
-//Form C * H or C * H '  where  C = ( C1  C2 )
-// W:= C * V '  =  (C1*V1' + C2 * V2 ')  (stored in WORK)
-// W:= C1
-		for (j = 0; j < k; j++) {
-		    Rcopy(m, &C[j * ldc], 1, &work[j * ldwork], 1);
-		}
-//W:= W * V1 '
-		Rtrmm("Right", "Upper", "Transpose", "Unit", m, k, One, &V[0],
-		    ldv, &work[0], ldwork);
-		if (n > k) {
-//W:= W + C2 * V2 '
-		    Rgemm("No transpose", "Transpose", m, k, n - k, One,
-			&C[k * ldc], ldc, &V[k * ldv],
-			ldv, One, &work[0], ldwork);
-		}
-//W:= W * T or W * T '
-		Rtrmm("Right", "Upper", trans, "Non-unit", m, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C:= C - W * V
-		if (n > k) {
-//C2:= C2 - W * V2
-		    Rgemm("No transpose", "No transpose", m, n - k, k, mOne,
-			&work[0], ldwork, &V[k * ldv], ldv, One,
-			&C[k * ldc], ldc);
-		}
-//W:= W * V1
-		Rtrmm("Right", "Upper", "No transpose", "Unit", m, k, One,
-		    &V[0], ldv, &work[0], ldwork);
-//C1:= C1 - W
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < m; i++) {
-			C[i + j * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    }
-	} else {
-//Let V = (V1 V2) (V2:last K columns)
-// where V2 is unit lower triangular.
-	    if (Mlsame_mpfr(side, "L")) {
-//Form H * C or H ' * C  where  C = ( C1 )
-//                                  ( C2 )
-//W:= C ' * V' = (C1 '*V1' + C2 '*V2') (stored in WORK)
-//W:= C2 '
-		for (j = 0; j < k; j++) {
-		    Rcopy(n, &C[m - k + j], ldc, &work[j * ldwork], 1);
-		}
+            if (Mlsame_mpfr(side, "L")) {
+                //Form H * C or H ' * C  where  C = ( C1 )
+                //                                  ( C2 )
+                // W:= C ' * V' = (C1 '*V1' + C2 '*V2') (stored in WORK)
+                // W:= C1 '
+                for (j = 0; j < k; j++) {
+                    Rcopy(n, &C[j], ldc, &work[j * ldwork], 1);
+                }
+                //W:= W * V1 '
+                Rtrmm("Right", "Upper", "Transpose", "Unit", n, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                if (m > k) {
+                    //W:= W + C2 '*V2'
+                    Rgemm("Transpose", "Transpose", n, k, m - k, One, &C[k], ldc, &V[k * ldv], ldv,
+                          One, &work[0], ldwork);
+                }
+                //W:= W * T '  or  W * T
+                Rtrmm("Right", "Upper", &transt, "Non-unit", n, k, One, &T[0], ldt, &work[0],
+                      ldwork);
+                //C:= C - V ' * W'
+                if (m > k) {
+                    //C2:= C2 - V2 ' * W'
+                    Rgemm("Transpose", "Transpose", m - k, n, k, mOne, &V[k * ldv], ldv, &work[0],
+                          ldwork, One, &C[k], ldc);
+                }
+                //W:= W * V1
+                Rtrmm("Right", "Upper", "No transpose", "Unit", n, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                //C1:= C1 - W '
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < n; i++) {
+                        C[j + i * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            } else if (Mlsame_mpfr(side, "R")) {
+                //Form C * H or C * H '  where  C = ( C1  C2 )
+                // W:= C * V '  =  (C1*V1' + C2 * V2 ')  (stored in WORK)
+                // W:= C1
+                for (j = 0; j < k; j++) {
+                    Rcopy(m, &C[j * ldc], 1, &work[j * ldwork], 1);
+                }
+                //W:= W * V1 '
+                Rtrmm("Right", "Upper", "Transpose", "Unit", m, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                if (n > k) {
+                    //W:= W + C2 * V2 '
+                    Rgemm("No transpose", "Transpose", m, k, n - k, One, &C[k * ldc], ldc,
+                          &V[k * ldv], ldv, One, &work[0], ldwork);
+                }
+                //W:= W * T or W * T '
+                Rtrmm("Right", "Upper", trans, "Non-unit", m, k, One, &T[0], ldt, &work[0], ldwork);
+                //C:= C - W * V
+                if (n > k) {
+                    //C2:= C2 - W * V2
+                    Rgemm("No transpose", "No transpose", m, n - k, k, mOne, &work[0], ldwork,
+                          &V[k * ldv], ldv, One, &C[k * ldc], ldc);
+                }
+                //W:= W * V1
+                Rtrmm("Right", "Upper", "No transpose", "Unit", m, k, One, &V[0], ldv, &work[0],
+                      ldwork);
+                //C1:= C1 - W
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < m; i++) {
+                        C[i + j * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            }
+        } else {
+            //Let V = (V1 V2) (V2:last K columns)
+            // where V2 is unit lower triangular.
+            if (Mlsame_mpfr(side, "L")) {
+                //Form H * C or H ' * C  where  C = ( C1 )
+                //                                  ( C2 )
+                //W:= C ' * V' = (C1 '*V1' + C2 '*V2') (stored in WORK)
+                //W:= C2 '
+                for (j = 0; j < k; j++) {
+                    Rcopy(n, &C[m - k + j], ldc, &work[j * ldwork], 1);
+                }
 
-//W:= W * V2 '
-		Rtrmm("Right", "Lower", "Transpose", "Unit", n, k, One,
-		    &V[(m - k) * ldv], ldv, &work[0], ldwork);
+                //W:= W * V2 '
+                Rtrmm("Right", "Lower", "Transpose", "Unit", n, k, One, &V[(m - k) * ldv], ldv,
+                      &work[0], ldwork);
 
-		if (m > k) {
+                if (m > k) {
 
-//W:= W + C1 '*V1'
-		    Rgemm("Transpose", "Transpose", n, k, m - k, One, &C[0],
-			ldc, &V[0], ldv, One, &work[0], ldwork);
-		}
-//W:= W * T '  or  W * T
-		Rtrmm("Right", "Lower", &transt, "Non-unit", n, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C:= C - V ' * W'
-		if (m > k) {
+                    //W:= W + C1 '*V1'
+                    Rgemm("Transpose", "Transpose", n, k, m - k, One, &C[0], ldc, &V[0], ldv, One,
+                          &work[0], ldwork);
+                }
+                //W:= W * T '  or  W * T
+                Rtrmm("Right", "Lower", &transt, "Non-unit", n, k, One, &T[0], ldt, &work[0],
+                      ldwork);
+                //C:= C - V ' * W'
+                if (m > k) {
 
-//C1:= C1 - V1 ' * W'
-		    Rgemm("Transpose", "Transpose", m - k, n, k, mOne, &V[0],
-			ldv, &work[0], ldwork, One, &C[0], ldc);
-		}
-//W:= W * V2
-		Rtrmm("Right", "Lower", "No transpose", "Unit", n, k, One,
-		    &V[(m - k) * ldv], ldv, &work[0], ldwork);
-//C2:= C2 - W '
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < n; i++) {
-			C[m - k + j + i * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    } else if (Mlsame_mpfr(side, "R")) {
-//Form C * H or C * H '  where  C = ( C1  C2 )
-// W:= C * V '  =  (C1*V1' + C2 * V2 ')  (stored in WORK)
-// W:= C2
-		for (j = 0; j < k; j++) {
-		    Rcopy(m, &C[(n - k + j) * ldc], 1, &work[j * ldwork], 1);
-		}
-//W: = W * V2 '
-		Rtrmm("Right", "Lower", "Transpose", "Unit", m, k, One,
-		    &V[(n - k) * ldv], ldv, &work[0], ldwork);
-		if (n > k) {
-//W:= W + C1 * V1 '
-		    Rgemm("No transpose", "Transpose", m, k, n - k, One, &C[0],
-			ldc, &V[0], ldv, One, &work[0], ldwork);
-		}
-//W:= W * T or W * T '
-		Rtrmm("Right", "Lower", trans, "Non-unit", m, k, One, &T[0],
-		    ldt, &work[0], ldwork);
-//C:= C - W * V
-		if (n > k) {
-//C1:= C1 - W * V1
-		    Rgemm("No transpose", "No transpose", m, n - k, k, mOne,
-			&work[0], ldwork, &V[0], ldv, One, &C[0], ldc);
-		}
-//W:=W * V2
-		Rtrmm("Right", "Lower", "No transpose", "Unit", m, k, One,
-		    &V[(n - k) * ldv], ldv, &work[0], ldwork);
-//C1: = C1 - W
-		for (j = 0; j < k; j++) {
-		    for (i = 0; i < m; i++) {
-			C[i + (n - k + j) * ldc] -= work[i + j * ldwork];
-		    }
-		}
-	    }
-	}
+                    //C1:= C1 - V1 ' * W'
+                    Rgemm("Transpose", "Transpose", m - k, n, k, mOne, &V[0], ldv, &work[0], ldwork,
+                          One, &C[0], ldc);
+                }
+                //W:= W * V2
+                Rtrmm("Right", "Lower", "No transpose", "Unit", n, k, One, &V[(m - k) * ldv], ldv,
+                      &work[0], ldwork);
+                //C2:= C2 - W '
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < n; i++) {
+                        C[m - k + j + i * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            } else if (Mlsame_mpfr(side, "R")) {
+                //Form C * H or C * H '  where  C = ( C1  C2 )
+                // W:= C * V '  =  (C1*V1' + C2 * V2 ')  (stored in WORK)
+                // W:= C2
+                for (j = 0; j < k; j++) {
+                    Rcopy(m, &C[(n - k + j) * ldc], 1, &work[j * ldwork], 1);
+                }
+                //W: = W * V2 '
+                Rtrmm("Right", "Lower", "Transpose", "Unit", m, k, One, &V[(n - k) * ldv], ldv,
+                      &work[0], ldwork);
+                if (n > k) {
+                    //W:= W + C1 * V1 '
+                    Rgemm("No transpose", "Transpose", m, k, n - k, One, &C[0], ldc, &V[0], ldv,
+                          One, &work[0], ldwork);
+                }
+                //W:= W * T or W * T '
+                Rtrmm("Right", "Lower", trans, "Non-unit", m, k, One, &T[0], ldt, &work[0], ldwork);
+                //C:= C - W * V
+                if (n > k) {
+                    //C1:= C1 - W * V1
+                    Rgemm("No transpose", "No transpose", m, n - k, k, mOne, &work[0], ldwork,
+                          &V[0], ldv, One, &C[0], ldc);
+                }
+                //W:=W * V2
+                Rtrmm("Right", "Lower", "No transpose", "Unit", m, k, One, &V[(n - k) * ldv], ldv,
+                      &work[0], ldwork);
+                //C1: = C1 - W
+                for (j = 0; j < k; j++) {
+                    for (i = 0; i < m; i++) {
+                        C[i + (n - k + j) * ldc] -= work[i + j * ldwork];
+                    }
+                }
+            }
+        }
     }
     return;
 }

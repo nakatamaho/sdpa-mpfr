@@ -659,12 +659,7 @@ GMP_INCLUDEDIR
 GMP_LIBDIR
 SPOOLES_INCLUDEDIR
 SPOOLES_LIBDIR
-METIS_INCLUDEDIR
-METIS_LIBDIR
-ENABLE_METIS
 pthread_lib
-ENABLE_METIS_FALSE
-ENABLE_METIS_TRUE
 BUILD_SPOOLES_FALSE
 BUILD_SPOOLES_TRUE
 host_os
@@ -780,9 +775,6 @@ with_mpfr_libdir
 with_gmpfrxx_mkii_includedir
 with_spooles_includedir
 with_spooles_libdir
-enable_metis
-with_metis_includedir
-with_metis_libdir
 enable_openmp
 with_openmplib
 with_openmpflag
@@ -1433,7 +1425,6 @@ Optional Features:
                           do not reject slow dependency extractors
   --disable-dependency-tracking
                           speeds up one-time build
-  --enable-metis    Build with metis
   --enable-openmp       Enables openmp
 
   --enable-shared       Enables shared link to the libraries (slower)
@@ -1452,8 +1443,6 @@ Optional Packages:
                                     e.g., /usr/local/include).
   --with-spooles-includedir    Gives spooles include dir you use(e.g., /usr/local/include/spooles).
   --with-spooles-libdir    Gives spooles lib dir you use(e.g., /usr/local/lib).
-  --with-metis-includedir    Gives metis include dir you use(e.g., /usr/local/include/metis).
-  --with-metis-libdir    Gives metis lib dir you use(e.g., /usr/local/lib).
   --with-openmplib    Gives openmplib
   --with-openmpflag    Gives openmpflag
   --with-openmpthread   Gives openmpthreads
@@ -5276,45 +5265,6 @@ then :
 fi
 
 
-# Check whether --enable-metis was given.
-if test ${enable_metis+y}
-then :
-  enableval=$enable_metis; case "${enableval}" in
-  yes) with_metis=yes ;;
-  no)  with_metis=no  ;;
-  *) as_fn_error $? "bad value ${enableval} for --enable-metis" "$LINENO" 5 ;;
-esac
-else $as_nop
-  with_metis=no
-fi
-
- if test x$with_metis = xyes; then
-  ENABLE_METIS_TRUE=
-  ENABLE_METIS_FALSE='#'
-else
-  ENABLE_METIS_TRUE='#'
-  ENABLE_METIS_FALSE=
-fi
-
-
-
-# Check whether --with-metis-includedir was given.
-if test ${with_metis_includedir+y}
-then :
-  withval=$with_metis_includedir; METIS_INCLUDEDIR=$withval
-
-fi
-
-
-
-# Check whether --with-metis-libdir was given.
-if test ${with_metis_libdir+y}
-then :
-  withval=$with_metis_libdir; METIS_LIBDIR=$withval
-
-fi
-
-
 # Check whether --enable-openmp was given.
 if test ${enable_openmp+y}
 then :
@@ -5389,30 +5339,11 @@ SPOOLES_LIBDIR="."
 fi
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether to enable metis" >&5
-printf %s "checking whether to enable metis... " >&6; }
-if test "$with_metis" = "no"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-  ENABLE_METIS=NO
-
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-  ENABLE_METIS=YES
-
-
-  if test x$METIS_INCLUDEDIR = x; then
-  METIS_INCLUDEDIR="."
-  fi
-  if test x$METIS_LIBDIR = x; then
-  METIS_LIBDIR="."
-  fi
-
-    HAVE_METIS_HEADER=""
-  HAVE_METIS=""
+if test x$WITH_SYSTEM_SPOOLES != xno; then
+    HAVE_SPOOLES_HEADER=""
+  HAVE_SPOOLES=""
   save_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS -I$METIS_INCLUDEDIR"
+  CPPFLAGS="$CPPFLAGS -I$SPOOLES_INCLUDEDIR"
 
 ac_header= ac_cache=
 for ac_item in $ac_header_c_list
@@ -5443,74 +5374,7 @@ then :
 printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
 
 fi
-ac_fn_c_check_header_compile "$LINENO" "metis.h" "ac_cv_header_metis_h" "$ac_includes_default"
-if test "x$ac_cv_header_metis_h" = xyes
-then :
-  HAVE_METIS_HEADER=yes
-fi
-
-  CPPFLAGS=$save_CPPFLAGS
-  if test x$HAVE_METIS_HEADER = xyes; then
-    save_LDFLAGS="$LDFLAGS"
-    LDFLAGS="$LDFLAGS -L$METIS_LIBDIR"
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for METIS_NodeND in -lmetis" >&5
-printf %s "checking for METIS_NodeND in -lmetis... " >&6; }
-if test ${ac_cv_lib_metis_METIS_NodeND+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmetis  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-char METIS_NodeND ();
-int
-main (void)
-{
-return METIS_NodeND ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_metis_METIS_NodeND=yes
-else $as_nop
-  ac_cv_lib_metis_METIS_NodeND=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_metis_METIS_NodeND" >&5
-printf "%s\n" "$ac_cv_lib_metis_METIS_NodeND" >&6; }
-if test "x$ac_cv_lib_metis_METIS_NodeND" = xyes
-then :
-  METIS_LIBS="-lmetis"; HAVE_METIS=yes
-fi
-
-    LDFLAGS=$save_LDFLAGS
-  fi
-
-  if test x$HAVE_METIS != xyes; then
-    echo "Please install METIS"
-    echo "METIS http://glaros.dtc.umn.edu/gkhome/views/metis/index.html"
-    as_fn_error $? "No METIS found" "$LINENO" 5
-  fi
-
-
-fi
-
-if test x$WITH_SYSTEM_SPOOLES != xno; then
-    HAVE_SPOOLES_HEADER=""
-  HAVE_SPOOLES=""
-  save_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS -I$SPOOLES_INCLUDEDIR"
-  ac_fn_c_check_header_compile "$LINENO" "SPOOLES.h" "ac_cv_header_SPOOLES_h" "$ac_includes_default"
+ac_fn_c_check_header_compile "$LINENO" "SPOOLES.h" "ac_cv_header_SPOOLES_h" "$ac_includes_default"
 if test "x$ac_cv_header_SPOOLES_h" = xyes
 then :
   HAVE_SPOOLES_HEADER=yes
@@ -6001,10 +5865,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${BUILD_SPOOLES_TRUE}" && test -z "${BUILD_SPOOLES_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_SPOOLES\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${ENABLE_METIS_TRUE}" && test -z "${ENABLE_METIS_FALSE}"; then
-  as_fn_error $? "conditional \"ENABLE_METIS\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${ENABLE_SHARED_TRUE}" && test -z "${ENABLE_SHARED_FALSE}"; then

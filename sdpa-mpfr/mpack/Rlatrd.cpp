@@ -67,101 +67,86 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlatrd(const char *uplo, mpackint n, mpackint nb, mpfr_class * A, mpackint lda, mpfr_class * e,
-    mpfr_class * tau, mpfr_class * w, mpackint ldw)
+void Rlatrd(const char* uplo, mpackint n, mpackint nb, mpfr_class* A, mpackint lda, mpfr_class* e,
+            mpfr_class* tau, mpfr_class* w, mpackint ldw)
 {
     mpackint i, iw;
     mpfr_class Zero = 0.0, Half = 0.5, One = 1.0;
     mpfr_class alpha;
 
-//Quick return if possible
+    //Quick return if possible
     if (n <= 0)
-	return;
+        return;
 
     if (Mlsame_mpfr(uplo, "U")) {
-//Reduce last NB columns of upper triangle
-	for (i = n; i >= n - nb + 1; i--) {
-	    iw = i - n + nb;
-	    if (i < n) {
-//Update A(1:i,i)
-		Rgemv("No transpose", i, n - i, -One, &A[0 + i * lda],
-		    lda, &w[(i - 1) + iw * ldw], ldw, One,
-		    &A[0 + (i - 1) * lda], 1);
-		Rgemv("No transpose", i, n - i, -One, &w[0 + iw * ldw], ldw,
-		    &A[(i - 1) + i * lda], lda, One, &A[0 + (i - 1) * lda], 1);
-	    }
-	    if (i > 1) {
-//Generate elementary reflector H(i) to annihilate
-//A(1:i-2,i)
-		Rlarfg(i - 1, &A[(i - 2) + (i - 1) * lda],
-		    &A[0 + (i - 1) * lda], 1, &tau[i - 2]);
-		e[i - 2] = A[(i - 2) + (i - 1) * lda];
-		A[(i - 2) + (i - 1) * lda] = One;
-//Compute W(1:i-1,i)
-		Rsymv("Upper", i - 1, One, &A[0], lda, &A[0 + (i - 1) * lda],
-		    1, Zero, &w[0 + (iw - 1) * ldw], 1);
-		if (i < n) {
-		    Rgemv("Transpose", i - 1, n - i, One, &w[0 + iw *
-			    ldw], ldw, &A[0 + (i - 1) * lda], 1, Zero,
-			&w[i + (iw - 1) * ldw], 1);
-		    Rgemv("No transpose", i - 1, n - i, -One,
-			&A[0 + i * lda], lda, &w[i + (iw - 1) * ldw], 1,
-			One, &w[0 + (iw - 1) * ldw], 1);
-		    Rgemv("Transpose", i - 1, n - i, One,
-			&A[0 + i * lda], lda, &A[0 + (i - 1) * lda], 1, Zero,
-			&w[i + (iw - 1) * ldw], 1);
-		    Rgemv("No transpose", i - 1, n - i, -One,
-			&w[0 + iw * ldw], ldw, &w[i + (iw - 1) * ldw], 1,
-			One, &w[0 + (iw - 1) * ldw], 1);
-		}
-		Rscal(i - 1, tau[i - 2], &w[0 + (iw - 1) * ldw], 1);
-		alpha =
-		    -Half * tau[i - 2] * Rdot(i - 1, &w[0 + (iw - 1) * ldw], 1,
-		    &A[0 + (i - 1) * lda], 1);
-		Raxpy(i - 1, alpha, &A[0 + (i - 1) * lda], 1,
-		    &w[0 + (iw - 1) * ldw], 1);
-
-	    }
-	}
+        //Reduce last NB columns of upper triangle
+        for (i = n; i >= n - nb + 1; i--) {
+            iw = i - n + nb;
+            if (i < n) {
+                //Update A(1:i,i)
+                Rgemv("No transpose", i, n - i, -One, &A[0 + i * lda], lda, &w[(i - 1) + iw * ldw],
+                      ldw, One, &A[0 + (i - 1) * lda], 1);
+                Rgemv("No transpose", i, n - i, -One, &w[0 + iw * ldw], ldw, &A[(i - 1) + i * lda],
+                      lda, One, &A[0 + (i - 1) * lda], 1);
+            }
+            if (i > 1) {
+                //Generate elementary reflector H(i) to annihilate
+                //A(1:i-2,i)
+                Rlarfg(i - 1, &A[(i - 2) + (i - 1) * lda], &A[0 + (i - 1) * lda], 1, &tau[i - 2]);
+                e[i - 2] = A[(i - 2) + (i - 1) * lda];
+                A[(i - 2) + (i - 1) * lda] = One;
+                //Compute W(1:i-1,i)
+                Rsymv("Upper", i - 1, One, &A[0], lda, &A[0 + (i - 1) * lda], 1, Zero,
+                      &w[0 + (iw - 1) * ldw], 1);
+                if (i < n) {
+                    Rgemv("Transpose", i - 1, n - i, One, &w[0 + iw * ldw], ldw,
+                          &A[0 + (i - 1) * lda], 1, Zero, &w[i + (iw - 1) * ldw], 1);
+                    Rgemv("No transpose", i - 1, n - i, -One, &A[0 + i * lda], lda,
+                          &w[i + (iw - 1) * ldw], 1, One, &w[0 + (iw - 1) * ldw], 1);
+                    Rgemv("Transpose", i - 1, n - i, One, &A[0 + i * lda], lda,
+                          &A[0 + (i - 1) * lda], 1, Zero, &w[i + (iw - 1) * ldw], 1);
+                    Rgemv("No transpose", i - 1, n - i, -One, &w[0 + iw * ldw], ldw,
+                          &w[i + (iw - 1) * ldw], 1, One, &w[0 + (iw - 1) * ldw], 1);
+                }
+                Rscal(i - 1, tau[i - 2], &w[0 + (iw - 1) * ldw], 1);
+                alpha = -Half * tau[i - 2] *
+                        Rdot(i - 1, &w[0 + (iw - 1) * ldw], 1, &A[0 + (i - 1) * lda], 1);
+                Raxpy(i - 1, alpha, &A[0 + (i - 1) * lda], 1, &w[0 + (iw - 1) * ldw], 1);
+            }
+        }
     } else {
-//Reduce first NB columns of lower triangle
-	for (i = 1; i <= nb; i++) {
-//Update A(i:n,i)
-	    Rgemv("No transpose", n - i + 1, i - 1, -One,
-		&A[(i - 1) + 0 * lda], lda, &w[(i - 1) + 0 * ldw], ldw, One,
-		&A[(i - 1) + (i - 1) * lda], 1);
-	    Rgemv("No transpose", n - i + 1, i - 1, -One,
-		&w[(i - 1) + 0 * ldw], ldw, &A[(i - 1) + 0 * lda], lda, One,
-		&A[(i - 1) + (i - 1) * lda], 1);
-	    if (i < n) {
-//Generate elementary reflector H(i) to annihilate 
-//A(i+2:n,i)
-		Rlarfg(n - i, &A[i + (i - 1) * lda], &A[min(i + 2,
-			    n) - 1 + (i - 1) * lda], 1, &tau[i - 1]);
-		e[i - 1] = A[i + (i - 1) * lda];
-		A[i + (i - 1) * lda] = One;
+        //Reduce first NB columns of lower triangle
+        for (i = 1; i <= nb; i++) {
+            //Update A(i:n,i)
+            Rgemv("No transpose", n - i + 1, i - 1, -One, &A[(i - 1) + 0 * lda], lda,
+                  &w[(i - 1) + 0 * ldw], ldw, One, &A[(i - 1) + (i - 1) * lda], 1);
+            Rgemv("No transpose", n - i + 1, i - 1, -One, &w[(i - 1) + 0 * ldw], ldw,
+                  &A[(i - 1) + 0 * lda], lda, One, &A[(i - 1) + (i - 1) * lda], 1);
+            if (i < n) {
+                //Generate elementary reflector H(i) to annihilate
+                //A(i+2:n,i)
+                Rlarfg(n - i, &A[i + (i - 1) * lda], &A[min(i + 2, n) - 1 + (i - 1) * lda], 1,
+                       &tau[i - 1]);
+                e[i - 1] = A[i + (i - 1) * lda];
+                A[i + (i - 1) * lda] = One;
 
-//Compute W(i+1:n,i)
-		Rsymv("Lower", n - i, One, &A[i + i * lda],
-		    lda, &A[i + (i - 1) * lda], 1, Zero, &w[i + (i - 1) * ldw],
-		    1);
-		Rgemv("Transpose", n - i, i - 1, One, &w[i + 0 * ldw],
-		    ldw, &A[i + (i - 1) * lda], 1, Zero, &w[0 + (i - 1) * ldw],
-		    1);
-		Rgemv("No transpose", n - i, i - 1, -One, &A[i + 0 * lda], lda,
-		    &w[0 + (i - 1) * ldw], 1, One, &w[i + (i - 1) * ldw], 1);
-		Rgemv("Transpose", n - i, i - 1, One, &A[i + 0 * lda], lda,
-		    &A[i + (i - 1) * lda], 1, Zero, &w[0 + (i - 1) * ldw], 1);
-		Rgemv("No transpose", n - i, i - 1, -One, &w[i + 0 * ldw], ldw,
-		    &w[0 + (i - 1) * ldw], 1, One, &w[i + (i - 1) * ldw], 1);
-		Rscal(n - i, tau[i - 1], &w[i + (i - 1) * ldw], 1);
-		alpha = -Half * tau[i - 1] * Rdot(n - i, &w[i + (i - 1) *
-			ldw], 1, &A[i + (i - 1) * lda], 1);
-		Raxpy(n - i, alpha, &A[i + (i - 1) * lda], 1,
-		    &w[i + (i - 1) * ldw], 1);
-	    }
-	}
+                //Compute W(i+1:n,i)
+                Rsymv("Lower", n - i, One, &A[i + i * lda], lda, &A[i + (i - 1) * lda], 1, Zero,
+                      &w[i + (i - 1) * ldw], 1);
+                Rgemv("Transpose", n - i, i - 1, One, &w[i + 0 * ldw], ldw, &A[i + (i - 1) * lda],
+                      1, Zero, &w[0 + (i - 1) * ldw], 1);
+                Rgemv("No transpose", n - i, i - 1, -One, &A[i + 0 * lda], lda,
+                      &w[0 + (i - 1) * ldw], 1, One, &w[i + (i - 1) * ldw], 1);
+                Rgemv("Transpose", n - i, i - 1, One, &A[i + 0 * lda], lda, &A[i + (i - 1) * lda],
+                      1, Zero, &w[0 + (i - 1) * ldw], 1);
+                Rgemv("No transpose", n - i, i - 1, -One, &w[i + 0 * ldw], ldw,
+                      &w[0 + (i - 1) * ldw], 1, One, &w[i + (i - 1) * ldw], 1);
+                Rscal(n - i, tau[i - 1], &w[i + (i - 1) * ldw], 1);
+                alpha = -Half * tau[i - 1] *
+                        Rdot(n - i, &w[i + (i - 1) * ldw], 1, &A[i + (i - 1) * lda], 1);
+                Raxpy(n - i, alpha, &A[i + (i - 1) * lda], 1, &w[i + (i - 1) * ldw], 1);
+            }
+        }
     }
     return;
 }

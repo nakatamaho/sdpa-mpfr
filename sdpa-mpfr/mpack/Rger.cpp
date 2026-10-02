@@ -74,57 +74,56 @@ vector and A is an m by n matrix.
 
 #include <mblas_mpfr.h>
 
-void
-Rger(mpackint m, mpackint n, mpfr_class alpha, mpfr_class * x, mpackint incx,
-    mpfr_class * y, mpackint incy, mpfr_class * A, mpackint lda)
+void Rger(mpackint m, mpackint n, mpfr_class alpha, mpfr_class* x, mpackint incx, mpfr_class* y,
+          mpackint incy, mpfr_class* A, mpackint lda)
 {
     mpackint ix, kx, jy;
     mpfr_class Zero = 0.0, One = 1.0;
     mpfr_class temp;
 
-//Test the input parameters.
+    //Test the input parameters.
     mpackint info = 0;
 
     if (m < 0)
-	info = 1;
+        info = 1;
     else if (n < 0)
-	info = 2;
+        info = 2;
     else if (incx == 0)
-	info = 5;
+        info = 5;
     else if (incy == 0)
-	info = 7;
-    else if (lda < max((mpackint) 1, m))
-	info = 9;
+        info = 7;
+    else if (lda < max((mpackint)1, m))
+        info = 9;
     if (info != 0) {
-	Mxerbla_mpfr("Rger  ", info);
-	return;
+        Mxerbla_mpfr("Rger  ", info);
+        return;
     }
     //quick return if possible.
     if ((m == 0) || (n == 0) || (alpha == Zero))
-	return;
+        return;
 
     //start the operations. in this version the elements of a are
     //accessed sequentially with one pass through A.
     if (incy > 0)
-	jy = 0;
+        jy = 0;
     else
-	jy = (1 - n) * incy;
+        jy = (1 - n) * incy;
 
     if (incx > 0)
-	kx = 0;
+        kx = 0;
     else
-	kx = (1 - m) * incx;
+        kx = (1 - m) * incx;
 
     for (mpackint j = 0; j < n; j++) {
-	if (y[jy] != Zero) {
-	    temp = alpha * y[jy];
-	    ix = kx;
-	    for (mpackint i = 0; i < m; i++) {
-		A[i + j * lda] = A[i + j * lda] + x[ix] * temp;
-		ix = ix + incx;
-	    }
-	}
-	jy = jy + incy;
+        if (y[jy] != Zero) {
+            temp = alpha * y[jy];
+            ix = kx;
+            for (mpackint i = 0; i < m; i++) {
+                A[i + j * lda] = A[i + j * lda] + x[ix] * temp;
+                ix = ix + incx;
+            }
+        }
+        jy = jy + incy;
     }
     return;
 }

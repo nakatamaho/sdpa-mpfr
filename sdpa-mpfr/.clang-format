@@ -1,0 +1,33 @@
+# Formatting for SDPA-MPFR sources (sdpa_*.{cpp,h}, mpack/*).
+# Same layout as gmpfrxx_mkII: 4-space indent, function bodies open on a new
+# line, classes and control statements open on the same line.
+BasedOnStyle: LLVM
+IndentWidth: 4
+ContinuationIndentWidth: 4
+UseTab: Never
+ColumnLimit: 100
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+  AfterClass: false
+  AfterStruct: false
+  AfterEnum: false
+  AfterNamespace: false
+  AfterControlStatement: Never
+  BeforeElse: false
+  BeforeCatch: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AccessModifierOffset: -4
+IndentCaseLabels: false
+PointerAlignment: Left
+NamespaceIndentation: None
+FixNamespaceComments: true
+SortIncludes: Never
+ReflowComments: false
+MaxEmptyLinesToKeep: 1
+AlignTrailingComments: true
+SpaceAfterCStyleCast: false

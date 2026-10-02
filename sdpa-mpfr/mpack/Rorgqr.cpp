@@ -67,111 +67,106 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rorgqr(mpackint m, mpackint n, mpackint k, mpfr_class * A, mpackint lda, mpfr_class * tau,
-    mpfr_class * work, mpackint lwork, mpackint *info)
+void Rorgqr(mpackint m, mpackint n, mpackint k, mpfr_class* A, mpackint lda, mpfr_class* tau,
+            mpfr_class* work, mpackint lwork, mpackint* info)
 {
     mpfr_class Zero = 0.0, One = 1.0;
     mpackint nbmin, nx, iws, nb, lwkopt, lquery, ki, kk;
     mpackint i, j, l, iinfo, ldwork, ib;
 
-//Test the input arguments
+    //Test the input arguments
     *info = 0;
     nb = iMlaenv_mpfr(1, "Rorgqr", " ", m, n, k, -1);
 
     lwkopt = max((mpackint)1, n) * nb;
-    work[0] = (double)lwkopt;	//needs cast mpackint to mpf
+    work[0] = (double)lwkopt; //needs cast mpackint to mpf
     if (lwork == -1)
-	lquery = 1;
+        lquery = 1;
     else
-	lquery = 0;
+        lquery = 0;
 
     if (m < 0) {
-	*info = -1;
+        *info = -1;
     } else if (n < 0 || n > m) {
-	*info = -2;
+        *info = -2;
     } else if (k < 0 || k > n) {
-	*info = -3;
+        *info = -3;
     } else if (lda < max((mpackint)1, m)) {
-	*info = -5;
+        *info = -5;
     } else if (lwork < max((mpackint)1, n) && !lquery) {
-	*info = -8;
+        *info = -8;
     }
     if (*info != 0) {
-	Mxerbla_mpfr("Rorgqr", -(*info));
-	return;
+        Mxerbla_mpfr("Rorgqr", -(*info));
+        return;
     } else if (lquery) {
-	return;
+        return;
     }
     if (n <= 0) {
-	work[0] = One;
-	return;
+        work[0] = One;
+        return;
     }
 
     nbmin = 2;
     nx = 0;
     iws = n;
     if (nb > 1 && nb < k) {
-//Determine when to cross over from blocked to unblocked code.
-	nx = max((mpackint)0, iMlaenv_mpfr(3, "Rorgqr", " ", m, n, k, -1));
-	if (nx < k) {
-//Determine if workspace is large enough for blocked code.
-	    ldwork = n;
-	    iws = ldwork * nb;
-	    if (lwork < iws) {
-//Not enough workspace to use optimal NB:  reduce NB and
-//determine the minimum value of NB.
-		nb = lwork / ldwork;
-		nbmin = max((mpackint)2, iMlaenv_mpfr(2, "Rorgqr", " ", m, n, k, -1));
-	    }
-	}
+        //Determine when to cross over from blocked to unblocked code.
+        nx = max((mpackint)0, iMlaenv_mpfr(3, "Rorgqr", " ", m, n, k, -1));
+        if (nx < k) {
+            //Determine if workspace is large enough for blocked code.
+            ldwork = n;
+            iws = ldwork * nb;
+            if (lwork < iws) {
+                //Not enough workspace to use optimal NB:  reduce NB and
+                //determine the minimum value of NB.
+                nb = lwork / ldwork;
+                nbmin = max((mpackint)2, iMlaenv_mpfr(2, "Rorgqr", " ", m, n, k, -1));
+            }
+        }
     }
     if (nb >= nbmin && nb < k && nx < k) {
-//Use blocked code after the last block.
-//The first kk columns are handled by the block method.
-	ki = (k - nx - 1) / nb * nb;
-	kk = min(k, ki + nb);
-//Set A(1:kk,kk+1:n) to zero.
-	for (j = kk + 1; j <= n; j++) {
-	    for (i = 1; i <= kk; i++) {
-		A[(i - 1) + (j - 1) * lda] = Zero;
-	    }
-	}
+        //Use blocked code after the last block.
+        //The first kk columns are handled by the block method.
+        ki = (k - nx - 1) / nb * nb;
+        kk = min(k, ki + nb);
+        //Set A(1:kk,kk+1:n) to zero.
+        for (j = kk + 1; j <= n; j++) {
+            for (i = 1; i <= kk; i++) {
+                A[(i - 1) + (j - 1) * lda] = Zero;
+            }
+        }
     } else {
-	kk = 0;
+        kk = 0;
     }
-//Use unblocked code for the last or only block.
+    //Use unblocked code for the last or only block.
     if (kk < n) {
-	Rorg2r(m - kk, n - kk, k - kk, &A[kk + kk * lda], lda,
-	    &tau[kk], &work[0], &iinfo);
+        Rorg2r(m - kk, n - kk, k - kk, &A[kk + kk * lda], lda, &tau[kk], &work[0], &iinfo);
     }
     if (kk > 0) {
-//Use blocked code
-	for (i = ki + 1; i >= 1; i = i - nb) {
-	    ib = min(nb, k - i + 1);
-	    if (i + ib <= n) {
-//Form the triangular factor of the block reflector
-//H = H(i) H(i+1) . . . H(i+ib-1)
-		Rlarft("Forward", "Columnwise", m - i + 1, ib,
-		    &A[(i - 1) + (i - 1) * lda], lda, &tau[i - 1], work,
-		    ldwork);
-//Apply H to A(i:m,i+ib:n) from the left
-		Rlarfb("Left", "No transpose", "Forward", "Columnwise",
-		    m - i + 1, n - i - ib + 1, ib, &A[(i - 1) + (i - 1) * lda],
-		    lda, work, ldwork, &A[(i - 1) + (i + ib - 1) * lda], lda,
-		    &work[ib], ldwork);
-	    }
-//Apply H to rows i:m of current block
-	    Rorg2r(m - i + 1, ib, ib, &A[(i - 1) + (i - 1) * lda], lda,
-		&tau[i - 1], work, &iinfo);
-//Set rows 1:i-1 of current block to zero
-	    for (j = i; j <= i + ib - 1; j++) {
-		for (l = 1; l <= i - 1; l++) {
-		    A[(l - 1) + (j - 1) * lda] = Zero;
-		}
-	    }
-	}
+        //Use blocked code
+        for (i = ki + 1; i >= 1; i = i - nb) {
+            ib = min(nb, k - i + 1);
+            if (i + ib <= n) {
+                //Form the triangular factor of the block reflector
+                //H = H(i) H(i+1) . . . H(i+ib-1)
+                Rlarft("Forward", "Columnwise", m - i + 1, ib, &A[(i - 1) + (i - 1) * lda], lda,
+                       &tau[i - 1], work, ldwork);
+                //Apply H to A(i:m,i+ib:n) from the left
+                Rlarfb("Left", "No transpose", "Forward", "Columnwise", m - i + 1, n - i - ib + 1,
+                       ib, &A[(i - 1) + (i - 1) * lda], lda, work, ldwork,
+                       &A[(i - 1) + (i + ib - 1) * lda], lda, &work[ib], ldwork);
+            }
+            //Apply H to rows i:m of current block
+            Rorg2r(m - i + 1, ib, ib, &A[(i - 1) + (i - 1) * lda], lda, &tau[i - 1], work, &iinfo);
+            //Set rows 1:i-1 of current block to zero
+            for (j = i; j <= i + ib - 1; j++) {
+                for (l = 1; l <= i - 1; l++) {
+                    A[(l - 1) + (j - 1) * lda] = Zero;
+                }
+            }
+        }
     }
-    work[0] = (double)iws;	//needs cast mpackint to mpf
+    work[0] = (double)iws; //needs cast mpackint to mpf
     return;
 }

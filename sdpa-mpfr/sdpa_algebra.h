@@ -13,4 +13,3 @@
 #include "mlapack_mpfr.h"
 
 #endif // __sdpa_algebra_h__
-

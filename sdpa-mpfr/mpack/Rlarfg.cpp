@@ -67,8 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 #include <stdio.h> //for debugging
-void
-Rlarfg(mpackint N, mpfr_class * alpha, mpfr_class * x, mpackint incx, mpfr_class * tau)
+void Rlarfg(mpackint N, mpfr_class* alpha, mpfr_class* x, mpackint incx, mpfr_class* tau)
 {
     mpfr_class xnorm;
     mpfr_class Zero = 0.0, One = 1.0;
@@ -78,44 +77,44 @@ Rlarfg(mpackint N, mpfr_class * alpha, mpfr_class * x, mpackint incx, mpfr_class
     mpackint knt;
 
     if (N <= 1) {
-	*tau = 0.0;
-	return;
+        *tau = 0.0;
+        return;
     }
     xnorm = Rnrm2(N - 1, x, incx);
-//H  =  I
+    //H  =  I
     if (xnorm == 0.0) {
-	*tau = 0.0;
+        *tau = 0.0;
     } else {
-	beta = -1.0 * Msign(Rlapy2(*alpha, xnorm), *alpha);
-	safmin = Rlamch_mpfr("S") / Rlamch_mpfr("E");
+        beta = -1.0 * Msign(Rlapy2(*alpha, xnorm), *alpha);
+        safmin = Rlamch_mpfr("S") / Rlamch_mpfr("E");
 
-//XNORM, BETA may be inaccurate; scale X and recompute them
-	if (abs(beta) < safmin) {
-	    fprintf(stderr, "# Rlarfg: 1: XXX not very well tested\n");
-	    rsafmn = One / safmin;
-	    knt = 0;
-	    while (abs(beta) < safmin) {
-		knt++;
-		Rscal(N - 1, rsafmn, x, incx);
-		beta = beta * rsafmn;
-		*alpha = *alpha * rsafmn;
-	    }
+        //XNORM, BETA may be inaccurate; scale X and recompute them
+        if (abs(beta) < safmin) {
+            fprintf(stderr, "# Rlarfg: 1: XXX not very well tested\n");
+            rsafmn = One / safmin;
+            knt = 0;
+            while (abs(beta) < safmin) {
+                knt++;
+                Rscal(N - 1, rsafmn, x, incx);
+                beta = beta * rsafmn;
+                *alpha = *alpha * rsafmn;
+            }
 
-//New BETA is at most 1, at least SAFMIN
-	    xnorm = Rnrm2(N - 1, x, incx);
-	    beta = -1.0 * Msign(Rlapy2(*alpha, xnorm), *alpha);
-	    *tau = (beta - *alpha) / beta;
-	    Rscal(N - 1, One / (*alpha - beta), x, incx);
+            //New BETA is at most 1, at least SAFMIN
+            xnorm = Rnrm2(N - 1, x, incx);
+            beta = -1.0 * Msign(Rlapy2(*alpha, xnorm), *alpha);
+            *tau = (beta - *alpha) / beta;
+            Rscal(N - 1, One / (*alpha - beta), x, incx);
 
-//If ALPHA is subnormal, it may lose relative accuracy
-	    *alpha = beta;
-	    for (mpackint j = 0; j < knt; j++) {
-		*alpha = *alpha * safmin;
-	    }
-	} else {
-	    *tau = (beta - *alpha) / beta;
-	    Rscal(N - 1, One / (*alpha - beta), x, incx);
-	    *alpha = beta;
-	}
+            //If ALPHA is subnormal, it may lose relative accuracy
+            *alpha = beta;
+            for (mpackint j = 0; j < knt; j++) {
+                *alpha = *alpha * safmin;
+            }
+        } else {
+            *tau = (beta - *alpha) / beta;
+            Rscal(N - 1, One / (*alpha - beta), x, incx);
+            *alpha = beta;
+        }
     }
 }

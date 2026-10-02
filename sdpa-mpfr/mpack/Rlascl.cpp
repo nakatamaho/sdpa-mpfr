@@ -70,9 +70,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MTRUE 1
 #define MFALSE 0
 
-void
-Rlascl(const char *type, mpackint kl, mpackint ku, mpfr_class cfrom, mpfr_class cto, mpackint m,
-    mpackint n, mpfr_class * A, mpackint lda, mpackint *info)
+void Rlascl(const char* type, mpackint kl, mpackint ku, mpfr_class cfrom, mpfr_class cto,
+            mpackint m, mpackint n, mpfr_class* A, mpackint lda, mpackint* info)
 {
     mpackint i, j, k1, k2, k3, k4;
     mpackint itype;
@@ -82,55 +81,55 @@ Rlascl(const char *type, mpackint kl, mpackint ku, mpfr_class cfrom, mpfr_class 
 
     *info = 0;
     if (Mlsame_mpfr(type, "G")) {
-	itype = 0;
+        itype = 0;
     } else if (Mlsame_mpfr(type, "L")) {
-	itype = 1;
+        itype = 1;
     } else if (Mlsame_mpfr(type, "U")) {
-	itype = 2;
+        itype = 2;
     } else if (Mlsame_mpfr(type, "H")) {
-	itype = 3;
+        itype = 3;
     } else if (Mlsame_mpfr(type, "B")) {
-	itype = 4;
+        itype = 4;
     } else if (Mlsame_mpfr(type, "Q")) {
-	itype = 5;
+        itype = 5;
     } else if (Mlsame_mpfr(type, "Z")) {
-	itype = 6;
+        itype = 6;
     } else {
-	itype = -1;
+        itype = -1;
     }
     if (itype == -1) {
-	*info = -1;
+        *info = -1;
     } else if (cfrom == Zero) {
-	*info = -4;
+        *info = -4;
     } else if (m < 0) {
-	*info = -6;
-    } else if (n < 0 || (itype == 4 && n != m) || (itype == 5 && n != m) ) {
-	*info = -7;
+        *info = -6;
+    } else if (n < 0 || (itype == 4 && n != m) || (itype == 5 && n != m)) {
+        *info = -7;
     } else if (itype <= 3 && lda < max((mpackint)1, m)) {
-	*info = -9;
+        *info = -9;
     } else if (itype >= 4) {
-	if (kl < 0 || kl > max(m - 1, (mpackint)0)) {
-	    *info = -2;
-	} else {
-	    if (ku < 0 || ku > max(n - 1, (mpackint)0) || ((itype == 4 || itype == 5) &&
-		kl != ku)) {
-		*info = -3;
-	    } else if ( (itype == 4 && lda < kl + 1) || (itype == 5 && lda < ku + 1)
-		|| (itype == 6 && lda < (kl * 2) + ku + 1)) {
-		*info = -9;
-	    }
-	}
+        if (kl < 0 || kl > max(m - 1, (mpackint)0)) {
+            *info = -2;
+        } else {
+            if (ku < 0 || ku > max(n - 1, (mpackint)0) ||
+                ((itype == 4 || itype == 5) && kl != ku)) {
+                *info = -3;
+            } else if ((itype == 4 && lda < kl + 1) || (itype == 5 && lda < ku + 1) ||
+                       (itype == 6 && lda < (kl * 2) + ku + 1)) {
+                *info = -9;
+            }
+        }
     }
 
     if (*info != 0) {
-	Mxerbla_mpfr("Rlascl", -(*info));
-	return;
+        Mxerbla_mpfr("Rlascl", -(*info));
+        return;
     }
-//Quick return if possible 
+    //Quick return if possible
     if (n == 0 || m == 0) {
-	return;
+        return;
     }
-//Get machine parameters 
+    //Get machine parameters
     smlnum = Rlamch_mpfr("S");
     bignum = One / smlnum;
 
@@ -138,79 +137,79 @@ Rlascl(const char *type, mpackint kl, mpackint ku, mpfr_class cfrom, mpfr_class 
     ctoc = cto;
 
     while (done == MFALSE) {
-	cfrom1 = cfromc * smlnum;
-	cto1 = ctoc / bignum;
-	if (abs(cfrom1) > abs(ctoc) && ctoc != Zero) {
-	    mul = smlnum;
-	    done = MFALSE;
-	    cfromc = cfrom1;
-	} else if (abs(cto1) > abs(cfromc)) {
-	    mul = bignum;
-	    done = MFALSE;
-	    ctoc = cto1;
-	} else {
-	    mul = ctoc / cfromc;
-	    done = MTRUE;
-	}
-	if (itype == 0) {
-//Full matrix
-	    for (j = 0; j < n; j++) {
-		for (i = 0; i < m; i++) {
-		    A[i + j * lda] = A[i + j * lda] * mul;
-		}
-	    }
-	} else if (itype == 1) {
-//Lower triangular matrix
-	    for (j = 0; j < n; j++) {
-		for (i = j; i < m; i++) {
-		    A[i + j * lda] = A[i + j * lda] * mul;
-		}
-	    }
-	} else if (itype == 2) {
-//Upper triangular matrix
-	    for (j = 0; j < n; j++) {
-		for (i = 0; i <= min(j, m - 1); i++) {
-		    A[i + j * lda] = A[i + j * lda] * mul;
-		}
-	    }
-	} else if (itype == 3) {
-//Upper Hessenberg matrix
-	    for (j = 0; j < n; j++) {
-		for (i = 0; i <= min(j + 1, m - 1); i++) {
-		    A[i + j * lda] = A[i + j * lda] * mul;
-		}
-	    }
-	} else if (itype == 4) {
-//Lower half of a symmetric band matrix
-	    k3 = kl + 1;
-	    k4 = n + 1;
-	    for (j = 0; j < n; j++) {
-		for (i = 0; i < min(k3, k4 - j - 1); i++) {
-		    A[i + j * lda] *= mul;
-		}
-	    }
+        cfrom1 = cfromc * smlnum;
+        cto1 = ctoc / bignum;
+        if (abs(cfrom1) > abs(ctoc) && ctoc != Zero) {
+            mul = smlnum;
+            done = MFALSE;
+            cfromc = cfrom1;
+        } else if (abs(cto1) > abs(cfromc)) {
+            mul = bignum;
+            done = MFALSE;
+            ctoc = cto1;
+        } else {
+            mul = ctoc / cfromc;
+            done = MTRUE;
+        }
+        if (itype == 0) {
+            //Full matrix
+            for (j = 0; j < n; j++) {
+                for (i = 0; i < m; i++) {
+                    A[i + j * lda] = A[i + j * lda] * mul;
+                }
+            }
+        } else if (itype == 1) {
+            //Lower triangular matrix
+            for (j = 0; j < n; j++) {
+                for (i = j; i < m; i++) {
+                    A[i + j * lda] = A[i + j * lda] * mul;
+                }
+            }
+        } else if (itype == 2) {
+            //Upper triangular matrix
+            for (j = 0; j < n; j++) {
+                for (i = 0; i <= min(j, m - 1); i++) {
+                    A[i + j * lda] = A[i + j * lda] * mul;
+                }
+            }
+        } else if (itype == 3) {
+            //Upper Hessenberg matrix
+            for (j = 0; j < n; j++) {
+                for (i = 0; i <= min(j + 1, m - 1); i++) {
+                    A[i + j * lda] = A[i + j * lda] * mul;
+                }
+            }
+        } else if (itype == 4) {
+            //Lower half of a symmetric band matrix
+            k3 = kl + 1;
+            k4 = n + 1;
+            for (j = 0; j < n; j++) {
+                for (i = 0; i < min(k3, k4 - j - 1); i++) {
+                    A[i + j * lda] *= mul;
+                }
+            }
 
-	} else if (itype == 5) {
-//Upper half of a symmetric band matrix
-	    k1 = ku + 2;
-	    k3 = ku + 1;
-	    for (j = 0; j < n; j++) {
-		for (i = max(k1 - j - 1, (mpackint)1) - 1; i < k3; i++) {
-		    A[i + j * lda] = A[i + j * lda] * mul;
-		}
-	    }
-	} else if (itype == 6) {
-//Band matrix
-	    k1 = kl + ku + 2;
-	    k2 = kl + 1;
-	    k3 = (kl << 1) + ku + 1;
-	    k4 = kl + ku + 1 + m;
-	    for (j = 0; j < n; j++) {
-		for (i = max(k1 - j - 1, k2) - 1; i < min(k3, k4 - j - 1); i++) {
-		    A[i + j * lda] = A[i + j * lda] * mul;
-		}
-	    }
-	}
+        } else if (itype == 5) {
+            //Upper half of a symmetric band matrix
+            k1 = ku + 2;
+            k3 = ku + 1;
+            for (j = 0; j < n; j++) {
+                for (i = max(k1 - j - 1, (mpackint)1) - 1; i < k3; i++) {
+                    A[i + j * lda] = A[i + j * lda] * mul;
+                }
+            }
+        } else if (itype == 6) {
+            //Band matrix
+            k1 = kl + ku + 2;
+            k2 = kl + 1;
+            k3 = (kl << 1) + ku + 1;
+            k4 = kl + ku + 1 + m;
+            for (j = 0; j < n; j++) {
+                for (i = max(k1 - j - 1, k2) - 1; i < min(k3, k4 - j - 1); i++) {
+                    A[i + j * lda] = A[i + j * lda] * mul;
+                }
+            }
+        }
     }
     return;
 }

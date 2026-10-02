@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 #include <sdpa_newton.h>
 
-
 namespace sdpa {
 
 class Newton;
@@ -44,239 +43,187 @@ class SolveInfo;
 class Phase;
 class AverageComplementarity;
 
-
-class ComputeTime
-{
+class ComputeTime {
 public:
-  double Predictor;
-  double Corrector;
-  double StepPredictor;
-  double StepCorrector;
-  double xMatTime;
-  double zMatTime;
-  double invzMatTime;
-  double xMatzMatTime;
-  double EigxMatTime;
-  double EigzMatTime;
-  double EigxMatzMatTime;
-  double makerMat;
-  double makebMat;
-  double B_DIAG;
-  double B_F1;
-  double B_F2;
-  double B_F3;
-  double B_PRE;
-  double makegVecMul;
-  double makegVec;
-  double choleskybMat;
-  double solve;
-  double sumDz;
-  double makedX;
-  double symmetriseDx;
-  double makedXdZ;
-  double updateRes;
-  double MainLoop;
-  double FileRead;
-  double FileCheck;
-  double FileChange;
-  double TotalTime;
-  ComputeTime();
-  ~ComputeTime();
-  void display(FILE* fpout=stdout);
+    double Predictor;
+    double Corrector;
+    double StepPredictor;
+    double StepCorrector;
+    double xMatTime;
+    double zMatTime;
+    double invzMatTime;
+    double xMatzMatTime;
+    double EigxMatTime;
+    double EigzMatTime;
+    double EigxMatzMatTime;
+    double makerMat;
+    double makebMat;
+    double B_DIAG;
+    double B_F1;
+    double B_F2;
+    double B_F3;
+    double B_PRE;
+    double makegVecMul;
+    double makegVec;
+    double choleskybMat;
+    double solve;
+    double sumDz;
+    double makedX;
+    double symmetriseDx;
+    double makedXdZ;
+    double updateRes;
+    double MainLoop;
+    double FileRead;
+    double FileCheck;
+    double FileChange;
+    double TotalTime;
+    ComputeTime();
+    ~ComputeTime();
+    void display(FILE* fpout = stdout);
 };
 
-class Parameter
-{
+class Parameter {
 public:
-  enum parameterType {PARAMETER_DEFAULT,
-		      PARAMETER_UNSTABLE_BUT_FAST,
-		      PARAMETER_STABLE_BUT_SLOW};
-  int    maxIteration;
-  int    precision;
-  double epsilonStar;
-  double lambdaStar;
-  double omegaStar;
-  double lowerBound;
-  double upperBound;
-  double betaStar;
-  double betaBar;
-  double gammaStar;
-  double epsilonDash;
-  Parameter();
-  Parameter(FILE* parameterFile);
-  ~Parameter();
-  void setDefaultParameter(parameterType type
-			   = PARAMETER_DEFAULT);
-  void readFile(FILE* parameterFile);
-  void display(FILE* fpout=stdout);
+    enum parameterType {
+        PARAMETER_DEFAULT,
+        PARAMETER_UNSTABLE_BUT_FAST,
+        PARAMETER_STABLE_BUT_SLOW
+    };
+    int maxIteration;
+    int precision;
+    double epsilonStar;
+    double lambdaStar;
+    double omegaStar;
+    double lowerBound;
+    double upperBound;
+    double betaStar;
+    double betaBar;
+    double gammaStar;
+    double epsilonDash;
+    Parameter();
+    ~Parameter();
+    void setDefaultParameter(parameterType type = PARAMETER_DEFAULT);
+    void readFile(FILE* parameterFile);
+    void display(FILE* fpout = stdout);
 };
 
-class StepLength
-{
+class StepLength {
 public:
+    mpfr_class primal;
+    mpfr_class dual;
+    StepLength();
+    StepLength(mpfr_class alphaP, mpfr_class alphaD, int nBlock, int* blockStruct);
+    ~StepLength();
+    void terminate();
 
-  mpfr_class primal;
-  mpfr_class dual;
-  StepLength();
-  StepLength(mpfr_class alphaP, mpfr_class alphaD, int nBlock,
-	      int* blockStruct);
-  ~StepLength();
-  void initialize(mpfr_class alphaP, mpfr_class alphaD);
-  void terminate();
-  
-  static mpfr_class minBlockVector(BlockVector& aVec);
-
-  void computeStepLength(Solutions& currentPt,
-			 Newton& newton,
-			 WorkVariables& work,
-			 ComputeTime& com);
-  void MehrotraPredictor(InputData& inputData,
-			 Solutions& currentPt, 
-			 Phase& phase,
-			 Newton& newton,
-			 WorkVariables& work,
-			 ComputeTime& com);
-  void MehrotraCorrector(InputData& inputData,
-			 Solutions& currentPt, Phase& phase,
-			 Switch& reduction, Newton& newton,
-			 AverageComplementarity& mu,
-			 RatioInitResCurrentRes& theta,
-			 WorkVariables& work,
-			 Parameter& param, ComputeTime& com);
-  void display(FILE* fpout = stdout);
+    void computeStepLength(Solutions& currentPt, Newton& newton, WorkVariables& work,
+                           ComputeTime& com);
+    void MehrotraPredictor(InputData& inputData, Solutions& currentPt, Phase& phase, Newton& newton,
+                           WorkVariables& work, ComputeTime& com);
+    void MehrotraCorrector(InputData& inputData, Solutions& currentPt, Phase& phase,
+                           Switch& reduction, Newton& newton, AverageComplementarity& mu,
+                           RatioInitResCurrentRes& theta, WorkVariables& work, Parameter& param,
+                           ComputeTime& com);
 };
 
-class DirectionParameter
-{
+class DirectionParameter {
 public:
-  mpfr_class value;
-  DirectionParameter(mpfr_class betaStar=0.0);
-  ~DirectionParameter();
-  void initialize(mpfr_class betaStar=0.0);
-  
-  void MehrotraPredictor(Phase& phase, Switch& reduction,
-			 Parameter& param);
-  void MehrotraCorrector(Phase& phase, StepLength& alpha,
-			 Solutions& currentPt, Newton& newton,
-			 AverageComplementarity& mu,
-			 Parameter& param);
-  void display(FILE* fpout = stdout);
+    mpfr_class value;
+    DirectionParameter(mpfr_class betaStar = 0.0);
+    ~DirectionParameter();
+    void initialize(mpfr_class betaStar = 0.0);
+
+    void MehrotraPredictor(Phase& phase, Switch& reduction, Parameter& param);
+    void MehrotraCorrector(Phase& phase, StepLength& alpha, Solutions& currentPt, Newton& newton,
+                           AverageComplementarity& mu, Parameter& param);
 };
 
-class Switch
-{
+class Switch {
 public:
-  enum SwitchType {ON,OFF};
-  SwitchType switchType;
+    enum SwitchType { ON, OFF };
+    SwitchType switchType;
 
-  Switch(SwitchType switchType=ON);
-  ~Switch();
-  void initialize(SwitchType switchType=ON);
-  
-  void MehrotraPredictor(Phase& phase);
-  void display(FILE* fpout = stdout);
+    Switch(SwitchType switchType = ON);
+    ~Switch();
+    void initialize(SwitchType switchType = ON);
 
+    void MehrotraPredictor(Phase& phase);
 };
 
-class AverageComplementarity
-{
+class AverageComplementarity {
 public:
-  mpfr_class initial;
-  mpfr_class current;
-  AverageComplementarity(mpfr_class lambdaStar = 0.0);
-  ~AverageComplementarity();
-  void initialize(mpfr_class lambdaStar = 0.0);
-  void initialize(Solutions& initPt);
-  void update(Solutions& currentPt);
-  void display(FILE* fpout = stdout);
+    mpfr_class initial;
+    mpfr_class current;
+    AverageComplementarity(mpfr_class lambdaStar = 0.0);
+    ~AverageComplementarity();
+    void initialize(mpfr_class lambdaStar = 0.0);
+    void initialize(Solutions& initPt);
+    void update(Solutions& currentPt);
 };
 
-class RatioInitResCurrentRes
-{
+class RatioInitResCurrentRes {
 public:
-  mpfr_class primal;
-  mpfr_class dual;
-  
-  RatioInitResCurrentRes();
-  RatioInitResCurrentRes(Parameter& param, Residuals& initRes);
-  ~RatioInitResCurrentRes();
+    mpfr_class primal;
+    mpfr_class dual;
 
-  void initialize(Parameter& param, Residuals& initRes);
+    RatioInitResCurrentRes(Parameter& param, Residuals& initRes);
+    ~RatioInitResCurrentRes();
 
-  void update(Switch& reduction, StepLength& alpha);
-  void update_exact(Residuals& initRes, Residuals& currentRes);
-  void display(FILE* fpout = stdout);
+    void initialize(Parameter& param, Residuals& initRes);
+
+    void update(Switch& reduction, StepLength& alpha);
+    void update_exact(Residuals& initRes, Residuals& currentRes);
 };
 
-class SolveInfo
-{
+class SolveInfo {
 public:
-  enum phaseType { noINFO,pFEAS,dFEAS,pdFEAS,pdINF,pFEAS_dINF,
-		   pINF_dFEAS,pdOPT,pUNBD,dUNBD};
+    enum phaseType {
+        noINFO,
+        pFEAS,
+        dFEAS,
+        pdFEAS,
+        pdINF,
+        pFEAS_dINF,
+        pINF_dFEAS,
+        pdOPT,
+        pUNBD,
+        dUNBD
+    };
 
-  mpfr_class rho;
-  mpfr_class etaPrimal;
-  mpfr_class etaDual;
-  mpfr_class objValPrimal;
-  mpfr_class objValDual;
+    mpfr_class rho;
+    mpfr_class etaPrimal;
+    mpfr_class etaDual;
+    mpfr_class objValPrimal;
+    mpfr_class objValDual;
 
-  SolveInfo();
-  SolveInfo(InputData& inputData, Solutions& currentPt, 
-	    mpfr_class mu0, mpfr_class omegaStar);
-  ~SolveInfo();
+    SolveInfo(InputData& inputData, Solutions& currentPt, mpfr_class mu0, mpfr_class omegaStar);
+    ~SolveInfo();
 
-  void initialize(InputData& inputData, Solutions& currentPt, 
-		  mpfr_class mu0, mpfr_class omegaStar);
+    void initialize(InputData& inputData, Solutions& currentPt, mpfr_class mu0,
+                    mpfr_class omegaStar);
 
-  void update(InputData& inputData,
-	      DenseLinearSpace& initPt_xMat, 
-	      DenseLinearSpace& initPt_zMat, 
-	      Solutions& currentPt,
-	      Residuals& currentRes,
-	      AverageComplementarity& mu,
-	      RatioInitResCurrentRes& theta,
-	      Parameter& param);
-  // assume   initPt = lambda * I
-  void update(double& lambda, 
-	      InputData& inputData,
-	      Solutions& currentPt,
-	      Residuals& currentRes,
-	      AverageComplementarity& mu,
-	      RatioInitResCurrentRes& theta,
-	      Parameter& param);
-  // check mu, gap, feasibility   2007/08/27
-  void check(InputData& inputData,
-			 Solutions& currentPt,
-			 Residuals& currentRes,
-			 AverageComplementarity& mu,
-			 RatioInitResCurrentRes& theta,
-			 Parameter& param);
-  void display(FILE* fpout = stdout);
+    void update(InputData& inputData, DenseLinearSpace& initPt_xMat, DenseLinearSpace& initPt_zMat,
+                Solutions& currentPt, Residuals& currentRes, AverageComplementarity& mu,
+                RatioInitResCurrentRes& theta, Parameter& param);
+    // assume   initPt = lambda * I
+    void update(double& lambda, InputData& inputData, Solutions& currentPt, Residuals& currentRes,
+                AverageComplementarity& mu, RatioInitResCurrentRes& theta, Parameter& param);
 };
 
-class Phase
-{
+class Phase {
 public:
-  int nDim;
-  SolveInfo::phaseType value;
+    int nDim;
+    SolveInfo::phaseType value;
 
-  Phase();
-  Phase(Residuals& initRes, SolveInfo& solveInfo,
-	Parameter& param, int nDim);
-  ~Phase();
+    Phase(Residuals& initRes, SolveInfo& solveInfo, Parameter& param, int nDim);
+    ~Phase();
 
-  bool initialize(Residuals& initRes,
-		  SolveInfo& solveInfo,
-		  Parameter& param, int nDim);
-  bool updateCheck(Residuals& currentRes,
-		   SolveInfo& solveInfo,
-		   Parameter& param);
-  void reverse();
-  void display(FILE* fpout = stdout);
+    bool initialize(Residuals& initRes, SolveInfo& solveInfo, Parameter& param, int nDim);
+    bool updateCheck(Residuals& currentRes, SolveInfo& solveInfo, Parameter& param);
+    void reverse();
+    void display(FILE* fpout = stdout);
 };
 
-
-
-}
+} // namespace sdpa
 
 #endif // __sdpa_parts_h__

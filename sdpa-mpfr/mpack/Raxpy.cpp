@@ -70,30 +70,28 @@ Based on http://www.netlib.org/blas/daxpy.f
 
 #include <mblas_mpfr.h>
 
-void
-Raxpy(mpackint n, mpfr_class da, mpfr_class * dx, mpackint incx, mpfr_class * dy,
-    mpackint incy)
+void Raxpy(mpackint n, mpfr_class da, mpfr_class* dx, mpackint incx, mpfr_class* dy, mpackint incy)
 {
     mpfr_class Zero = 0.0;
 
     if (n <= 0)
-	return;
+        return;
     if (da == Zero)
-	return;
+        return;
 
     mpackint ix = 0;
 
     mpackint iy = 0;
 
     if (incx < 0)
-	ix = (-n + 1) * incx;
+        ix = (-n + 1) * incx;
     if (incy < 0)
-	iy = (-n + 1) * incy;
+        iy = (-n + 1) * incy;
 
     for (mpackint i = 0; i < n; i++) {
-	dy[iy] = dy[iy] + da * dx[ix];
-	ix = ix + incx;
-	iy = iy + incy;
+        dy[iy] = dy[iy] + da * dx[ix];
+        ix = ix + incx;
+        iy = iy + incy;
     }
     return;
 }

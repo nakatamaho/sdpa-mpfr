@@ -76,216 +76,237 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //real and complex.  We assume that NB will take the same value in
 //single or double precision.
 
-mpackint
-iMlaenv1(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv1(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     mpackint nb = 1;
-#if !defined (IMLAENV_DEBUG)
-    if (strcmp(&Mlaname[1],"orgqr") == 0) { nb = 32; return nb; }
-    if (strcmp(&Mlaname[1],"orgql") == 0) { nb = 32; return nb; }
-    if (strcmp(&Mlaname[1],"potrf") == 0) { nb = 64; return nb; }
-    if (strcmp(&Mlaname[1],"trtri") == 0) { nb = 64; return nb; }
-    if (strcmp(&Mlaname[1],"dsytrd") == 0) { nb = 32;return nb;  }
-    if (strcmp(&Mlaname[1],"getrf") == 0)  { nb = 64;return nb;  }
-    if (strcmp(&Mlaname[1],"getri") == 0)  { nb = 64;return nb;  }
-#else
-    if (strcmp(&Mlaname[1],"potrf") == 0)  { nb = 8;return nb; }
-    if (strcmp(&Mlaname[1],"orgqr") == 0)  { nb = 8;return nb; }
-    if (strcmp(&Mlaname[1],"orgql") == 0)  { nb = 8;return nb; }
-    if (strcmp(&Mlaname[1],"trtri") == 0)  { nb = 8;return nb; }
-    if (strcmp(&Mlaname[0],"dsytrd") == 0) { nb = 8;return nb; }
-    if (strcmp(&Mlaname[1],"getrf") == 0)  { nb = 8;return nb; }
-    if (strcmp(&Mlaname[1],"getri") == 0)  { nb = 8;return nb; }
-#endif
+    if (strcmp(&Mlaname[1], "orgqr") == 0) {
+        nb = 32;
+        return nb;
+    }
+    if (strcmp(&Mlaname[1], "orgql") == 0) {
+        nb = 32;
+        return nb;
+    }
+    if (strcmp(&Mlaname[1], "potrf") == 0) {
+        nb = 64;
+        return nb;
+    }
+    if (strcmp(&Mlaname[1], "trtri") == 0) {
+        nb = 64;
+        return nb;
+    }
+    if (strcmp(&Mlaname[1], "dsytrd") == 0) {
+        nb = 32;
+        return nb;
+    }
+    if (strcmp(&Mlaname[1], "getrf") == 0) {
+        nb = 64;
+        return nb;
+    }
+    if (strcmp(&Mlaname[1], "getri") == 0) {
+        nb = 64;
+        return nb;
+    }
     return nb;
 }
 
 //*     ISPEC = 2: minimum block size
-mpackint
-iMlaenv2(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv2(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     mpackint nbmin = 1;
-    if (strcmp(&Mlaname[1], "orgqr") == 0)  { nbmin = 2; return nbmin; }
-    if (strcmp(&Mlaname[1], "orgql") == 0)  { nbmin = 2; return nbmin; }
-    if (strcmp(&Mlaname[1], "trtri") == 0)  { nbmin = 2; return nbmin; }
-    if (strcmp(&Mlaname[0], "dsytrd") == 0) { nbmin = 2; return nbmin; }
-    if (strcmp(&Mlaname[0], "getri") == 0)  { nbmin = 2; return nbmin; }
+    if (strcmp(&Mlaname[1], "orgqr") == 0) {
+        nbmin = 2;
+        return nbmin;
+    }
+    if (strcmp(&Mlaname[1], "orgql") == 0) {
+        nbmin = 2;
+        return nbmin;
+    }
+    if (strcmp(&Mlaname[1], "trtri") == 0) {
+        nbmin = 2;
+        return nbmin;
+    }
+    if (strcmp(&Mlaname[0], "dsytrd") == 0) {
+        nbmin = 2;
+        return nbmin;
+    }
+    if (strcmp(&Mlaname[0], "getri") == 0) {
+        nbmin = 2;
+        return nbmin;
+    }
 
     return nbmin;
 }
 
 //     ISPEC = 3:  crossover point
-mpackint
-iMlaenv3(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv3(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     mpackint nx = 1;
-#if !defined (IMLAENV_DEBUG)
-    if (strcmp(&Mlaname[1],"orgqr")==0) { nx = 128; return nx; }
-    if (strcmp(&Mlaname[1],"orgql")==0) { nx = 128; return nx; }
-    if (strcmp(&Mlaname[0],"dsytrd")==0){ nx = 32; return nx; }
-#else
-    if (strcmp(&Mlaname[1],"orgqr") == 0) { nx = 6; return nx; }
-    if (strcmp(&Mlaname[1],"orgql") == 0) { nx = 6; return nx; }
-    if (strcmp(&Mlaname[0], "dsytrd")== 0){ nx = 6; return nx; }
-#endif
+    if (strcmp(&Mlaname[1], "orgqr") == 0) {
+        nx = 128;
+        return nx;
+    }
+    if (strcmp(&Mlaname[1], "orgql") == 0) {
+        nx = 128;
+        return nx;
+    }
+    if (strcmp(&Mlaname[0], "dsytrd") == 0) {
+        nx = 32;
+        return nx;
+    }
     return nx;
 }
 
-mpackint
-iMlaenv4(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv4(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv5(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv5(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv6(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv6(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv7(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv7(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv8(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv8(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv9(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3, mpackint n4)
+mpackint iMlaenv9(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                  mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv10(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv10(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv11(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv11(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv12(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv12(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv13(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv13(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv14(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv14(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv15(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv15(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv16(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv16(const char* Mlaname, const char* opts, mpackint n1, mpackint n2, mpackint n3,
+                   mpackint n4)
 {
     return 1;
 }
 
-mpackint
-iMlaenv_mpfr(mpackint ispec, const char *name, const char *opts, mpackint n1, mpackint n2, mpackint n3,
-    mpackint n4)
+mpackint iMlaenv_mpfr(mpackint ispec, const char* name, const char* opts, mpackint n1, mpackint n2,
+                      mpackint n3, mpackint n4)
 {
     mpackint iret, i, up;
 
     iret = -1;
 
     char Mlaname[MLANAMESIZE + 1];
-//buggy
+    //buggy
     strncpy(Mlaname, name, MLANAMESIZE);
     for (i = 0; i < MLANAMESIZE; i++) {
-	up = tolower(Mlaname[i]);
-	Mlaname[i] = up;
+        up = tolower(Mlaname[i]);
+        Mlaname[i] = up;
     }
 
     if (!Mlsame_mpfr(Mlaname, "r") && !Mlsame_mpfr(Mlaname, "c"))
-	return iret;
+        return iret;
 
     switch (ispec) {
     case 1:
-	iret = iMlaenv1(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv1(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 2:
-	iret = iMlaenv2(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv2(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 3:
-	iret = iMlaenv3(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv3(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 4:
-	iret = iMlaenv4(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv4(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 5:
-	iret = iMlaenv5(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv5(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 6:
-	iret = iMlaenv6(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv6(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 7:
-	iret = iMlaenv7(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv7(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 8:
-	iret = iMlaenv8(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv8(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 9:
-	iret = iMlaenv9(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv9(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 10:
-	iret = iMlaenv10(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv10(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 11:
-	iret = iMlaenv11(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv11(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 12:
-	iret = iMlaenv12(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv12(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 13:
-	iret = iMlaenv13(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv13(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 14:
-	iret = iMlaenv14(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv14(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 15:
-	iret = iMlaenv15(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv15(Mlaname, opts, n1, n2, n3, n4);
+        break;
     case 16:
-	iret = iMlaenv16(Mlaname, opts, n1, n2, n3, n4);
-	break;
+        iret = iMlaenv16(Mlaname, opts, n1, n2, n3, n4);
+        break;
     default:
-	iret = -1;
+        iret = -1;
     }
     return iret;
 }

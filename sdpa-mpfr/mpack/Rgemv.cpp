@@ -74,10 +74,8 @@ m by n matrix.
 
 #include <mblas_mpfr.h>
 
-void
-Rgemv(const char *trans, mpackint m, mpackint n, mpfr_class alpha,
-    mpfr_class * A, mpackint lda, mpfr_class * x, mpackint incx, mpfr_class beta,
-    mpfr_class * y, mpackint incy)
+void Rgemv(const char* trans, mpackint m, mpackint n, mpfr_class alpha, mpfr_class* A, mpackint lda,
+           mpfr_class* x, mpackint incx, mpfr_class beta, mpfr_class* y, mpackint incy)
 {
     mpackint lenx, leny, ix, jx, kx, iy, jy, ky;
 
@@ -89,89 +87,89 @@ Rgemv(const char *trans, mpackint m, mpackint n, mpfr_class alpha,
 
     //Test the input parameters.
     if (!Mlsame_mpfr(trans, "N") && !Mlsame_mpfr(trans, "T") && !Mlsame_mpfr(trans, "C"))
-	info = 1;
+        info = 1;
     else if (m < 0)
-	info = 2;
+        info = 2;
     else if (n < 0)
-	info = 3;
-    else if (lda < max((mpackint) 1, m))
-	info = 6;
+        info = 3;
+    else if (lda < max((mpackint)1, m))
+        info = 6;
     else if (incx == 0)
-	info = 8;
+        info = 8;
     else if (incy == 0)
-	info = 11;
+        info = 11;
     if (info != 0) {
-	Mxerbla_mpfr("Rgemv ", info);
-	return;
+        Mxerbla_mpfr("Rgemv ", info);
+        return;
     }
     //Quick return if possible.
     if ((m == 0) || (n == 0) || ((alpha == Zero) && (beta == One)))
-	return;
+        return;
 
     //Set lenx and leny, the lengths of the vectors x and y, and set
     //up the start points in x and y.
     if (Mlsame_mpfr(trans, "N")) {
-	lenx = n;
-	leny = m;
+        lenx = n;
+        leny = m;
     } else {
-	lenx = m;
-	leny = n;
+        lenx = m;
+        leny = n;
     }
     if (incx > 0)
-	kx = 0;
+        kx = 0;
     else
-	kx = (1 - lenx) * incx;
+        kx = (1 - lenx) * incx;
     if (incy > 0)
-	ky = 0;
+        ky = 0;
     else
-	ky = (1 - leny) * incy;
+        ky = (1 - leny) * incy;
 
     //start the operations. in this version the elements of a are
     //accessed sequentially with One pass through a.
     //first form  y := beta*y.
     if (beta != One) {
-	iy = ky;
-	if (beta == Zero) {
-	    for (mpackint i = 0; i < leny; i++) {
-		y[iy] = Zero;
-		iy = iy + incy;
-	    }
-	} else {
-	    for (mpackint i = 0; i < leny; i++) {
-		y[iy] = beta * y[iy];
-		iy = iy + incy;
-	    }
-	}
+        iy = ky;
+        if (beta == Zero) {
+            for (mpackint i = 0; i < leny; i++) {
+                y[iy] = Zero;
+                iy = iy + incy;
+            }
+        } else {
+            for (mpackint i = 0; i < leny; i++) {
+                y[iy] = beta * y[iy];
+                iy = iy + incy;
+            }
+        }
     }
     if (alpha == Zero)
-	return;
+        return;
     if (Mlsame_mpfr(trans, "N")) {
-	//form y := alpha*A*x + y.
-	jx = kx;
-	for (mpackint j = 0; j < n; j++) {
-	    if (x[jx] != Zero) {
-		temp = alpha * x[jx];
-		iy = ky;
-		for (mpackint i = 0; i < m; i++) {
-		    y[iy] = y[iy] + temp * A[i + j * lda];
-		    iy = iy + incy;
-		}
-	    }
-	    jx = jx + incx;
-	}
+        //form y := alpha*A*x + y.
+        jx = kx;
+        for (mpackint j = 0; j < n; j++) {
+            if (x[jx] != Zero) {
+                temp = alpha * x[jx];
+                iy = ky;
+                for (mpackint i = 0; i < m; i++) {
+                    y[iy] = y[iy] + temp * A[i + j * lda];
+                    iy = iy + incy;
+                }
+            }
+            jx = jx + incx;
+        }
     } else {
-	//Form y := alpha*A'*x + y.
-	jy = ky;
-	for (mpackint j = 0; j < n; j++) {
-	    temp = Zero;
-	    ix = kx;
-	    for (mpackint i = 0; i < m; i++) {
-		temp = temp + A[i + j * lda] * x[ix];
-		ix = ix + incx;
-	    }
-	    y[jy] = y[jy] + alpha * temp;
-	    jy = jy + incy;
-	}
+        //Form y := alpha*A'*x + y.
+        jy = ky;
+        for (mpackint j = 0; j < n; j++) {
+            temp = Zero;
+            ix = kx;
+            for (mpackint i = 0; i < m; i++) {
+                temp = temp + A[i + j * lda] * x[ix];
+                ix = ix + incx;
+            }
+            y[jy] = y[jy] + alpha * temp;
+            jy = jy + incy;
+        }
     }
     return;
 }

@@ -70,17 +70,16 @@ scales a vector by a constant.
 
 #include <mblas_mpfr.h>
 
-void
-Rscal(mpackint n, mpfr_class da, mpfr_class * dx, mpackint incx)
+void Rscal(mpackint n, mpfr_class da, mpfr_class* dx, mpackint incx)
 {
     mpackint nincx;
 
     if (n <= 0 || incx <= 0)
-	return;
+        return;
 
     nincx = n * incx;
     for (mpackint i = 0; i < nincx; i = i + incx) {
-	dx[i] = da * dx[i];
+        dx[i] = da * dx[i];
     }
     return;
 }

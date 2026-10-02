@@ -67,9 +67,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mblas_mpfr.h>
 #include <mlapack_mpfr.h>
 
-void
-Rlarft(const char *direct, const char *storev, mpackint n, mpackint k, mpfr_class * v,
-    mpackint ldv, mpfr_class * tau, mpfr_class * t, mpackint ldt)
+void Rlarft(const char* direct, const char* storev, mpackint n, mpackint k, mpfr_class* v,
+            mpackint ldv, mpfr_class* tau, mpfr_class* t, mpackint ldt)
 {
     mpfr_class Zero = 0.0, One = 1.0;
     mpfr_class vii;
@@ -77,73 +76,66 @@ Rlarft(const char *direct, const char *storev, mpackint n, mpackint k, mpfr_clas
 
     //Quick return if possible
     if (n == 0)
-	return;
+        return;
 
     if (Mlsame_mpfr(direct, "F")) {
-	for (i = 1; i <= k; i++) {
-	    if (tau[i - 1] == Zero) {
-		//H(i)  =  I
-		for (j = 1; j <= i; j++) {
-		    t[(j - 1) + (i - 1) * ldt] = Zero;
-		}
-	    } else {
-		//general case
-		vii = v[(i - 1) + (i - 1) * ldv];
-		v[(i - 1) + (i - 1) * ldv] = One;
-		if (Mlsame_mpfr(storev, "C")) {
-		    // T(1:i-1,i) := - tau(i) * V(i:n,1:i-1)' * V(i:n,i)
-		    Rgemv("Transpose", n - i + 1, i - 1, -tau[i - 1],
-			&v[(i - 1) + 0 * ldv], ldv,
-			&v[(i - 1) + (i - 1) * ldv], 1, Zero,
-			&t[0 + (i - 1) * ldt], 1);
-		} else {
-		    //T(1:i-1,i) := - tau(i) * V(1:i-1,i:n) * V(i,i:n)'
-		    Rgemv("No transpose", i - 1, n - i + 1, -tau[i - 1],
-			&v[0 + (i - 1) * ldv], ldv,
-			&v[(i - 1) + (i - 1) * ldv], ldv, Zero,
-			&t[0 + (i - 1) * ldt], 1);
-		}
-		v[(i - 1) + (i - 1) * ldv] = vii;
-		//T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
-		Rtrmv("Upper", "No transpose", "Non-unit", i - 1, t, ldt,
-		    &t[0 + (i - 1) * ldt], 1);
-		t[(i - 1) + (i - 1) * ldt] = tau[i - 1];
-	    }
-	}
+        for (i = 1; i <= k; i++) {
+            if (tau[i - 1] == Zero) {
+                //H(i)  =  I
+                for (j = 1; j <= i; j++) {
+                    t[(j - 1) + (i - 1) * ldt] = Zero;
+                }
+            } else {
+                //general case
+                vii = v[(i - 1) + (i - 1) * ldv];
+                v[(i - 1) + (i - 1) * ldv] = One;
+                if (Mlsame_mpfr(storev, "C")) {
+                    // T(1:i-1,i) := - tau(i) * V(i:n,1:i-1)' * V(i:n,i)
+                    Rgemv("Transpose", n - i + 1, i - 1, -tau[i - 1], &v[(i - 1) + 0 * ldv], ldv,
+                          &v[(i - 1) + (i - 1) * ldv], 1, Zero, &t[0 + (i - 1) * ldt], 1);
+                } else {
+                    //T(1:i-1,i) := - tau(i) * V(1:i-1,i:n) * V(i,i:n)'
+                    Rgemv("No transpose", i - 1, n - i + 1, -tau[i - 1], &v[0 + (i - 1) * ldv], ldv,
+                          &v[(i - 1) + (i - 1) * ldv], ldv, Zero, &t[0 + (i - 1) * ldt], 1);
+                }
+                v[(i - 1) + (i - 1) * ldv] = vii;
+                //T(1:i-1,i) := T(1:i-1,1:i-1) * T(1:i-1,i)
+                Rtrmv("Upper", "No transpose", "Non-unit", i - 1, t, ldt, &t[0 + (i - 1) * ldt], 1);
+                t[(i - 1) + (i - 1) * ldt] = tau[i - 1];
+            }
+        }
     } else {
-	for (i = k; i >= 1; i--) {
-	    if (tau[i - 1] == Zero) {
-		//H(i)  =  I
-		for (j = i; j < k; j++) {
-		    t[(j - 1) + (i - 1) * ldt] = Zero;
-		}
-	    } else {
-		//general case
-		if (i < k) {
-		    if (Mlsame_mpfr(storev, "C")) {
-			vii = v[(n - k + i - 1) + (i - 1) * ldv];
-			v[(n - k + i - 1) + (i - 1) * ldv] = One;
-			//T(i+1:k,i) := - tau(i) * V(1:n-k+i,i+1:k)' * V(1:n-k+i,i)
-			Rgemv("Transpose", n - k + i, k - i, -tau[i - 1],
-			    &v[0 + i * ldv], ldv, &v[0 + (i - 1) * ldv], 1,
-			    Zero, &t[i + (i - 1) * ldt], 1);
-			v[(n - k + i - 1) + (i - 1) * ldv] = vii;
-		    } else {
-			vii = v[(i - 1) + (n - k + i - 1) * ldv];
-			v[(i - 1) + (n - k + i - 1) * ldv] = One;
-			//T(i+1:k,i) := - tau(i) * V(i+1:k,1:n-k+i) * V(i,1:n-k+i)'
-			Rgemv("No transpose", k - i, n - k + i, -tau[i - 1],
-			    &v[i + 0 * ldv], ldv, &v[(i - 1) + 0 * ldv], ldv,
-			    Zero, &t[i + (i - 1) * ldt], 1);
-			v[(i - 1) + (n - k + i - 1) * ldv] = vii;
-		    }
-		    //T(i+1:k,i) := T(i+1:k,i+1:k) * T(i+1:k,i)
-		    Rtrmv("Lower", "No transpose", "Non-unit", k - i,
-			&t[i + i * ldt], ldt, &t[i + (i - 1) * ldt], 1);
-		}
-		t[(i - 1) + (i - 1) * ldt] = tau[i - 1];
-	    }
-	}
+        for (i = k; i >= 1; i--) {
+            if (tau[i - 1] == Zero) {
+                //H(i)  =  I
+                for (j = i; j < k; j++) {
+                    t[(j - 1) + (i - 1) * ldt] = Zero;
+                }
+            } else {
+                //general case
+                if (i < k) {
+                    if (Mlsame_mpfr(storev, "C")) {
+                        vii = v[(n - k + i - 1) + (i - 1) * ldv];
+                        v[(n - k + i - 1) + (i - 1) * ldv] = One;
+                        //T(i+1:k,i) := - tau(i) * V(1:n-k+i,i+1:k)' * V(1:n-k+i,i)
+                        Rgemv("Transpose", n - k + i, k - i, -tau[i - 1], &v[0 + i * ldv], ldv,
+                              &v[0 + (i - 1) * ldv], 1, Zero, &t[i + (i - 1) * ldt], 1);
+                        v[(n - k + i - 1) + (i - 1) * ldv] = vii;
+                    } else {
+                        vii = v[(i - 1) + (n - k + i - 1) * ldv];
+                        v[(i - 1) + (n - k + i - 1) * ldv] = One;
+                        //T(i+1:k,i) := - tau(i) * V(i+1:k,1:n-k+i) * V(i,1:n-k+i)'
+                        Rgemv("No transpose", k - i, n - k + i, -tau[i - 1], &v[i + 0 * ldv], ldv,
+                              &v[(i - 1) + 0 * ldv], ldv, Zero, &t[i + (i - 1) * ldt], 1);
+                        v[(i - 1) + (n - k + i - 1) * ldv] = vii;
+                    }
+                    //T(i+1:k,i) := T(i+1:k,i+1:k) * T(i+1:k,i)
+                    Rtrmv("Lower", "No transpose", "Non-unit", k - i, &t[i + i * ldt], ldt,
+                          &t[i + (i - 1) * ldt], 1);
+                }
+                t[(i - 1) + (i - 1) * ldt] = tau[i - 1];
+            }
+        }
     }
     return;
 }
