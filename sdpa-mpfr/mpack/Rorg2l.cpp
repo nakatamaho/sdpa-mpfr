@@ -64,15 +64,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rorg2l(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_class * tau,
-    mpf_class * work, mpackint *info)
+Rorg2l(mpackint m, mpackint n, mpackint k, mpfr_class * A, mpackint lda, mpfr_class * tau,
+    mpfr_class * work, mpackint *info)
 {
     mpackint i, ii, j, l;
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
     *info = 0;
     if (m < 0) {
@@ -85,7 +85,7 @@ Rorg2l(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_clas
 	*info = -5;
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rorg2l", -(*info));
+	Mxerbla_mpfr("Rorg2l", -(*info));
 	return;
     }
 //quick return if possible

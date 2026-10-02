@@ -35,7 +35,7 @@ Vector::Vector()
   ele  = NULL;
 }
 
-Vector::Vector(int nDim, mpf_class value)
+Vector::Vector(int nDim, mpfr_class value)
 {
   ele  = NULL;
   initialize(nDim,value);
@@ -46,7 +46,7 @@ Vector::~Vector()
   terminate();
 }
 
-void Vector::initialize(int nDim,mpf_class value)
+void Vector::initialize(int nDim,mpfr_class value)
 {
   // rMessage("Vector initialize");
   if (ele && this->nDim!=nDim) {
@@ -62,7 +62,7 @@ void Vector::initialize(int nDim,mpf_class value)
   if (ele==NULL) {
     ele = NULL;
     rNewCheck();
-    ele = new mpf_class[nDim];
+    ele = new mpfr_class[nDim];
     if (ele==NULL) {
       rError("Vector:: memory exhausted");
     }
@@ -70,14 +70,14 @@ void Vector::initialize(int nDim,mpf_class value)
   sdpa_dset(nDim,value,ele,IONE);
 }
 
-void Vector::initialize(mpf_class value)
+void Vector::initialize(mpfr_class value)
 {
   if (nDim<=0) {
     rError("Vector:: nDim is nonpositive");
   }
   if (ele==NULL) {
     rNewCheck();
-    ele = new mpf_class[nDim];
+    ele = new mpfr_class[nDim];
     if (ele==NULL) {
       rError("Vector:: memory exhausted");
     }
@@ -95,7 +95,7 @@ void Vector::terminate()
 
 void Vector::setZero()
 {
-  mpf_class zero=0.0;
+  mpfr_class zero=0.0;
   initialize(zero);
 }
 
@@ -106,28 +106,28 @@ void Vector::display(FILE* fpout)
   }
   fprintf(fpout,"{");
   for (int j=0; j<nDim-1; ++j) {
-    gmp_fprintf(fpout,P_FORMAT",",ele[j].get_mpf_t());
+    mpfr_fprintf(fpout,P_FORMAT",",ele[j].get_mpfr_t());
   }
   if (nDim>0) {
-    gmp_fprintf(fpout,P_FORMAT"}\n",ele[nDim-1].get_mpf_t());
+    mpfr_fprintf(fpout,P_FORMAT"}\n",ele[nDim-1].get_mpfr_t());
   } else {
     fprintf(fpout,"  }\n");
   }
 }
 
-void Vector::display(FILE* fpout,mpf_class scalar)
+void Vector::display(FILE* fpout,mpfr_class scalar)
 {
   if (fpout == NULL) {
     return;
   }
   fprintf(fpout,"{");
   for (int j=0; j<nDim-1; ++j) {
-    mpf_class mtmp=ele[j]*scalar;
-    gmp_fprintf(fpout,P_FORMAT",",mtmp.get_mpf_t());
+    mpfr_class mtmp=ele[j]*scalar;
+    mpfr_fprintf(fpout,P_FORMAT",",mtmp.get_mpfr_t());
   }
   if (nDim>0) {
-    mpf_class mtmp=ele[nDim-1]*scalar;
-    gmp_fprintf(fpout,P_FORMAT"}\n",mtmp.get_mpf_t());
+    mpfr_class mtmp=ele[nDim-1]*scalar;
+    mpfr_fprintf(fpout,P_FORMAT"}\n",mtmp.get_mpfr_t());
   } else {
     fprintf(fpout,"  }\n");
   }
@@ -148,7 +148,7 @@ bool Vector::copyFrom(Vector& other)
   }
   if (ele==NULL) {
     rNewCheck();
-    ele = new mpf_class[nDim];
+    ele = new mpfr_class[nDim];
     if (ele==NULL) {
       rError("Vector:: memory exhausted");
     }
@@ -165,7 +165,7 @@ BlockVector::BlockVector()
 }
 
 BlockVector::BlockVector(int nBlock, int* blockStruct,
-			   mpf_class value)
+			   mpfr_class value)
 {
   initialize(nBlock,blockStruct,value);
 }
@@ -176,7 +176,7 @@ BlockVector::~BlockVector()
 }
 
 void BlockVector::initialize(int nBlock, int* blockStruct,
-			      mpf_class value)
+			      mpfr_class value)
 {
   // rMessage("BlockVector initialize");
   this->nBlock = nBlock;
@@ -208,7 +208,7 @@ void BlockVector::initialize(int nBlock, int* blockStruct,
   }
 }
 
-void BlockVector::initialize(mpf_class value)
+void BlockVector::initialize(mpfr_class value)
 {
   if (nBlock>0 && blockStruct && ele) {
     for (int l=0; l<nBlock; ++l) {
@@ -349,7 +349,7 @@ initialize(int nRow, int nCol,
       rNewCheck();
       column_index = new int[NonZeroNumber];
       rNewCheck();
-      sp_ele       = new mpf_class[NonZeroNumber];
+      sp_ele       = new mpfr_class[NonZeroNumber];
       if (row_index==NULL || column_index==NULL
 	  || sp_ele==NULL) {
 	rError("SparseMatrix:: memory exhausted");
@@ -361,7 +361,7 @@ initialize(int nRow, int nCol,
     this->NonZeroCount  = nRow*nCol;
     this->NonZeroEffect = nRow*nCol;
     rNewCheck();
-    de_ele = new mpf_class[NonZeroNumber];
+    de_ele = new mpfr_class[NonZeroNumber];
     if (de_ele==NULL) {
       rError("SparseMatrix:: memory exhausted");
     }
@@ -403,8 +403,8 @@ void SparseMatrix::display(FILE* fpout)
     for (int index=0; index<NonZeroCount; ++index) {
       int i        = row_index[index];
       int j        = column_index[index];
-      mpf_class value = sp_ele[index];
-      gmp_fprintf(fpout,"val[%d,%d] = "P_FORMAT"\n", i,j,value.get_mpf_t());
+      mpfr_class value = sp_ele[index];
+      mpfr_fprintf(fpout,"val[%d,%d] = "P_FORMAT"\n", i,j,value.get_mpfr_t());
     }
     fprintf(fpout,"}\n");
     break;
@@ -418,17 +418,17 @@ void SparseMatrix::display(FILE* fpout)
       }
       fprintf(fpout,"{");
       for (int j=0; j<nCol-1; ++j) {
-        gmp_fprintf(fpout, P_FORMAT",",de_ele[i+nCol*j].get_mpf_t());
+        mpfr_fprintf(fpout, P_FORMAT",",de_ele[i+nCol*j].get_mpfr_t());
       }
-       gmp_fprintf(fpout,P_FORMAT" },\n",de_ele[i+nCol*(nCol-1)].get_mpf_t());
+       mpfr_fprintf(fpout,P_FORMAT" },\n",de_ele[i+nCol*(nCol-1)].get_mpfr_t());
     }
     if (nRow>1) {
       fprintf(fpout,"  {");
     }
     for (int j=0; j<nCol-1; ++j) {
-      gmp_fprintf(fpout,P_FORMAT",",de_ele[(nRow-1)+nCol*j].get_mpf_t());
+      mpfr_fprintf(fpout,P_FORMAT",",de_ele[(nRow-1)+nCol*j].get_mpfr_t());
     }
-    gmp_fprintf(fpout,P_FORMAT" }",de_ele[(nRow-1)+nCol*(nCol-1)].get_mpf_t());
+    mpfr_fprintf(fpout,P_FORMAT" }",de_ele[(nRow-1)+nCol*(nCol-1)].get_mpfr_t());
     if (nRow>1) {
       fprintf(fpout,"   }\n");
     } else {
@@ -479,7 +479,7 @@ bool SparseMatrix::copyFrom(SparseMatrix& other)
 	rNewCheck();
 	column_index = new int[NonZeroNumber];
 	rNewCheck();
-	sp_ele       = new mpf_class[NonZeroNumber];
+	sp_ele       = new mpfr_class[NonZeroNumber];
 	if (row_index==NULL || column_index==NULL
 	    || sp_ele==NULL) {
 	  rError("SparseMatrix:: memory exhausted");
@@ -518,7 +518,7 @@ void SparseMatrix::changeToDense(bool forceChange)
   de_ele = NULL;
   int length = nRow*nCol;
   rNewCheck();
-  de_ele = new mpf_class[length];
+  de_ele = new mpfr_class[length];
   if (de_ele==NULL) {
     rError("SparseMatrix:: memory exhausted");
   }
@@ -527,7 +527,7 @@ void SparseMatrix::changeToDense(bool forceChange)
   for (int index=0; index<NonZeroCount; ++index) {
     int        i = row_index[index];
     int        j = column_index[index];
-    mpf_class value = sp_ele[index];
+    mpfr_class value = sp_ele[index];
     if (i==j) {
       de_ele[i+nCol*j] = value;
     } else {
@@ -559,7 +559,7 @@ void SparseMatrix::setZero()
   }
 }
 
-void SparseMatrix::setIdentity(mpf_class scalar)
+void SparseMatrix::setIdentity(mpfr_class scalar)
 {
   if (nRow != nCol) {
     rError("SparseMatrix:: Identity matrix must be square matrix");
@@ -595,7 +595,7 @@ bool SparseMatrix::sortSparseIndex(int& i, int& j)
   // return the index(i,j) whose values are not symmetric.
   i = -1;
   j = -1;
-  const mpf_class tolerance = 1.0e-8;
+  const mpfr_class tolerance = 1.0e-8;
   switch(type) {
   case SPARSE:
     // Make matrix as Upper Triangluar
@@ -615,7 +615,7 @@ bool SparseMatrix::sortSparseIndex(int& i, int& j)
 	if (index1<index2) {
 	  int         tmpi = row_index   [i2];
 	  int         tmpj = column_index[i2];
-	  mpf_class      tmpv = sp_ele      [i2];
+	  mpfr_class      tmpv = sp_ele      [i2];
 	  row_index   [i2] = row_index   [i1];
 	  column_index[i2] = column_index[i1];
 	  sp_ele      [i2] = sp_ele      [i1];
@@ -713,7 +713,7 @@ initialize(int nRow, int nCol,
     }
     if (de_ele==NULL) {
       rNewCheck();
-      de_ele = new mpf_class[length];
+      de_ele = new mpfr_class[length];
       if (de_ele==NULL) {
 	rError("DenseMatrix:: memory exhausted");
       }
@@ -750,17 +750,17 @@ void DenseMatrix::display(FILE* fpout)
       }
       fprintf(fpout,"{");
       for (int j=0; j<nCol-1; ++j) {
-        gmp_fprintf(fpout, P_FORMAT",",de_ele[i+nCol*j].get_mpf_t());
+        mpfr_fprintf(fpout, P_FORMAT",",de_ele[i+nCol*j].get_mpfr_t());
       }
-      gmp_fprintf(fpout,P_FORMAT" },\n",de_ele[i+nCol*(nCol-1)].get_mpf_t());
+      mpfr_fprintf(fpout,P_FORMAT" },\n",de_ele[i+nCol*(nCol-1)].get_mpfr_t());
     }
     if (nRow>1) {
       fprintf(fpout,"  {");
     }
     for (int j=0; j<nCol-1; ++j) {
-      gmp_fprintf(fpout,P_FORMAT",",de_ele[(nRow-1)+nCol*j].get_mpf_t());
+      mpfr_fprintf(fpout,P_FORMAT",",de_ele[(nRow-1)+nCol*j].get_mpfr_t());
     }
-    gmp_fprintf(fpout,P_FORMAT" }",de_ele[(nRow-1)+nCol*(nCol-1)].get_mpf_t());
+    mpfr_fprintf(fpout,P_FORMAT" }",de_ele[(nRow-1)+nCol*(nCol-1)].get_mpfr_t());
     if (nRow>1) {
       fprintf(fpout,"   }\n");
     } else {
@@ -786,7 +786,7 @@ bool DenseMatrix::copyFrom(SparseMatrix& other)
     nRow = other.nRow;
     nCol = other.nCol;
     rNewCheck();
-    de_ele = new mpf_class[nRow*nCol];
+    de_ele = new mpfr_class[nRow*nCol];
     if (de_ele==NULL) {
       rError("DenseMatrix:: memory exhausted");
     }
@@ -795,7 +795,7 @@ bool DenseMatrix::copyFrom(SparseMatrix& other)
     for (int index = 0; index<other.NonZeroCount; ++index) {
       int i = other.row_index[index];
       int j = other.column_index[index];
-      mpf_class value = other.sp_ele[index];
+      mpfr_class value = other.sp_ele[index];
       de_ele[i+nCol*j] = de_ele[j+nCol*i] = value;
     }
     break;
@@ -808,7 +808,7 @@ bool DenseMatrix::copyFrom(SparseMatrix& other)
     nRow = other.nRow;
     nCol = other.nCol;
     rNewCheck();
-    de_ele = new mpf_class[nRow*nCol];
+    de_ele = new mpfr_class[nRow*nCol];
     if (de_ele==NULL) {
       rError("DenseMatrix:: memory exhausted");
     }
@@ -836,7 +836,7 @@ bool DenseMatrix::copyFrom(DenseMatrix& other)
     nCol = other.nCol;
     if (de_ele==NULL) {
       rNewCheck();
-      de_ele = new mpf_class[nRow*nCol];
+      de_ele = new mpfr_class[nRow*nCol];
       if (de_ele==NULL) {
 	rError("DenseMatrix:: memory exhausted");
       }
@@ -866,7 +866,7 @@ void DenseMatrix::setZero()
   }
 }
 
-void DenseMatrix::setIdentity(mpf_class scalar)
+void DenseMatrix::setIdentity(mpfr_class scalar)
 {
   if (nRow != nCol) {
     rError("SparseMatrix:: Identity matrix must be square matrix");
@@ -1031,7 +1031,7 @@ void SparseLinearSpace::initialize(int SDP_nBlock,
 	}
 	LP_sp_block = NULL;
 	rNewCheck();
-	LP_sp_block = new mpf_class[LP_sp_nBlock];
+	LP_sp_block = new mpfr_class[LP_sp_nBlock];
 	if (LP_sp_block==NULL) {
 	  rError("SparseLinearSpace:: memory exhausted");
 	}
@@ -1119,7 +1119,7 @@ void SparseLinearSpace::initialize(int SDP_sp_nBlock,
 	}
 	this->LP_sp_block = NULL;
 	rNewCheck();
-	this->LP_sp_block = new mpf_class[LP_sp_nBlock];
+	this->LP_sp_block = new mpfr_class[LP_sp_nBlock];
 	if (this->LP_sp_block==NULL) {
 	  rError("SparseLinearSpace:: memory exhausted");
 	}
@@ -1211,8 +1211,8 @@ void SparseLinearSpace::display(FILE* fpout)
   if (LP_sp_nBlock>0 && LP_sp_index && LP_sp_block) {
     fprintf(fpout,"LP part{\n");
     for (int l=0; l<LP_sp_nBlock; ++l) {
-      gmp_fprintf(fpout,"index: %d, element %Fe\n",
-	      LP_sp_index[l] ,LP_sp_block[l].get_mpf_t());
+      mpfr_fprintf(fpout,"index: %d, element %Re\n",
+	      LP_sp_index[l] ,LP_sp_block[l].get_mpfr_t());
     }
     fprintf(fpout,"} \n");
   }
@@ -1327,7 +1327,7 @@ bool SparseLinearSpace::copyFrom(SparseLinearSpace& other)
   }
   if ((LP_sp_nBlock > 0)&&(LP_sp_block==NULL)) {
     rNewCheck();
-    LP_sp_block = new mpf_class[LP_sp_nBlock];
+    LP_sp_block = new mpfr_class[LP_sp_nBlock];
     if (LP_sp_block==NULL) {
       rError("SparseLinearSpace:: memory exhausted");
     }
@@ -1344,7 +1344,7 @@ bool SparseLinearSpace::copyFrom(SparseLinearSpace& other)
   return total_judge;
 }
 
-void SparseLinearSpace::setElement_SDP(int block, int i, int j, mpf_class ele)
+void SparseLinearSpace::setElement_SDP(int block, int i, int j, mpfr_class ele)
 {
   int k;
 
@@ -1380,12 +1380,12 @@ void SparseLinearSpace::setElement_SDP(int block, int i, int j, mpf_class ele)
   
 }
 
-void SparseLinearSpace::setElement_SOCP(int block, int i, int j, mpf_class ele)
+void SparseLinearSpace::setElement_SOCP(int block, int i, int j, mpfr_class ele)
 {
   rError("DenseLinearSpace:: current version does not support SOCP");
 }
 
-void SparseLinearSpace::setElement_LP(int block, mpf_class ele)
+void SparseLinearSpace::setElement_LP(int block, mpfr_class ele)
 {
   int k;
 
@@ -1424,7 +1424,7 @@ void SparseLinearSpace::setZero()
   }
 }
 
-void SparseLinearSpace::setIdentity(mpf_class scalar)
+void SparseLinearSpace::setIdentity(mpfr_class scalar)
 {
   rError("SparseLinearSpace::setIdentity   no support");
   if (SDP_sp_nBlock>0 && SDP_sp_index && SDP_sp_block) {
@@ -1565,7 +1565,7 @@ void DenseLinearSpace::initialize(int SDP_nBlock, int* SDP_blockStruct,
   }
   if ((LP_nBlock > 0) && (LP_block==NULL)) {
     rNewCheck();
-    LP_block = new mpf_class[LP_nBlock];
+    LP_block = new mpfr_class[LP_nBlock];
     if (LP_block==NULL) {
       rError("DenseLinearSpace:: memory exhausted");
     }
@@ -1633,7 +1633,7 @@ void DenseLinearSpace::display(FILE* fpout)
   if (LP_nBlock>0 && LP_block) {
     fprintf(fpout,"LP part{\n");
     for (int l=0; l<LP_nBlock; ++l) {
-      gmp_fprintf(fpout,"%Fe, ",LP_block[l].get_mpf_t());
+      mpfr_fprintf(fpout,"%Re, ",LP_block[l].get_mpfr_t());
     }
     fprintf(fpout,"} \n");
   }
@@ -1709,7 +1709,7 @@ bool DenseLinearSpace::copyFrom(DenseLinearSpace& other)
   }
   LP_nBlock = other.LP_nBlock;
   if ((LP_nBlock > 0) && (LP_block == NULL)) {
-    LP_block = new mpf_class[LP_nBlock];
+    LP_block = new mpfr_class[LP_nBlock];
     if (LP_block==NULL) {
       rError("DenseLinearSpace:: memory exhausted");
     }
@@ -1722,7 +1722,7 @@ bool DenseLinearSpace::copyFrom(DenseLinearSpace& other)
   return total_judge;
 }
 
-void DenseLinearSpace::setElement_SDP(int block, int i, int j, mpf_class ele)
+void DenseLinearSpace::setElement_SDP(int block, int i, int j, mpfr_class ele)
 {
 
   // check range
@@ -1738,12 +1738,12 @@ void DenseLinearSpace::setElement_SDP(int block, int i, int j, mpf_class ele)
   SDP_block[block].de_ele[j + i * nCol] = ele;
 }
 
-void DenseLinearSpace::setElement_SOCP(int block, int i, int j, mpf_class ele)
+void DenseLinearSpace::setElement_SOCP(int block, int i, int j, mpfr_class ele)
 {
   rError("DenseLinearSpace:: current version does not support SOCP");
 }
 
-void DenseLinearSpace::setElement_LP(int block, mpf_class ele)
+void DenseLinearSpace::setElement_LP(int block, mpfr_class ele)
 {
   // check range
   if (block >= LP_nBlock){
@@ -1779,7 +1779,7 @@ void DenseLinearSpace::setZero()
 
 }
 
-void DenseLinearSpace::setIdentity(mpf_class scalar)
+void DenseLinearSpace::setIdentity(mpfr_class scalar)
 {
   // for SDP
   if (SDP_nBlock>0 && SDP_block) {
@@ -1807,37 +1807,37 @@ void DenseLinearSpace::setIdentity(mpf_class scalar)
 
 
 //print vector as matlab compat format.
-void gmp_printvec (int N, mpf_class *A)
+void gmp_printvec (int N, mpfr_class *A)
 {
   printf(" [ ");
   for (int i=0; i<N-1; i++){
-    gmp_printf( P_FORMAT "; ", A[i].get_mpf_t());
+    mpfr_printf( P_FORMAT "; ", A[i].get_mpfr_t());
   }
-  gmp_printf( P_FORMAT " ] ", A[N-1].get_mpf_t());
+  mpfr_printf( P_FORMAT " ] ", A[N-1].get_mpfr_t());
 }
 
 //print vector as matlab compat format.
-void gmp_printveci (int N, mpf_class *A, int inc)
+void gmp_printveci (int N, mpfr_class *A, int inc)
 {
   int ix=0;
   printf(" [ ");
   for (int i=0; i<N-1; i++){
-    gmp_printf( P_FORMAT "; ", A[ix].get_mpf_t());
+    mpfr_printf( P_FORMAT "; ", A[ix].get_mpfr_t());
     ix = ix + inc;
   }
-  gmp_printf( P_FORMAT " ] ", A[ix].get_mpf_t());
+  mpfr_printf( P_FORMAT " ] ", A[ix].get_mpfr_t());
 }
 
 //print matrix as matlab compat format.
-void gmp_printmat (int N, int M, mpf_class *A, int LDA)
+void gmp_printmat (int N, int M, mpfr_class *A, int LDA)
 {
-  mpf_class mtmp;
+  mpfr_class mtmp;
   printf("[ ");
   for (int i=0; i<N; i++){
     printf("[ ");
     for (int j=0; j<M; j++){
       mtmp=A[i+j*LDA];
-      gmp_printf( P_FORMAT, mtmp.get_mpf_t());
+      mpfr_printf( P_FORMAT, mtmp.get_mpfr_t());
       if (j<M-1) printf(", ");
     }
     if (i<N-1) printf("]; "); else printf ("] ");
@@ -1846,15 +1846,15 @@ void gmp_printmat (int N, int M, mpf_class *A, int LDA)
 }
 
 //print symmetry matrix as matlab compat format.
-void gmp_printsymmmat (int N, mpf_class *A, int LDA)
+void gmp_printsymmmat (int N, mpfr_class *A, int LDA)
 {
-  mpf_class mtmp;
+  mpfr_class mtmp;
   printf("[ ");
   for (int i=0; i<N; i++){
     printf("[ ");
     for (int j=0; j<N; j++){
       mtmp=A[i+j*LDA];
-      gmp_printf(P_FORMAT, mtmp.get_mpf_t());
+      mpfr_printf(P_FORMAT, mtmp.get_mpfr_t());
       if (j<N-1) printf(", ");
     }
     if (i<N-1) printf("]; "); else printf ("] ");
@@ -1862,23 +1862,23 @@ void gmp_printsymmmat (int N, mpf_class *A, int LDA)
   printf("]");
 }
 
-void gmp_printmat3 (int N, mpf_class *p, mpf_class *q)
+void gmp_printmat3 (int N, mpfr_class *p, mpfr_class *q)
 {
-  mpf_class mtmp;
-  mpf_class zero;
+  mpfr_class mtmp;
+  mpfr_class zero;
   zero = 0.0;
   printf(" [ ");
   for (int i=0; i<N; i++){
     printf(" [ ");
     for (int j=0; j<N; j++){
       if (i==j){
-        gmp_printf(P_FORMAT, p[i].get_mpf_t());
+        mpfr_printf(P_FORMAT, p[i].get_mpfr_t());
       }
       if(abs(i-j)==1){
-	gmp_printf(P_FORMAT, q[(i<j?i:j)].get_mpf_t());
+	mpfr_printf(P_FORMAT, q[(i<j?i:j)].get_mpfr_t());
       }
       if(abs(i-j)>1){
-        gmp_printf(P_FORMAT, zero.get_mpf_t());
+        mpfr_printf(P_FORMAT, zero.get_mpfr_t());
       }
       if (j<N-1)  printf (", ");
     }

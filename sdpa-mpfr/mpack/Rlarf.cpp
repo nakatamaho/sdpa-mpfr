@@ -64,16 +64,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rlarf(const char *side, mpackint m, mpackint n, mpf_class * v, mpackint incv, mpf_class tau,
-    mpf_class * C, mpackint ldc, mpf_class * work)
+Rlarf(const char *side, mpackint m, mpackint n, mpfr_class * v, mpackint incv, mpfr_class tau,
+    mpfr_class * C, mpackint ldc, mpfr_class * work)
 {
-    mpf_class One = 1.0, Zero = 0.0;
+    mpfr_class One = 1.0, Zero = 0.0;
 
-    if (Mlsame_gmp(side, "L")) {
+    if (Mlsame_mpfr(side, "L")) {
 //Form  H * C
 	if (tau != Zero) {
 //w := C' * v

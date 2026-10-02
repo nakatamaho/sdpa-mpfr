@@ -72,26 +72,26 @@ where b and x are n element vectors and A is an n by n unit, or
 non-unit, upper or lower triangular matrix.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
 Rtrsv(const char *uplo, const char *trans, const char *diag, mpackint n,
-    mpf_class * A, mpackint lda, mpf_class * x, mpackint incx)
+    mpfr_class * A, mpackint lda, mpfr_class * x, mpackint incx)
 {
     mpackint ix, jx, kx;
 
-    mpf_class Zero = 0.0;
+    mpfr_class Zero = 0.0;
 
-    mpf_class temp;
+    mpfr_class temp;
 
 //Test the input parameters.
     mpackint info = 0;
 
-    if (!Mlsame_gmp(uplo, "U") && !Mlsame_gmp(uplo, "L"))
+    if (!Mlsame_mpfr(uplo, "U") && !Mlsame_mpfr(uplo, "L"))
 	info = 1;
-    else if (!Mlsame_gmp(trans, "N") && !Mlsame_gmp(trans, "T") && !Mlsame_gmp(trans, "C"))
+    else if (!Mlsame_mpfr(trans, "N") && !Mlsame_mpfr(trans, "T") && !Mlsame_mpfr(trans, "C"))
 	info = 2;
-    else if (!Mlsame_gmp(diag, "U") && !Mlsame_gmp(diag, "N"))
+    else if (!Mlsame_mpfr(diag, "U") && !Mlsame_mpfr(diag, "N"))
 	info = 3;
     else if (n < 0)
 	info = 4;
@@ -100,14 +100,14 @@ Rtrsv(const char *uplo, const char *trans, const char *diag, mpackint n,
     else if (incx == 0)
 	info = 8;
     if (info != 0) {
-	Mxerbla_gmp("Rtrsv ", info);
+	Mxerbla_mpfr("Rtrsv ", info);
 	return;
     }
     //quick return if possible.
     if (n == 0)
 	return;
 
-    mpackint nounit = Mlsame_gmp(diag, "N");
+    mpackint nounit = Mlsame_mpfr(diag, "N");
 
     //set up the start point in x if the increment is not unity. this
     //will be (n-1)*incx too small for descending loops.
@@ -118,9 +118,9 @@ Rtrsv(const char *uplo, const char *trans, const char *diag, mpackint n,
 
     //start the operations. in this version the elements of a are
     //accessed sequentially with one pass through A.
-    if (Mlsame_gmp(trans, "N")) {
+    if (Mlsame_mpfr(trans, "N")) {
 	//form  x := inv(A)*x.
-	if (Mlsame_gmp(uplo, "U")) {
+	if (Mlsame_mpfr(uplo, "U")) {
 	    jx = kx + (n - 1) * incx;
 	    for (mpackint j = n - 1; j >= 0; j--) {
 		if (x[jx] != Zero) {
@@ -153,7 +153,7 @@ Rtrsv(const char *uplo, const char *trans, const char *diag, mpackint n,
 	}
     } else {
 	//form x := inv(A')*x.
-	if (Mlsame_gmp(uplo, "U")) {
+	if (Mlsame_mpfr(uplo, "U")) {
 	    jx = kx;
 	    for (mpackint j = 0; j < n; j++) {
 		ix = kx;

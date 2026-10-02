@@ -69,16 +69,16 @@ Based on http://www.netlib.org/blas/ddot.f
 Rdot forms the dot product of two vectors.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
-mpf_class
-Rdot(mpackint n, mpf_class * dx, mpackint incx, mpf_class * dy, mpackint incy)
+mpfr_class
+Rdot(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
 {
     mpackint ix = 0;
 
     mpackint iy = 0;
 
-    mpf_class temp;
+    mpfr_class temp;
 
     temp = 0.0;
 

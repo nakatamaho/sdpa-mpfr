@@ -69,10 +69,10 @@ Based on http://www.netlib.org/blas/dcopy.f
 Rcopy copies a vector, x, to a vector, y.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rcopy(mpackint n, mpf_class * dx, mpackint incx, mpf_class * dy, mpackint incy)
+Rcopy(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
 {
     mpackint ix = 0;
 

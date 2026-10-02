@@ -1,3 +1,11 @@
+2026-10-02 Nakata Maho <maho.nakata@gmail.com>
+        * Rewrite SDPA-GMP as SDPA-MPFR: mpf_class is replaced by
+          mpfrxx::mpfr_class of gmpfrxx_mkII
+          (https://github.com/nakatamaho/gmpfrxx_mkII).
+        * Remove bundled gmpxx.h, mpack/Mutils.cpp and the
+          --with-system-mpack option.
+        * Binary is now sdpa_mpfr.
+
 2015-03-20 Makoto Yamashita <Makoto.Yamashita@is.titech.ac.jp>
         * Modification for the latest gcc compilers.
 

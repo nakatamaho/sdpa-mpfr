@@ -64,17 +64,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <stdio.h> //for untested part
 void
-Rsterf(mpackint n, mpf_class * d, mpf_class * e, mpackint *info)
+Rsterf(mpackint n, mpfr_class * d, mpfr_class * e, mpackint *info)
 {
-    mpf_class Zero = 0.0, One = 1.0, Two = 2.0, Three = 3.0;
-    mpf_class sigma;
-    mpf_class eps, eps2;
-    mpf_class safmin, safmax, ssfmax, ssfmin, anorm;
-    mpf_class rte, rt1, rt2, s, c, r, oldc, oldgam, gamma, p, bb, alpha;
+    mpfr_class Zero = 0.0, One = 1.0, Two = 2.0, Three = 3.0;
+    mpfr_class sigma;
+    mpfr_class eps, eps2;
+    mpfr_class safmin, safmax, ssfmax, ssfmin, anorm;
+    mpfr_class rte, rt1, rt2, s, c, r, oldc, oldgam, gamma, p, bb, alpha;
 
     mpackint nmaxit;
     mpackint iscale;
@@ -86,15 +86,15 @@ Rsterf(mpackint n, mpf_class * d, mpf_class * e, mpackint *info)
 //Quick return if possible
     if (n < 0) {
 	*info = -1;
-	Mxerbla_gmp("Rsterf", -(*info));
+	Mxerbla_mpfr("Rsterf", -(*info));
 	return;
     }
     if (n <= 1)
 	return;
 //Determine the unit roundoff for this environment.
-    eps = Rlamch_gmp("E");
+    eps = Rlamch_mpfr("E");
     eps2 = eps * eps;
-    safmin = Rlamch_gmp("S");
+    safmin = Rlamch_mpfr("S");
     safmax = One / safmin;
     ssfmax = sqrt(safmax) / Three;
     ssfmin = sqrt(safmin) / eps2;

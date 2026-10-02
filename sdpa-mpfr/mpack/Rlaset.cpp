@@ -64,16 +64,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rlaset(const char *uplo, mpackint m, mpackint n, mpf_class alpha, mpf_class beta,
-    mpf_class * A, mpackint lda)
+Rlaset(const char *uplo, mpackint m, mpackint n, mpfr_class alpha, mpfr_class beta,
+    mpfr_class * A, mpackint lda)
 {
     mpackint i, j;
 
-    if (Mlsame_gmp(uplo, "U")) {
+    if (Mlsame_mpfr(uplo, "U")) {
 //Set the strictly upper triangular or trapezoidal part of the
 //array to ALPHA.
 	for (j = 1; j < n; j++) {
@@ -81,7 +81,7 @@ Rlaset(const char *uplo, mpackint m, mpackint n, mpf_class alpha, mpf_class beta
 		A[i + j * lda] = alpha;
 	    }
 	}
-    } else if (Mlsame_gmp(uplo, "L")) {
+    } else if (Mlsame_mpfr(uplo, "L")) {
 //Set the strictly lower triangular or trapezoidal part of the
 //array to ALPHA.
 	for (j = 0; j < min(m, n); j++) {

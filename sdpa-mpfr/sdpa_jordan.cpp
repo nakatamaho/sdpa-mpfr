@@ -24,12 +24,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 namespace sdpa {
 
-mpf_class Jal::trace(DenseLinearSpace& aMat)
+mpfr_class Jal::trace(DenseLinearSpace& aMat)
 {
-  mpf_class ret = 0.0;
+  mpfr_class ret = 0.0;
 
   for (int l=0; l<aMat.SDP_nBlock; ++l) {
-    mpf_class* target = aMat.SDP_block[l].de_ele;
+    mpfr_class* target = aMat.SDP_block[l].de_ele;
     int size = aMat.SDP_block[l].nRow;
     for (int j=0; j<size; ++j) {
 	  ret += target[j*size+j];
@@ -53,12 +53,12 @@ mpf_class Jal::trace(DenseLinearSpace& aMat)
 // block size <= 20  : QR method
 // QR method: workVec is temporary space and needs
 //            3*xMat.nRow-1 length memory.
-mpf_class Jal::getMinEigen(DenseLinearSpace& lMat,
+mpfr_class Jal::getMinEigen(DenseLinearSpace& lMat,
 		       DenseLinearSpace& xMat,
 		       WorkVariables& work)
 {
-  mpf_class min = 1.0E50;
-  mpf_class value;
+  mpfr_class min = 1.0E50;
+  mpfr_class value;
 
   // for SDP
   for (int l=0; l<xMat.SDP_nBlock; ++l) {
@@ -105,11 +105,11 @@ mpf_class Jal::getMinEigen(DenseLinearSpace& lMat,
 
 
   // calculate the minimum eigen value of xMat by QR method.
-mpf_class Jal::getMinEigen(DenseLinearSpace& xMat,
+mpfr_class Jal::getMinEigen(DenseLinearSpace& xMat,
                         WorkVariables& work)
 {
-  mpf_class min = 1.0E50;
-  mpf_class value;
+  mpfr_class min = 1.0E50;
+  mpfr_class value;
 
   work.DLS1.copyFrom(xMat);
 
@@ -210,7 +210,7 @@ bool Jal::getInvCholAndInv(DenseLinearSpace& invCholMat,
 bool Jal::multiply(DenseLinearSpace& retMat,
 		   DenseLinearSpace& aMat,
 		   DenseLinearSpace& bMat,
-		   mpf_class* scalar)
+		   mpfr_class* scalar)
 {
   bool total_judge = _SUCCESS;
 
@@ -263,7 +263,7 @@ bool Jal::multiply(DenseLinearSpace& retMat,
 bool Jal::multiply(DenseLinearSpace& retMat,
 		   SparseLinearSpace& aMat,
 		   DenseLinearSpace& bMat,
-		   mpf_class* scalar)
+		   mpfr_class* scalar)
 {
   bool total_judge = _SUCCESS;
 
@@ -306,7 +306,7 @@ bool Jal::multiply(DenseLinearSpace& retMat,
 bool Jal::multiply(DenseLinearSpace& retMat,
 		   DenseLinearSpace& aMat,
 		   SparseLinearSpace& bMat,
-		   mpf_class* scalar )
+		   mpfr_class* scalar )
 {
   bool total_judge = _SUCCESS;
 

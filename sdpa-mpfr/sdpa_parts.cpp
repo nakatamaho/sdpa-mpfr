@@ -190,7 +190,7 @@ void Parameter::setDefaultParameter(Parameter::parameterType type)
     gammaStar    =  0.5;
     epsilonDash  =  1.0e-30;
     precision    =  300;
-    mpf_set_default_prec(precision);
+    setDefaultPrecision(precision);
   }
   else if (type == PARAMETER_UNSTABLE_BUT_FAST) {
     maxIteration =  100;
@@ -204,7 +204,7 @@ void Parameter::setDefaultParameter(Parameter::parameterType type)
     gammaStar    =  0.98;
     epsilonDash  =  1.0e-30;
     precision    =  100;
-    mpf_set_default_prec(precision);
+    setDefaultPrecision(precision);
   }
   else {
     maxIteration =  200;
@@ -218,7 +218,7 @@ void Parameter::setDefaultParameter(Parameter::parameterType type)
     gammaStar    =  0.9;
     epsilonDash  =  1.0e-30;
     precision    =  200;
-    mpf_set_default_prec(precision);
+    setDefaultPrecision(precision);
   }    
 }
 void Parameter::readFile(FILE* parameterFile)
@@ -234,7 +234,7 @@ void Parameter::readFile(FILE* parameterFile)
   fscanf(parameterFile,"%lf%*[^\n]",&gammaStar);
   fscanf(parameterFile,"%lf%*[^\n]",&epsilonDash);
   fscanf(parameterFile,"%d%*[^\n]",&precision);
-  mpf_set_default_prec(precision);
+  setDefaultPrecision(precision);
 }
 
 void Parameter::display(FILE* fpout)
@@ -272,7 +272,7 @@ StepLength::~StepLength()
 }
 
 
-void StepLength::initialize(mpf_class alphaP, mpf_class alphaD)
+void StepLength::initialize(mpfr_class alphaP, mpfr_class alphaD)
 {
   primal = alphaP;
   dual   = alphaD;
@@ -283,11 +283,11 @@ void StepLength::terminate()
   // Nothing needs.
 }
 
-mpf_class StepLength::minBlockVector(BlockVector& aVec)
+mpfr_class StepLength::minBlockVector(BlockVector& aVec)
 {
   int nBlock = aVec.nBlock;
-  mpf_class ret = aVec.ele[0].ele[0];
-  mpf_class tmp;
+  mpfr_class ret = aVec.ele[0].ele[0];
+  mpfr_class tmp;
   int size = aVec.ele[0].nDim;
   for (int j=1; j<size; ++j) {
     tmp = aVec.ele[0].ele[j];
@@ -312,7 +312,7 @@ void StepLength::computeStepLength(Solutions& currentPt,
 				   WorkVariables& work,
 				   ComputeTime& com)
 {
-  mpf_class alphaBD = 100.0;
+  mpfr_class alphaBD = 100.0;
 
   // calculate  eigenvalues of X^{-1} dX
   TimeStart(START1);
@@ -320,7 +320,7 @@ void StepLength::computeStepLength(Solutions& currentPt,
   // currentPt.invCholeskyX.display();
   // rMessage("Dx=");
   // newton.DxMat.display();
-  mpf_class minxInvDxEigenValue;
+  mpfr_class minxInvDxEigenValue;
   #define ALL_EIGEN 0
   #if ALL_EIGEN
   Lal::let(work.DLS2,'=',newton.DxMat,'T',currentPt.invCholeskyX);
@@ -353,7 +353,7 @@ void StepLength::computeStepLength(Solutions& currentPt,
   // rMessage("Dz=");
   // newton.DzMat.display();
 
-  mpf_class minzInvDzEigenValue;
+  mpfr_class minzInvDzEigenValue;
   #if ALL_EIGEN
   Lal::let(work.DLS2,'=',newton.DzMat,'T',currentPt.invCholeskyZ);
   Lal::let(work.DLS1,'=',currentPt.invCholeskyZ,'*',work.DLS2);
@@ -404,7 +404,7 @@ void StepLength::MehrotraPredictor(InputData& inputData,
   } else {
     // when primal is feasible,
     // check stepP1 is effective or not.
-    mpf_class incPrimalObj;
+    mpfr_class incPrimalObj;
     Lal::let(incPrimalObj,'=',C,'.',newton.DxMat);
     if (incPrimalObj>0.0) {
       if (primal>dual) {
@@ -424,7 +424,7 @@ void StepLength::MehrotraPredictor(InputData& inputData,
   } else {
     // when dual is feasible
     // check stepD1 is effective or not.
-    mpf_class incDualObj;
+    mpfr_class incDualObj;
     Lal::let(incDualObj,'=',b,'.',newton.DyVec);
     if(incDualObj<0.0) {
       if (dual>primal) {
@@ -448,7 +448,7 @@ void StepLength::MehrotraCorrector(InputData& inputData,
 				   Parameter& param,
 				   ComputeTime& com)
 {
-  mpf_class xi      = 3.0;
+  mpfr_class xi      = 3.0;
   
   Vector& b = inputData.b;
   SparseLinearSpace& C = inputData.C;
@@ -472,7 +472,7 @@ void StepLength::MehrotraCorrector(InputData& inputData,
       primal = 1.0;
     }
   } else {
-    mpf_class incPrimalObj;
+    mpfr_class incPrimalObj;
     Lal::let(incPrimalObj,'=',C,'.',newton.DxMat);
     if(incPrimalObj>0.0) {
       // when primal is feasible
@@ -494,7 +494,7 @@ void StepLength::MehrotraCorrector(InputData& inputData,
   } else {
     // when dual is feasible
     // check stepD1 is effective or not.
-    mpf_class incDualObj;
+    mpfr_class incDualObj;
     Lal::let(incDualObj,'=',b,'.',newton.DyVec);
     if(incDualObj<0.0) {
       if (dual>primal) {
@@ -512,19 +512,19 @@ void StepLength::MehrotraCorrector(InputData& inputData,
       && (phase.value == SolveInfo::noINFO
 	  || phase.value == SolveInfo::pFEAS
 	  || phase.value == SolveInfo::dFEAS) ) {
-    mpf_class xMatvMat;
+    mpfr_class xMatvMat;
     Lal::let(xMatvMat,'=',currentPt.xMat,'.',newton.DzMat);
-    mpf_class uMatzMat;
+    mpfr_class uMatzMat;
     Lal::let(uMatzMat,'=',newton.DxMat,'.',currentPt.zMat);
-    mpf_class uMatvMat;
+    mpfr_class uMatvMat;
     Lal::let(uMatvMat,'=',newton.DxMat,'.',newton.DzMat);
 
-    mpf_class thetaMax = max((1.0-primal)*theta.primal,
+    mpfr_class thetaMax = max((1.0-primal)*theta.primal,
 			  (1.0-dual  )*theta.dual);
-    mpf_class muNew = mu.current
+    mpfr_class muNew = mu.current
       + (primal*uMatzMat + dual*xMatvMat
 	 + primal*dual*uMatvMat) / nDim;
-    mpf_class alphaMax;
+    mpfr_class alphaMax;
     //   memo by kazuhide nakata
     //   thetaMax*mu.initial -> thetamax*thetaMax*mu.initial ???
 	//    while (thetaMax*mu.initial > xi*muNew) {
@@ -549,7 +549,7 @@ void StepLength::MehrotraCorrector(InputData& inputData,
   if (phase.value == SolveInfo::pdFEAS){
 	// if (mu.current < 1.0){
 	
-	mpf_class objValDual,objValPrimal,incDualObj,incPrimalObj,maxRatio;
+	mpfr_class objValDual,objValPrimal,incDualObj,incPrimalObj,maxRatio;
 
 	Lal::let(objValDual,'=',inputData.b,'.',currentPt.yVec);
 	Lal::let(objValPrimal,'=',inputData.C,'.',currentPt.xMat);
@@ -563,8 +563,8 @@ void StepLength::MehrotraCorrector(InputData& inputData,
 	  primal *= maxRatio;
 	  dual *= maxRatio;
 #if 0
-	  gmp_printf("max stepsise ratio: %9.1Fe\n",maxRatio.get_mpf_t());
-	  gmp_printf("new stepsize  primal:%9.1Fe, dual:%9.1Fe\n",primal.get_mpf_t(),dual.get_mpf_t());
+	  mpfr_printf("max stepsise ratio: %9.1Re\n",maxRatio.get_mpfr_t());
+	  mpfr_printf("new stepsize  primal:%9.1Re, dual:%9.1Re\n",primal.get_mpfr_t(),dual.get_mpfr_t());
 #endif
 	}
   }
@@ -576,12 +576,12 @@ void StepLength::display(FILE* fpout)
     return;
   }
 
-  gmp_fprintf(fpout,"alpha.primal = %8.3Fe\n",primal.get_mpf_t());
-  gmp_fprintf(fpout,"alpha.dual   = %8.3Fe\n",dual.get_mpf_t());
+  mpfr_fprintf(fpout,"alpha.primal = %8.3Re\n",primal.get_mpfr_t());
+  mpfr_fprintf(fpout,"alpha.dual   = %8.3Re\n",dual.get_mpfr_t());
 }
 
 //-------------------------------------------------
-DirectionParameter::DirectionParameter(mpf_class betaStar)
+DirectionParameter::DirectionParameter(mpfr_class betaStar)
 {
   initialize(betaStar);
 }
@@ -591,7 +591,7 @@ DirectionParameter::~DirectionParameter()
   // Nothing needs.
 }
 
-void DirectionParameter::initialize(mpf_class betaStar)
+void DirectionParameter::initialize(mpfr_class betaStar)
 {
   value = betaStar;
 }
@@ -600,7 +600,7 @@ void DirectionParameter::MehrotraPredictor(Phase& phase,
 					   Switch& reduction,
 					   Parameter& param)
 {
-  const mpf_class nu = 2.0;
+  const mpfr_class nu = 2.0;
   if (phase.value == SolveInfo::pdFEAS) {
     value = 0.0;
   } else {
@@ -618,14 +618,14 @@ MehrotraCorrector(Phase& phase,StepLength& alpha,
 {
   int nDim = currentPt.nDim;
 
-  mpf_class xMatvMat;
+  mpfr_class xMatvMat;
   Lal::let(xMatvMat,'=',currentPt.xMat,'.',newton.DzMat);
-  mpf_class uMatzMat;
+  mpfr_class uMatzMat;
   Lal::let(uMatzMat,'=',newton.DxMat,'.',currentPt.zMat);
-  mpf_class uMatvMat;
+  mpfr_class uMatvMat;
   Lal::let(uMatvMat,'=',newton.DxMat,'.',newton.DzMat);
 
-  mpf_class muTarget = mu.current
+  mpfr_class muTarget = mu.current
     + (alpha.primal*uMatzMat + alpha.dual*xMatvMat
        + alpha.primal*alpha.dual*uMatvMat) / nDim;
   // rMessage("muTarget : " << muTarget);
@@ -655,7 +655,7 @@ void DirectionParameter::display(FILE* fpout)
   if (fpout == NULL) {
     return;
   }
-  gmp_fprintf(fpout,"beta.value = %8.3Fe\n",value.get_mpf_t());
+  mpfr_fprintf(fpout,"beta.value = %8.3Re\n",value.get_mpfr_t());
 }
 
 //---------------------------------------------------
@@ -702,7 +702,7 @@ void Switch::display(FILE* fpout)
 
 // ----------------------------------------
 
-AverageComplementarity::AverageComplementarity(mpf_class lambdaStar)
+AverageComplementarity::AverageComplementarity(mpfr_class lambdaStar)
 {
   initialize(lambdaStar);
 }
@@ -712,7 +712,7 @@ AverageComplementarity::~AverageComplementarity()
   // Nothing needs.
 }
 
-void AverageComplementarity::initialize(mpf_class lambdaStar)
+void AverageComplementarity::initialize(mpfr_class lambdaStar)
 {
   initial = lambdaStar*lambdaStar;
   current = initial;
@@ -740,8 +740,8 @@ void AverageComplementarity::display(FILE* fpout)
     return;
   }
 
-  gmp_fprintf(fpout,"mu0 = %8.3Fe\n",initial.get_mpf_t());
-  gmp_fprintf(fpout,"mu  = %8.3Fe\n",current.get_mpf_t());
+  mpfr_fprintf(fpout,"mu0 = %8.3Re\n",initial.get_mpfr_t());
+  mpfr_fprintf(fpout,"mu  = %8.3Re\n",current.get_mpfr_t());
 }
 
 //--------------------------------------------------
@@ -767,7 +767,7 @@ RatioInitResCurrentRes::RatioInitResCurrentRes(Parameter& param,
 void RatioInitResCurrentRes::initialize(Parameter& param,
 					Residuals& initRes)
 {
-  mpf_class accuracy = param.epsilonDash;
+  mpfr_class accuracy = param.epsilonDash;
   if (initRes.normPrimalVec < accuracy) {
     primal = 0.0;
   } else {
@@ -813,8 +813,8 @@ void RatioInitResCurrentRes::display(FILE* fpout)
     return;
   }
 
-  gmp_fprintf(fpout,"theta.primal = %8.3Fe\n",primal.get_mpf_t());
-  gmp_fprintf(fpout,"theta.dual   = %8.3Fe\n",dual.get_mpf_t());
+  mpfr_fprintf(fpout,"theta.primal = %8.3Re\n",primal.get_mpfr_t());
+  mpfr_fprintf(fpout,"theta.dual   = %8.3Re\n",dual.get_mpfr_t());
 }
 
 //---------------------------------------------------
@@ -829,7 +829,7 @@ SolveInfo::SolveInfo()
 }
 
 SolveInfo::SolveInfo(InputData& inputData, Solutions& currentPt, 
-		     mpf_class mu0, mpf_class omegaStar)
+		     mpfr_class mu0, mpfr_class omegaStar)
 {
   initialize(inputData,currentPt,mu0,omegaStar);
 }
@@ -840,7 +840,7 @@ SolveInfo::~SolveInfo()
 }
 
 void SolveInfo::initialize(InputData& inputData, Solutions& currentPt, 
-			   mpf_class mu0, mpf_class omegaStar)
+			   mpfr_class mu0, mpfr_class omegaStar)
 {
   int nDim = currentPt.nDim;
   Vector& b = inputData.b;
@@ -868,18 +868,18 @@ void SolveInfo::update(InputData& inputData,
 
   Lal::let(objValPrimal,'=',C,'.',currentPt.xMat);
   Lal::let(objValDual  ,'=',b,'.',currentPt.yVec);
-  mpf_class primal = theta.primal;
-  mpf_class dual   = theta.dual;
-  mpf_class omega  = param.omegaStar;
+  mpfr_class primal = theta.primal;
+  mpfr_class dual   = theta.dual;
+  mpfr_class omega  = param.omegaStar;
   rho = 0.0;
-  mpf_class x0z0     = nDim*mu.initial;
-  mpf_class xMatzMat = nDim*mu.current;
-  mpf_class x0zMat   = 0.0;
-  mpf_class xMatz0   = 0.0;
+  mpfr_class x0z0     = nDim*mu.initial;
+  mpfr_class xMatzMat = nDim*mu.current;
+  mpfr_class x0zMat   = 0.0;
+  mpfr_class xMatz0   = 0.0;
   Lal::let(x0zMat,'=',initPt_xMat,'.',currentPt.zMat);
   Lal::let(xMatz0,'=',currentPt.xMat,'.',initPt_zMat);
 
-  mpf_class accuracy = param.epsilonDash;
+  mpfr_class accuracy = param.epsilonDash;
 
   if (currentRes.normPrimalVec <= accuracy) {
     // rMessage("primal accuracy");
@@ -935,14 +935,14 @@ void SolveInfo::update(double& lambda,
 
   Lal::let(objValPrimal,'=',C,'.',currentPt.xMat);
   Lal::let(objValDual  ,'=',b,'.',currentPt.yVec);
-  mpf_class primal = theta.primal;
-  mpf_class dual   = theta.dual;
-  mpf_class omega  = param.omegaStar;
+  mpfr_class primal = theta.primal;
+  mpfr_class dual   = theta.dual;
+  mpfr_class omega  = param.omegaStar;
   rho = 0.0;
-  mpf_class x0z0     = nDim*mu.initial;
-  mpf_class xMatzMat = nDim*mu.current;
-  mpf_class x0zMat   = 0.0;
-  mpf_class xMatz0   = 0.0;
+  mpfr_class x0z0     = nDim*mu.initial;
+  mpfr_class xMatzMat = nDim*mu.current;
+  mpfr_class x0zMat   = 0.0;
+  mpfr_class xMatz0   = 0.0;
 
   for (int b=0; b<currentPt.xMat.SDP_nBlock; b++){
     int dim = currentPt.xMat.SDP_block[b].nRow; 
@@ -960,7 +960,7 @@ void SolveInfo::update(double& lambda,
   }
 
 
-  mpf_class accuracy = param.epsilonDash;
+  mpfr_class accuracy = param.epsilonDash;
 
   if (currentRes.normPrimalVec <= accuracy) {
     // rMessage("primal accuracy");
@@ -1013,38 +1013,38 @@ void SolveInfo::check(InputData& inputData,
 					  RatioInitResCurrentRes& theta,
 					  Parameter& param)
 {
-  mpf_class tmp,tmp1p,tmp1d,tmp2p,tmp2d,tmp3p,tmp3d,tmp4,tmp5p,tmp5d;
+  mpfr_class tmp,tmp1p,tmp1d,tmp2p,tmp2d,tmp3p,tmp3d,tmp4,tmp5p,tmp5d;
 
   Lal::let(tmp,'=',inputData.b,'.',currentPt.yVec);
   tmp1p = - tmp;
-  gmp_printf("Primal: %9.1Fe",tmp1p.get_mpf_t());
+  mpfr_printf("Primal: %9.1Re",tmp1p.get_mpfr_t());
   Lal::let(tmp,'=',currentRes.dualMat,'.',currentPt.xMat);
   tmp2p = -tmp;
-  gmp_printf(" + %9.1Fe",tmp2p.get_mpf_t());
+  mpfr_printf(" + %9.1Re",tmp2p.get_mpfr_t());
   tmp3p = tmp1p + tmp2p;
-  gmp_printf(" = %9.1Fe",tmp3p.get_mpf_t());
-  gmp_printf(",   residual:%-9.1Fe",currentRes.normDualMat.get_mpf_t());
+  mpfr_printf(" = %9.1Re",tmp3p.get_mpfr_t());
+  mpfr_printf(",   residual:%-9.1Re",currentRes.normDualMat.get_mpfr_t());
   tmp5p = currentRes.computeMaxNorm(currentPt.zMat);
-  gmp_printf(" norm:%-9.1Fe\n",tmp5p.get_mpf_t());
+  mpfr_printf(" norm:%-9.1Re\n",tmp5p.get_mpfr_t());
 
   Lal::let(tmp,'=',inputData.C,'.',currentPt.xMat);
   tmp1d = - tmp;
-  gmp_printf("Dual:   %9.1Fe",tmp1d.get_mpf_t());
+  mpfr_printf("Dual:   %9.1Re",tmp1d.get_mpfr_t());
   Lal::let(tmp,'=',currentRes.primalVec,'.',currentPt.yVec);
   tmp2d = -tmp;
-  gmp_printf(" + %9.1Fe",tmp2d.get_mpf_t());
+  mpfr_printf(" + %9.1Re",tmp2d.get_mpfr_t());
   tmp3d = tmp1d + tmp2d;
-  gmp_printf(" = %9.1Fe",tmp3d.get_mpf_t());
-  gmp_printf(",   residual:%-9.1Fe", currentRes.normPrimalVec.get_mpf_t());
+  mpfr_printf(" = %9.1Re",tmp3d.get_mpfr_t());
+  mpfr_printf(",   residual:%-9.1Re", currentRes.normPrimalVec.get_mpfr_t());
   tmp5d = currentRes.computeMaxNorm(currentPt.xMat);
-  gmp_printf(" norm:%-9.1Fe\n",tmp5d.get_mpf_t());
+  mpfr_printf(" norm:%-9.1Re\n",tmp5d.get_mpfr_t());
 
   tmp4 = tmp1p - tmp1d;
-  gmp_printf("P-D:    %9.1Fe",tmp4.get_mpf_t());
+  mpfr_printf("P-D:    %9.1Re",tmp4.get_mpfr_t());
   tmp4 = tmp3p - tmp3d;
-  gmp_printf("               %9.1Fe",tmp4.get_mpf_t());
+  mpfr_printf("               %9.1Re",tmp4.get_mpfr_t());
   tmp4 = mu.current * currentPt.nDim;
-  gmp_printf(",    mu * n:%-9.1Fe\n",tmp4.get_mpf_t());
+  mpfr_printf(",    mu * n:%-9.1Re\n",tmp4.get_mpfr_t());
 
 }
 
@@ -1055,11 +1055,11 @@ void SolveInfo::display(FILE* fpout)
     return;
   }
 
-  gmp_fprintf(fpout,"rSolveInfo.rho          = %8.3Fe\n",rho.get_mpf_t());
-  gmp_fprintf(fpout,"rSolveInfo.etaPrimal    = %8.3Fe\n",etaPrimal.get_mpf_t());
-  gmp_fprintf(fpout,"rSolveInfo.etaDual      = %8.3Fe\n",etaDual.get_mpf_t());
-  gmp_fprintf(fpout,"rSolveInfo.objValPrimal = %8.3Fe\n",objValPrimal.get_mpf_t());
-  gmp_fprintf(fpout,"rSolveInfo.objValDual   = %8.3Fe\n",objValDual.get_mpf_t());
+  mpfr_fprintf(fpout,"rSolveInfo.rho          = %8.3Re\n",rho.get_mpfr_t());
+  mpfr_fprintf(fpout,"rSolveInfo.etaPrimal    = %8.3Re\n",etaPrimal.get_mpfr_t());
+  mpfr_fprintf(fpout,"rSolveInfo.etaDual      = %8.3Re\n",etaDual.get_mpfr_t());
+  mpfr_fprintf(fpout,"rSolveInfo.objValPrimal = %8.3Re\n",objValPrimal.get_mpfr_t());
+  mpfr_fprintf(fpout,"rSolveInfo.objValDual   = %8.3Re\n",objValDual.get_mpfr_t());
 }
 
 // ----------------------------------------------------
@@ -1093,8 +1093,8 @@ bool Phase::updateCheck(Residuals& currentRes,
 			  SolveInfo& solveInfo,
 			  Parameter& param)
 {
-  const mpf_class NONZERO = 1.0e-6;
-  mpf_class accuracy = param.epsilonDash;
+  const mpfr_class NONZERO = 1.0e-6;
+  mpfr_class accuracy = param.epsilonDash;
   value = SolveInfo::noINFO;
 
   if (currentRes.normPrimalVec <= accuracy) {
@@ -1109,12 +1109,12 @@ bool Phase::updateCheck(Residuals& currentRes,
     value = SolveInfo::dFEAS;
   }
   if (value==SolveInfo::pdFEAS) {
-    mpf_class mean = (abs(solveInfo.objValPrimal)+
+    mpfr_class mean = (abs(solveInfo.objValPrimal)+
 		   abs(solveInfo.objValDual)) / 2.0;
-    mpf_class PDgap = abs(solveInfo.objValPrimal
+    mpfr_class PDgap = abs(solveInfo.objValPrimal
 			- solveInfo.objValDual);
 
-    mpf_class dominator;
+    mpfr_class dominator;
     if (mean < 1.0) {
       dominator = 1.0;
     } else {

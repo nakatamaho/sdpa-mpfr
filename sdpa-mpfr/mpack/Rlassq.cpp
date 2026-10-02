@@ -64,16 +64,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 //http://www.netlib.org/lapack/double/dlassq.f
 void
-Rlassq(mpackint n, mpf_class * x, mpackint incx, mpf_class * scale, mpf_class * sumsq)
+Rlassq(mpackint n, mpfr_class * x, mpackint incx, mpfr_class * scale, mpfr_class * sumsq)
 {
     mpackint ix;
-    mpf_class Zero = 0.0, One = 1.0;
-    mpf_class absxi;
+    mpfr_class Zero = 0.0, One = 1.0;
+    mpfr_class absxi;
 
     if (n > 0) {
 	for (ix = 0; ix <= (n - 1) * incx; ix += incx) {

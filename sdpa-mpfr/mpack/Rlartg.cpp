@@ -64,29 +64,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <stdio.h> //for printf
 
 void
-Rlartg(mpf_class f, mpf_class g, mpf_class * cs, mpf_class * sn, mpf_class * r)
+Rlartg(mpfr_class f, mpfr_class g, mpfr_class * cs, mpfr_class * sn, mpfr_class * r)
 {
-    mpf_class Zero;
-    mpf_class One;
-    mpf_class Two;
-    mpf_class f1, g1;
+    mpfr_class Zero;
+    mpfr_class One;
+    mpfr_class Two;
+    mpfr_class f1, g1;
     mpackint i, count;
 
     Zero = 0.0;
     One = 1.0;
     Two = 2.0;
 
-    mpf_class safmin;
-    mpf_class safmn2;
-    mpf_class safmx2, eps, scale;
+    mpfr_class safmin;
+    mpfr_class safmn2;
+    mpfr_class safmx2, eps, scale;
 
-    safmin = Rlamch_gmp("S");
-    eps = Rlamch_gmp("E");
+    safmin = Rlamch_mpfr("S");
+    eps = Rlamch_mpfr("E");
 // SAFMN2 = DLAMCH( 'B' )**INT( LOG( SAFMIN / EPS ) / LOG( DLAMCH( 'B' ) ) / TWO );
 //        ~ 2^(ln(safmin/eps) / 2ln2 ) (dlamchB=2)  = sqrt(safmin/eps).
     safmn2 = sqrt(safmin / eps);

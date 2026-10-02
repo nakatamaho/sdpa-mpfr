@@ -64,8 +64,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -217,7 +217,7 @@ iMlaenv16(const char *Mlaname, const char *opts, mpackint n1, mpackint n2, mpack
 }
 
 mpackint
-iMlaenv_gmp(mpackint ispec, const char *name, const char *opts, mpackint n1, mpackint n2, mpackint n3,
+iMlaenv_mpfr(mpackint ispec, const char *name, const char *opts, mpackint n1, mpackint n2, mpackint n3,
     mpackint n4)
 {
     mpackint iret, i, up;
@@ -232,7 +232,7 @@ iMlaenv_gmp(mpackint ispec, const char *name, const char *opts, mpackint n1, mpa
 	Mlaname[i] = up;
     }
 
-    if (!Mlsame_gmp(Mlaname, "r") && !Mlsame_gmp(Mlaname, "c"))
+    if (!Mlsame_mpfr(Mlaname, "r") && !Mlsame_mpfr(Mlaname, "c"))
 	return iret;
 
     switch (ispec) {

@@ -707,7 +707,7 @@ void Newton::make_aggrigateIndex(InputData& inputData)
 }
 
 void Newton::computeFormula_SDP(InputData& inputData,
-				mpf_class DenseRatio, mpf_class Kappa)
+				mpfr_class DenseRatio, mpfr_class Kappa)
 {
   int m = inputData.b.nDim;
   int SDP_nBlock = inputData.SDP_nBlock;
@@ -776,11 +776,11 @@ void Newton::computeFormula_SDP(InputData& inputData,
     for (int k=0; k < inputData.SDP_nConstraint[l]; k++){
       int i =  inputData.SDP_constraint[l][k];
       int ib =  inputData.SDP_blockIndex[l][k];
-      mpf_class inz = inputData.A[i].SDP_sp_block[ib].NonZeroEffect;
+      mpfr_class inz = inputData.A[i].SDP_sp_block[ib].NonZeroEffect;
 
-      mpf_class f1,f2,f3;
-      mpf_class n       = inputData.A[i].SDP_sp_block[ib].nRow;
-      mpf_class up      = upNonZeroCount[i*SDP_nBlock + l];
+      mpfr_class f1,f2,f3;
+      mpfr_class n       = inputData.A[i].SDP_sp_block[ib].nRow;
+      mpfr_class up      = upNonZeroCount[i*SDP_nBlock + l];
 
       f1 = Kappa*n*inz + n*n*n + Kappa*up;
       f2 = Kappa*n*inz + Kappa*(n+1)*up;
@@ -844,7 +844,7 @@ void Newton::compute_rMat(Newton::WHICH_DIRECTION direction,
 
   //     CORRECTOR ::  r_zinv = (-XZ -dXdZ + mu I)Z^{-1}
   // not CORRECTOR ::  r_zinv = (-XZ + mu I)Z^{-1}
-  mpf_class target = beta.value*mu.current;
+  mpfr_class target = beta.value*mu.current;
   Lal::let(r_zinvMat,'=',currentPt.invzMat,'*',&target);
   Lal::let(r_zinvMat,'=',r_zinvMat,'+',currentPt.xMat,&MMONE);
 
@@ -927,19 +927,19 @@ void Newton::Make_gVec(Newton::WHICH_DIRECTION direction,
   com.makegVec += TimeCal(START2,END2);
 }
 
-void Newton::calF1(mpf_class& ret, DenseMatrix& G,
+void Newton::calF1(mpfr_class& ret, DenseMatrix& G,
 		    SparseMatrix& Aj)
 {
   Lal::let(ret,'=',Aj,'.',G);
 }
 
-void Newton::calF2(mpf_class& ret,
+void Newton::calF2(mpfr_class& ret,
 		    DenseMatrix& F, DenseMatrix& G,
 		    DenseMatrix& X, SparseMatrix& Aj,
 		    bool& hasF2Gcal)
 {
   int alpha,beta;
-  mpf_class value1,value2;
+  mpfr_class value1,value2;
 
   int n    = Aj.nRow;
   // rMessage(" using F2 ");
@@ -977,29 +977,29 @@ void Newton::calF2(mpf_class& ret,
   } // end of switch
 }
 
-void Newton::calF3(mpf_class& ret,
+void Newton::calF3(mpfr_class& ret,
 		    DenseMatrix& F, DenseMatrix& G,
 		    DenseMatrix& X, DenseMatrix& invZ,
 		    SparseMatrix& Ai, SparseMatrix& Aj)
 {
   // Ai and Aj are SPARSE
   ret = 0.0;
-  mpf_class sum;
+  mpfr_class sum;
   // rMessage("Aj.NonZeroCount = " << Aj.NonZeroCount);
   for (int index1=0; index1<Aj.NonZeroCount; ++index1) {
     int alpha = Aj.row_index[index1];
     int beta  = Aj.column_index[index1];
-    mpf_class value1 = Aj.sp_ele[index1];
+    mpfr_class value1 = Aj.sp_ele[index1];
     sum = 0.0;
     for (int index2=0; index2<Ai.NonZeroCount; ++index2) {
       int gamma = Ai.row_index[index2];
       int delta  = Ai.column_index[index2];
-      mpf_class value2 = Ai.sp_ele[index2];
-      mpf_class plu = value2*invZ.de_ele[delta+invZ.nCol*beta]
+      mpfr_class value2 = Ai.sp_ele[index2];
+      mpfr_class plu = value2*invZ.de_ele[delta+invZ.nCol*beta]
         * X.de_ele[alpha+X.nCol*gamma];
       sum += plu;
       if (gamma!=delta) {
-        mpf_class plu2 = value2*invZ.de_ele[gamma+invZ.nCol*beta]
+        mpfr_class plu2 = value2*invZ.de_ele[gamma+invZ.nCol*beta]
           * X.de_ele[alpha+X.nCol*delta];
         sum += plu2;
       }
@@ -1012,12 +1012,12 @@ void Newton::calF3(mpf_class& ret,
     for (int index2=0; index2<Ai.NonZeroCount; ++index2) {
       int gamma = Ai.row_index[index2];
       int delta  = Ai.column_index[index2];
-      mpf_class value2 = Ai.sp_ele[index2];
-      mpf_class plu = value2*invZ.de_ele[delta+invZ.nCol*alpha]
+      mpfr_class value2 = Ai.sp_ele[index2];
+      mpfr_class plu = value2*invZ.de_ele[delta+invZ.nCol*alpha]
         * X.de_ele[beta+X.nCol*gamma];
       sum += plu;
       if (gamma!=delta) {
-        mpf_class plu2 = value2*invZ.de_ele[gamma+invZ.nCol*alpha]
+        mpfr_class plu2 = value2*invZ.de_ele[gamma+invZ.nCol*alpha]
           * X.de_ele[beta+X.nCol*delta];
         sum += plu2;
       }
@@ -1080,7 +1080,7 @@ void Newton::compute_bMat_dense_SDP(InputData& inputData,
 	    continue;
 	  }
 
-	  mpf_class value;
+	  mpfr_class value;
 	  switch (formula) {
 	  case F1:
 	    // rMessage("calF1");
@@ -1162,7 +1162,7 @@ void Newton::compute_bMat_sparse_SDP(InputData& inputData,
       int jb = SDP_blockIndex2[l][iter];
       SparseMatrix& Aj = inputData.A[j].SDP_sp_block[jb];
       
-      mpf_class value;
+      mpfr_class value;
       switch (formula) {
       case F1:
 	// rMessage("calF1");
@@ -1184,7 +1184,7 @@ void Newton::compute_bMat_sparse_SDP(InputData& inputData,
     } // end of 'for (int index)'
 #if 0
     TimeEnd(B_NDIAG_END1);
-    mpf_class t = TimeCal(B_NDIAG_START1,B_NDIAG_END1);
+    mpfr_class t = TimeCal(B_NDIAG_START1,B_NDIAG_END1);
     switch (formula) {
     case F1: com.B_F1 += t; break;
     case F2: com.B_F2 += t; break;
@@ -1222,22 +1222,22 @@ void Newton::compute_bMat_dense_LP(InputData& inputData,
 
   TimeEnd(B_DIAG_START1);
   for (int l=0; l<LP_nBlock; ++l) {
-    mpf_class xMat = currentPt.xMat.LP_block[l];
-    mpf_class invzMat = currentPt.invzMat.LP_block[l];
+    mpfr_class xMat = currentPt.xMat.LP_block[l];
+    mpfr_class invzMat = currentPt.invzMat.LP_block[l];
 
       for (int k1=0; k1<inputData.LP_nConstraint[l]; k1++) {
 	int i = inputData.LP_constraint[l][k1];
 	int ib = inputData.LP_blockIndex[l][k1];
 	//	int inz = inputData.A[i].LP_sp_block[ib].NonZeroEffect;
-	mpf_class Ai = inputData.A[i].LP_sp_block[ib];
+	mpfr_class Ai = inputData.A[i].LP_sp_block[ib];
 
 	for (int k2=k1; k2<inputData.LP_nConstraint[l]; k2++) {
 	  int j = inputData.LP_constraint[l][k2];
 	  int jb = inputData.LP_blockIndex[l][k2];
 	  //	  int jnz = inputData.A[j].LP_sp_block[jb].NonZeroEffect;
-	  mpf_class Aj = inputData.A[j].LP_sp_block[jb];
+	  mpfr_class Aj = inputData.A[j].LP_sp_block[jb];
 
-	  mpf_class value;
+	  mpfr_class value;
 	  value = xMat * invzMat * Ai * Aj;
 
 	  if (i!=j) {
@@ -1260,19 +1260,19 @@ void Newton::compute_bMat_sparse_LP(InputData& inputData,
 {
   TimeEnd(B_DIAG_START1);
   for (int l=0; l<LP_nBlock; ++l) {
-    mpf_class xMat = currentPt.xMat.LP_block[l];
-    mpf_class invzMat = currentPt.invzMat.LP_block[l];
+    mpfr_class xMat = currentPt.xMat.LP_block[l];
+    mpfr_class invzMat = currentPt.invzMat.LP_block[l];
     
     for (int iter = 0; iter < LP_number[l]; iter++){
       int i = LP_constraint1[l][iter];
       int ib = LP_blockIndex1[l][iter];
-      mpf_class Ai = inputData.A[i].LP_sp_block[ib];
+      mpfr_class Ai = inputData.A[i].LP_sp_block[ib];
 
       int j = LP_constraint2[l][iter];
       int jb = LP_blockIndex2[l][iter];
-      mpf_class Aj = inputData.A[j].LP_sp_block[jb];
+      mpfr_class Aj = inputData.A[j].LP_sp_block[jb];
       
-      mpf_class value;
+      mpfr_class value;
       value = xMat * invzMat * Ai * Aj;
       sparse_bMat.sp_ele[LP_location_sparse_bMat[l][iter]] += value;
     } // end of 'for (int iter)
@@ -1545,10 +1545,10 @@ void Newton::display_sparse_bMat(FILE* fpout)
   for (int index=0; index<sparse_bMat.NonZeroCount; ++index) {
     int i        = sparse_bMat.row_index[index];
     int j        = sparse_bMat.column_index[index];
-    mpf_class value = sparse_bMat.sp_ele[index];
+    mpfr_class value = sparse_bMat.sp_ele[index];
     int ii = ordering[i];
     int jj = ordering[j];
-    gmp_fprintf(fpout,"val[%d,%d] = %Fe\n", ii,jj,value.get_mpf_t());
+    mpfr_fprintf(fpout,"val[%d,%d] = %Re\n", ii,jj,value.get_mpfr_t());
   }
   fprintf(fpout,"}\n");
 }

@@ -38,7 +38,7 @@ Solutions::~Solutions()
 Solutions::Solutions(int m,
 		     int SDP_nBlock, int* SDP_blockStruct,
 		     int SOCP_nBlock, int* SOCP_blockStruct,
-		     int LP_nBlock, mpf_class lambda, ComputeTime& com)
+		     int LP_nBlock, mpfr_class lambda, ComputeTime& com)
 {
   initialize(m,SDP_nBlock,SDP_blockStruct,
 	     SOCP_nBlock,SOCP_blockStruct,
@@ -48,7 +48,7 @@ Solutions::Solutions(int m,
 void Solutions::initialize(int m,
 			   int SDP_nBlock, int* SDP_blockStruct,
 			   int SOCP_nBlock, int* SOCP_blockStruct,
-			   int LP_nBlock, mpf_class lambda, ComputeTime& com)
+			   int LP_nBlock, mpfr_class lambda, ComputeTime& com)
 {
   mDim = m;
   nDim = 0;
@@ -177,7 +177,7 @@ bool Solutions::update(StepLength& alpha, Newton& newton,
   TimeEnd(END1_2);
   com.zMatTime += TimeCal(START1_2,END1_2);
 
-  const mpf_class cannot_move = 1.0e-4;
+  const mpfr_class cannot_move = 1.0e-4;
   if (alpha.primal < cannot_move && alpha.dual < cannot_move) {
     rMessage("Step length is too small. ");
     return FAILURE;
@@ -565,7 +565,7 @@ void InputData::initialize_index(int SDP_nBlock,
 void InputData::multi_InnerProductToA(DenseLinearSpace& xMat, 
 				      Vector& retVec)
 {
-  mpf_class ip;
+  mpfr_class ip;
 
   retVec.setZero();
   for (int i=0; i<retVec.nDim; i++){
@@ -691,12 +691,12 @@ void Residuals::copyFrom(Residuals& other)
   centerNorm    = other.centerNorm;
 }
 
-mpf_class Residuals::computeMaxNorm(Vector& primalVec)
+mpfr_class Residuals::computeMaxNorm(Vector& primalVec)
 {
-  mpf_class ret = 0.0;
+  mpfr_class ret = 0.0;
   #if 1
   for (int k=0; k<primalVec.nDim; ++k) {
-    mpf_class tmp = abs(primalVec.ele[k]);
+    mpfr_class tmp = abs(primalVec.ele[k]);
     if (tmp > ret) {
       ret = tmp;
     }
@@ -708,16 +708,16 @@ mpf_class Residuals::computeMaxNorm(Vector& primalVec)
   return ret;
 }
 
-mpf_class Residuals::computeMaxNorm(DenseLinearSpace& dualMat)
+mpfr_class Residuals::computeMaxNorm(DenseLinearSpace& dualMat)
 {
   int SDP_nBlock = dualMat.SDP_nBlock;
   int SOCP_nBlock = dualMat.SOCP_nBlock;
   int LP_nBlock = dualMat.LP_nBlock;
-  mpf_class ret = 0.0;
-  mpf_class tmp;
+  mpfr_class ret = 0.0;
+  mpfr_class tmp;
 
   for (int l=0; l<SDP_nBlock; ++l) {
-    mpf_class* target = dualMat.SDP_block[l].de_ele;
+    mpfr_class* target = dualMat.SDP_block[l].de_ele;
     int size = dualMat.SDP_block[l].nRow;
     for (int j=0; j<size*size; ++j) {
       tmp = abs(target[j]);
@@ -787,10 +787,10 @@ void Residuals::display(FILE* fpout)
   fprintf(fpout," currentRes.dualMat = \n");
   dualMat.display(fpout);
 
-  gmp_fprintf(fpout," currentRes.normPrimalVec = %8.3Fe\n",
-	  normPrimalVec.get_mpf_t());
-  gmp_fprintf(fpout," currentRes.normDualMat = %8.3Fe\n",
-	  normDualMat.get_mpf_t());
+  mpfr_fprintf(fpout," currentRes.normPrimalVec = %8.3Re\n",
+	  normPrimalVec.get_mpfr_t());
+  mpfr_fprintf(fpout," currentRes.normDualMat = %8.3Re\n",
+	  normDualMat.get_mpfr_t());
 }
 
 

@@ -4,7 +4,7 @@
  * 
  * Copyright 2008 by Nakata, Maho
  * 
- * $Id: Mxerbla_gmp.cpp,v 1.3 2009/09/17 00:59:04 nakatamaho Exp $ 
+ * $Id: Mxerbla_mpfr.cpp,v 1.3 2009/09/17 00:59:04 nakatamaho Exp $ 
  *
  * MPACK - multiple precision arithmetic library
  *
@@ -28,10 +28,10 @@
  ************************************************************************/
 /*
 Based on http://www.netlib.org/blas/xerbla.f
-Mxerbla_gmp is an error handler for the Mlapack routines.
+Mxerbla_mpfr is an error handler for the Mlapack routines.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 #if !defined  __MPACK_ERRNO__
 #define __MPACK_ERRNO__
@@ -39,7 +39,7 @@ int mpack_errno;
 #endif
 
 void
-Mxerbla_gmp(const char *srname, int info)
+Mxerbla_mpfr(const char *srname, int info)
 {
     fprintf(stderr,
 	" ** On entry to %s parameter number %2d had an illegal value\n",

@@ -64,22 +64,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rsytd2(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpf_class * d,
-    mpf_class * e, mpf_class * tau, mpackint *info)
+Rsytd2(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpfr_class * d,
+    mpfr_class * e, mpfr_class * tau, mpackint *info)
 {
 
-    mpf_class One = 1.0, Zero = 0.0, Half = 0.5;
-    mpf_class taui, alpha;
+    mpfr_class One = 1.0, Zero = 0.0, Half = 0.5;
+    mpfr_class taui, alpha;
     mpackint upper;
     mpackint i;
 
     *info = 0;
-    upper = Mlsame_gmp(uplo, "U");
-    if (!upper && !Mlsame_gmp(uplo, "L")) {
+    upper = Mlsame_mpfr(uplo, "U");
+    if (!upper && !Mlsame_mpfr(uplo, "L")) {
 	*info = -1;
     } else if (n < 0) {
 	*info = -2;
@@ -87,7 +87,7 @@ Rsytd2(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpf_class * d,
 	*info = -4;
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rsytd2", -(*info));
+	Mxerbla_mpfr("Rsytd2", -(*info));
 	return;
     }
 //Quick return if possible

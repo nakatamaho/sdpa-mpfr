@@ -33,6 +33,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #define  CLK_TCK  sysconf(_SC_CLK_TCK)
 #endif
 
+using std::cout;
+using std::endl;
+
 namespace sdpa {
 
 // These are constant.
@@ -40,9 +43,51 @@ namespace sdpa {
 int IZERO =  0;
 int IONE  =  1;
 int IMONE = -1;
-mpf_class MZERO =  0.0;
-mpf_class MONE  =  1.0;
-mpf_class MMONE = -1.0;
+mpfr_class MZERO =  0.0;
+mpfr_class MONE  =  1.0;
+mpfr_class MMONE = -1.0;
+
+void setDefaultPrecision(int precision)
+{
+  if (precision < (int)MPFR_PREC_MIN) {
+    rError("precision must be at least " << (int)MPFR_PREC_MIN << " bits");
+  }
+  mpfrxx::set_default_precision_bits((mpfr_prec_t)precision);
+  MZERO.set_prec(precision); MZERO =  0.0;
+  MONE .set_prec(precision); MONE  =  1.0;
+  MMONE.set_prec(precision); MMONE = -1.0;
+}
+
+int sdpa_fscan_real(FILE* fp, mpfr_class* value)
+{
+  int c;
+  // skip separators such as spaces, commas, braces and parentheses
+  while ((c = getc(fp)) != EOF) {
+    if (('0' <= c && c <= '9') || c == '+' || c == '-' || c == '.') {
+      break;
+    }
+  }
+  if (c == EOF) {
+    return EOF;
+  }
+  std::string token;
+  // accept the characters of a decimal floating-point literal
+  while (c != EOF
+	 && (('0' <= c && c <= '9') || c == '+' || c == '-'
+	     || c == '.' || c == 'e' || c == 'E')) {
+    token += (char)c;
+    c = getc(fp);
+  }
+  if (c != EOF) {
+    ungetc(c, fp);
+  }
+  char* end = NULL;
+  mpfr_strtofr(value->get_mpfr_t(), token.c_str(), &end, 10, MPFR_RNDN);
+  if (end == token.c_str()) {
+    return 0;
+  }
+  return 1;
+}
 
 double Time::rGetUseTime()
 {

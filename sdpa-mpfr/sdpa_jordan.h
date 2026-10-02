@@ -35,19 +35,19 @@ class Jal
 {
 public:
 
-  static mpf_class trace(DenseLinearSpace& aMat);
+  static mpfr_class trace(DenseLinearSpace& aMat);
 
   // calculate the minimum eigen value of lMat*xMat*(lMat^T)
   // by Lanczos methods.
   // lMat is lower triangular¡¢xMat is symmetric
   // block size > 20   : Lanczos method
   // block size <= 20  : QR method
-  static mpf_class getMinEigen(DenseLinearSpace& lMat,
+  static mpfr_class getMinEigen(DenseLinearSpace& lMat,
 			    DenseLinearSpace& xMat,
 			    WorkVariables& work);
 
   // calculate the minimum eigen value of xMat by QR method.
-  static mpf_class getMinEigen(DenseLinearSpace& xMat,
+  static mpfr_class getMinEigen(DenseLinearSpace& xMat,
 			    WorkVariables& work);
 
   static bool getInvChol(DenseLinearSpace& invCholMat,
@@ -62,18 +62,18 @@ public:
   static bool multiply(DenseLinearSpace& retMat,
 		       DenseLinearSpace& aMat,
 		       DenseLinearSpace& bMat,
-		       mpf_class* scalar = NULL);
+		       mpfr_class* scalar = NULL);
 #if 0
 // CAUTION!!! We don't initialize retMat to zero matrix for efficiently.
   static bool multiply(DenseLinearSpace& retMat,
 		       SparseLinearSpace& aMat,
 		       DenseLinearSpace& bMat,
-		       mpf_class* scalar = NULL);
+		       mpfr_class* scalar = NULL);
 // CAUTION!!! We don't initialize retMat to zero matrix for efficiently.
   static bool multiply(DenseLinearSpace& retMat,
 		       DenseLinearSpace& aMat,
 		       SparseLinearSpace& bMat,
-		       mpf_class* scalar = NULL);
+		       mpfr_class* scalar = NULL);
 #endif
 
   //  retMat = L_{A} B = (A * B + B * A)/2

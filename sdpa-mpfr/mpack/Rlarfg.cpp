@@ -64,17 +64,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <stdio.h> //for debugging
 void
-Rlarfg(mpackint N, mpf_class * alpha, mpf_class * x, mpackint incx, mpf_class * tau)
+Rlarfg(mpackint N, mpfr_class * alpha, mpfr_class * x, mpackint incx, mpfr_class * tau)
 {
-    mpf_class xnorm;
-    mpf_class Zero = 0.0, One = 1.0;
-    mpf_class beta;
-    mpf_class safmin;
-    mpf_class rsafmn;
+    mpfr_class xnorm;
+    mpfr_class Zero = 0.0, One = 1.0;
+    mpfr_class beta;
+    mpfr_class safmin;
+    mpfr_class rsafmn;
     mpackint knt;
 
     if (N <= 1) {
@@ -87,7 +87,7 @@ Rlarfg(mpackint N, mpf_class * alpha, mpf_class * x, mpackint incx, mpf_class * 
 	*tau = 0.0;
     } else {
 	beta = -1.0 * Msign(Rlapy2(*alpha, xnorm), *alpha);
-	safmin = Rlamch_gmp("S") / Rlamch_gmp("E");
+	safmin = Rlamch_mpfr("S") / Rlamch_mpfr("E");
 
 //XNORM, BETA may be inaccurate; scale X and recompute them
 	if (abs(beta) < safmin) {

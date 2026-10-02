@@ -64,19 +64,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rpotrf(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpackint *info)
+Rpotrf(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpackint *info)
 {
     mpackint upper;
     mpackint j, jb, nb;
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
     *info = 0;
-    upper = Mlsame_gmp(uplo, "U");
-    if (!upper && !Mlsame_gmp(uplo, "L")) {
+    upper = Mlsame_mpfr(uplo, "U");
+    if (!upper && !Mlsame_mpfr(uplo, "L")) {
 	*info = -1;
     } else if (n < 0) {
 	*info = -2;
@@ -84,7 +84,7 @@ Rpotrf(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpackint *info
 	*info = -4;
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rpotrf", -(*info));
+	Mxerbla_mpfr("Rpotrf", -(*info));
 	return;
     }
 //Quick return if possible
@@ -92,7 +92,7 @@ Rpotrf(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpackint *info
 	return;
 
 //Determine the block size for this environment.
-    nb = iMlaenv_gmp(1, "Rpotrf", uplo, n, -1, -1, -1);
+    nb = iMlaenv_mpfr(1, "Rpotrf", uplo, n, -1, -1, -1);
     if (nb <= 1 || nb >= n) {
 //Use unblocked code.
 	Rpotf2(uplo, n, A, lda, info);

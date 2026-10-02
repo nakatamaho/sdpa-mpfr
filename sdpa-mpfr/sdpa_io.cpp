@@ -149,7 +149,7 @@ void IO::read(FILE* fpData,
 void IO::read(FILE* fpData, Vector& b)
 {
   for (int k=0; k<b.nDim; ++k) {
-    gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&b.ele[k]);
+    sdpa_fscan_real(fpData,&b.ele[k]);
   }
 }
 
@@ -164,8 +164,8 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
 
   // yVec is opposite sign
   for (int k=0; k<yVec.nDim; ++k) {
-    mpf_class tmp;
-    gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+    mpfr_class tmp;
+    sdpa_fscan_real(fpData,&tmp);
     yVec.ele[k] = -tmp;
     //     rMessage("yVec.ele[" << k << "] = " << tmp);
   }
@@ -173,7 +173,7 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
   if (inputSparse) {
     // sparse case , zMat , xMat in this order
     int i,j,l,target;
-    mpf_class value;
+    mpfr_class value;
     while (true) {
       if (fscanf(fpData,"%*[^0-9+-]%d",&target)<=0) {
 	break;
@@ -187,7 +187,7 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
       if (fscanf(fpData,"%*[^0-9+-]%d",&j)<=0) {
 	break;
       }
-      if (gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&value)<=0) {
+      if (sdpa_fscan_real(fpData,&value)<=0) {
 	break;
       }
       #if 0
@@ -233,8 +233,8 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
       int size = zMat.SDP_block[l].nRow;
       for (int i=0; i<size; ++i) {
 	for (int j=0; j<size; ++j) {
-	  mpf_class tmp;
-	  gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+	  mpfr_class tmp;
+	  sdpa_fscan_real(fpData,&tmp);
 	  if (i<=j && tmp!=0.0) {
 	    zMat.setElement_SDP(l,i,j,tmp);
 	  }
@@ -247,8 +247,8 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
     }
     // for LP
     for (int j=0; j<LP_nBlock; ++j) {
-      mpf_class tmp;
-      gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+      mpfr_class tmp;
+      sdpa_fscan_real(fpData,&tmp);
       if (tmp!=0.0) {
 	zMat.setElement_LP(j,tmp);
       }
@@ -259,8 +259,8 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
       int size = xMat.SDP_block[l].nRow;
       for (int i=0; i<size; ++i) {
 	for (int j=0; j<size; ++j) {
-	  mpf_class tmp;
-	  gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+	  mpfr_class tmp;
+	  sdpa_fscan_real(fpData,&tmp);
 	  if (i<=j && tmp!=0.0) {
 	    xMat.setElement_SDP(l,i,j,tmp);
 	  }
@@ -273,8 +273,8 @@ void IO::read(FILE* fpData, DenseLinearSpace& xMat,
     }
     // for LP
     for (int j=0; j<LP_nBlock; ++j) {
-      mpf_class tmp;
-      gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+      mpfr_class tmp;
+      sdpa_fscan_real(fpData,&tmp);
       if (tmp!=0.0) {
 	xMat.setElement_LP(j,tmp);
       }
@@ -300,7 +300,7 @@ void IO::read(FILE* fpData,  InputData& inputData, int m,
 
   if (isDataSparse) {
     int i,j,k,l;
-    mpf_class value;
+    mpfr_class value;
     while (true) {
       if (fscanf(fpData,"%*[^0-9+-]%d",&k)<=0) {
 	break;
@@ -314,7 +314,7 @@ void IO::read(FILE* fpData,  InputData& inputData, int m,
       if (fscanf(fpData,"%*[^0-9+-]%d",&j)<=0) {
 	break;
       }
-      if (gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&value)<=0) {
+      if (sdpa_fscan_real(fpData,&value)<=0) {
 	break;
       }
 #if 0
@@ -361,8 +361,8 @@ void IO::read(FILE* fpData,  InputData& inputData, int m,
 		int size = SDP_blockStruct[l];
 		for (int i=0; i<size; ++i) {
 		  for (int j=0; j<size; ++j) {
-			mpf_class tmp;
-			gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+			mpfr_class tmp;
+			sdpa_fscan_real(fpData,&tmp);
 			if (i<=j && tmp!=0.0) {
 			  inputData.C.setElement_SDP(l,i,j,-tmp);
 			}
@@ -372,8 +372,8 @@ void IO::read(FILE* fpData,  InputData& inputData, int m,
 		rError("io:: current version does not support SOCP");
 	  } else if (blockType[l2] == 3) { // LP part
 		for (int j=0; j<blockStruct[l2]; ++j) {
-		  mpf_class tmp;
-		  gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+		  mpfr_class tmp;
+		  sdpa_fscan_real(fpData,&tmp);
 		  if (tmp!=0.0) {
 			inputData.C.setElement_LP(blockNumber[l2]+j,-tmp);
 		  }
@@ -392,8 +392,8 @@ void IO::read(FILE* fpData,  InputData& inputData, int m,
 		int size = SDP_blockStruct[l];
 		for (int i=0; i<size; ++i) {
 		  for (int j=0; j<size; ++j) {
-			mpf_class tmp;
-			gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+			mpfr_class tmp;
+			sdpa_fscan_real(fpData,&tmp);
 			if (i<=j && tmp!=0.0) {
 			  inputData.A[k].setElement_SDP(l,i,j,tmp);
 			}
@@ -403,8 +403,8 @@ void IO::read(FILE* fpData,  InputData& inputData, int m,
 		rError("io:: current version does not support SOCP");
 	  } else if (blockType[l2] == 3) { // LP part
 		for (int j=0; j<blockStruct[l2]; ++j) {
-		  mpf_class tmp;
-		  gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+		  mpfr_class tmp;
+		  sdpa_fscan_real(fpData,&tmp);
 		  if (tmp!=0.0) {
 			inputData.A[k].setElement_LP(blockNumber[l2]+j,tmp);
 		  }
@@ -439,7 +439,7 @@ void IO::read(FILE* fpData, int m,
   read(fpData,inputData.b);
   long position = ftell(fpData);
 
-  // C,A must be accessed "mpf_class".
+  // C,A must be accessed "mpfr_class".
 
   //   initialize block struct of C and A
   setBlockStruct(fpData, inputData, m,
@@ -507,7 +507,7 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
 
   if (isDataSparse) {
     int i,j,k,l;
-    mpf_class value;
+    mpfr_class value;
     while (true) {
       if (fscanf(fpData,"%*[^0-9+-]%d",&k)<=0) {
 	break;
@@ -521,7 +521,7 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
       if (fscanf(fpData,"%*[^0-9+-]%d",&j)<=0) {
 	break;
       }
-      if (gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&value)<=0) {
+      if (sdpa_fscan_real(fpData,&value)<=0) {
 	break;
       }
       
@@ -536,8 +536,8 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
         if (i!=j){
           printf("invalid data file k:%d, l:%d, i:%d, j:%d, "
                  ,k,l,i,j);
-          printf("value:%9.1Felf\n",
-                 value.get_mpf_t());
+          printf("value:%9.1Relf\n",
+                 value.get_mpfr_t());
           rError("IO::initializeLinearSpace");
         }
         int l2 =blockNumber[l-1];
@@ -556,8 +556,8 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
         int size = SDP_blockStruct[l];
         for (int i=0; i<size; ++i) {
           for (int j=0; j<size; ++j) {
-            mpf_class tmp;
-            gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+            mpfr_class tmp;
+            sdpa_fscan_real(fpData,&tmp);
             if (i<=j && tmp!=0.0) {
               SDP_index[0].push_back(l);
             }
@@ -567,8 +567,8 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
         rError("io:: current version does not support SOCP");
       } else if (blockType[l2] == 3) { // LP part
         for (int j=0; j<blockStruct[l2]; ++j) {
-          mpf_class tmp;
-          gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+          mpfr_class tmp;
+          sdpa_fscan_real(fpData,&tmp);
           if (tmp!=0.0) {
               LP_index[0].push_back(blockNumber[l2]+j);
           }
@@ -586,8 +586,8 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
           int size = SDP_blockStruct[l];
           for (int i=0; i<size; ++i) {
             for (int j=0; j<size; ++j) {
-              mpf_class tmp;
-              gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+              mpfr_class tmp;
+              sdpa_fscan_real(fpData,&tmp);
               if (i<=j && tmp!=0.0) {
                 SDP_index[k+1].push_back(l);
               }
@@ -597,8 +597,8 @@ void IO::setBlockStruct(FILE* fpData, InputData& inputData, int m,
           rError("io:: current version does not support SOCP");
         } else if (blockType[l2] == 3) { // LP part
           for (int j=0; j<blockStruct[l2]; ++j) {
-            mpf_class tmp;
-            gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+            mpfr_class tmp;
+            sdpa_fscan_real(fpData,&tmp);
             if (tmp!=0.0) {
               LP_index[k+1].push_back(blockNumber[l2]+j);
             }
@@ -710,7 +710,7 @@ void IO::setElement(FILE* fpData, InputData& inputData, int m,
 
   if (isDataSparse) {
     int i,j,k,l;
-    mpf_class value;
+    mpfr_class value;
     while (true) {
       if (fscanf(fpData,"%*[^0-9+-]%d",&k)<=0) {
 	break;
@@ -724,7 +724,7 @@ void IO::setElement(FILE* fpData, InputData& inputData, int m,
       if (fscanf(fpData,"%*[^0-9+-]%d",&j)<=0) {
 	break;
       }
-      if (gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&value)<=0) {
+      if (sdpa_fscan_real(fpData,&value)<=0) {
 	break;
       }
 #if 0
@@ -771,8 +771,8 @@ void IO::setElement(FILE* fpData, InputData& inputData, int m,
 		int size = SDP_blockStruct[l];
 		for (int i=0; i<size; ++i) {
 		  for (int j=0; j<size; ++j) {
-			mpf_class tmp;
-			gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+			mpfr_class tmp;
+			sdpa_fscan_real(fpData,&tmp);
 			if (i<=j && tmp!=0.0) {
 			  inputData.C.setElement_SDP(l,i,j,-tmp);
 			}
@@ -782,8 +782,8 @@ void IO::setElement(FILE* fpData, InputData& inputData, int m,
 		rError("io:: current version does not support SOCP");
 	  } else if (blockType[l2] == 3) { // LP part
 		for (int j=0; j<blockStruct[l2]; ++j) {
-		  mpf_class tmp;
-		  gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+		  mpfr_class tmp;
+		  sdpa_fscan_real(fpData,&tmp);
 		  if (tmp!=0.0) {
 			inputData.C.setElement_LP(blockNumber[l2]+j,-tmp);
 		  }
@@ -802,8 +802,8 @@ void IO::setElement(FILE* fpData, InputData& inputData, int m,
 		int size = SDP_blockStruct[l];
 		for (int i=0; i<size; ++i) {
 		  for (int j=0; j<size; ++j) {
-			mpf_class tmp;
-			gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+			mpfr_class tmp;
+			sdpa_fscan_real(fpData,&tmp);
 			if (i<=j && tmp!=0.0) {
 			  inputData.A[k].setElement_SDP(l,i,j,tmp);
 			}
@@ -813,8 +813,8 @@ void IO::setElement(FILE* fpData, InputData& inputData, int m,
 		rError("io:: current version does not support SOCP");
 	  } else if (blockType[l2] == 3) { // LP part
 		for (int j=0; j<blockStruct[l2]; ++j) {
-		  mpf_class tmp;
-		  gmp_fscanf(fpData,"%*[^0-9+-]%Fe",&tmp);
+		  mpfr_class tmp;
+		  sdpa_fscan_real(fpData,&tmp);
 		  if (tmp!=0.0) {
 			inputData.A[k].setElement_LP(blockNumber[l2]+j,tmp);
 		  }
@@ -853,37 +853,37 @@ void IO::printOneIteration(int pIteration,
 {
   #if REVERSE_PRIMAL_DUAL
   if (Display) {
-    mpf_class mtmp1=-solveInfo.objValDual;
-    mpf_class mtmp2=-solveInfo.objValPrimal;
-    gmp_fprintf(Display,"%2d %4.1Fe %4.1Fe %4.1Fe %+7.2Fe %+7.2Fe"
-	    " %4.1Fe %4.1Fe %4.F2e\n", pIteration, mu.current.get_mpf_t(),
-	    theta.dual.get_mpf_t(), theta.primal.get_mpf_t(),
-	    mtmp1.get_mpf_t(), mtmp2.get_mpf_t(),
-	    alpha.dual.get_mpf_t(), alpha.primal.get_mpf_t(), beta.value.get_mpf_t());
+    mpfr_class mtmp1=-solveInfo.objValDual;
+    mpfr_class mtmp2=-solveInfo.objValPrimal;
+    mpfr_fprintf(Display,"%2d %4.1Re %4.1Re %4.1Re %+7.2Re %+7.2Re"
+	    " %4.1Re %4.1Re %4.2Re\n", pIteration, mu.current.get_mpfr_t(),
+	    theta.dual.get_mpfr_t(), theta.primal.get_mpfr_t(),
+	    mtmp1.get_mpfr_t(), mtmp2.get_mpfr_t(),
+	    alpha.dual.get_mpfr_t(), alpha.primal.get_mpfr_t(), beta.value.get_mpfr_t());
   }
   if (fpout) {
-    mpf_class mtmp1=-solveInfo.objValDual;
-    mpf_class mtmp2=-solveInfo.objValPrimal;
-    gmp_fprintf(fpout,"%2d %4.1Fe %4.1Fe %4.1Fe %+7.2Fe %+7.2Fe"
-	    " %4.1Fe %4.1Fe %4.2Fe\n", pIteration, mu.current.get_mpf_t(),
-	    theta.dual.get_mpf_t(), theta.primal.get_mpf_t(),
-	    mtmp1.get_mpf_t(),mtmp2.get_mpf_t(),
-	    alpha.dual.get_mpf_t(), alpha.primal.get_mpf_t(), beta.value.get_mpf_t());
+    mpfr_class mtmp1=-solveInfo.objValDual;
+    mpfr_class mtmp2=-solveInfo.objValPrimal;
+    mpfr_fprintf(fpout,"%2d %4.1Re %4.1Re %4.1Re %+7.2Re %+7.2Re"
+	    " %4.1Re %4.1Re %4.2Re\n", pIteration, mu.current.get_mpfr_t(),
+	    theta.dual.get_mpfr_t(), theta.primal.get_mpfr_t(),
+	    mtmp1.get_mpfr_t(),mtmp2.get_mpfr_t(),
+	    alpha.dual.get_mpfr_t(), alpha.primal.get_mpfr_t(), beta.value.get_mpfr_t());
   }
   #else
   if (Display) {
-    gmp_fprintf(Display,"%2d %4.1Fe %4.1Fe %4.1Fe %+7.2Fe %+7.2Fe"
-	    " %4.1Fe %4.1Fe %4.2Fe\n", pIteration.get_mpf_t(), mu.current.get_mpf_t(),
-	    theta.primal.get_mpf_t(), theta.dual.get_mpf_t(),
-	    solveInfo.objValPrimal.get_mpf_t(), solveInfo.objValDual.get_mpf_t(),
-	    alpha.primal.get_mpf_t(), alpha.dual.get_mpf_t(), beta.value.get_mpf_t());
+    mpfr_fprintf(Display,"%2d %4.1Re %4.1Re %4.1Re %+7.2Re %+7.2Re"
+	    " %4.1Re %4.1Re %4.2Re\n", pIteration.get_mpfr_t(), mu.current.get_mpfr_t(),
+	    theta.primal.get_mpfr_t(), theta.dual.get_mpfr_t(),
+	    solveInfo.objValPrimal.get_mpfr_t(), solveInfo.objValDual.get_mpfr_t(),
+	    alpha.primal.get_mpfr_t(), alpha.dual.get_mpfr_t(), beta.value.get_mpfr_t());
   }
   if (fpout) {
-    gmp_fprintf(fpout,"%2d %4.1Fe %4.1Fe %4.1Fe %+7.2Fe %+7.2Fe"
-	    " %4.1Fe %4.1Fe %4.2Fe\n", pIteration.get_mpf_t(), mu.current.get_mpf_t(),
-	    theta.primal.get_mpf_t(), theta.dual.get_mpf_t(),
-	    solveInfo.objValPrimal.get_mpf_t(), solveInfo.objValDual.get_mpf_t(),
-	    alpha.primal.get_mpf_t(), alpha.dual.get_mpf_t(), beta.value.get_mpf_t());
+    mpfr_fprintf(fpout,"%2d %4.1Re %4.1Re %4.1Re %+7.2Re %+7.2Re"
+	    " %4.1Re %4.1Re %4.2Re\n", pIteration.get_mpfr_t(), mu.current.get_mpfr_t(),
+	    theta.primal.get_mpfr_t(), theta.dual.get_mpfr_t(),
+	    solveInfo.objValPrimal.get_mpfr_t(), solveInfo.objValDual.get_mpfr_t(),
+	    alpha.primal.get_mpfr_t(), alpha.dual.get_mpfr_t(), beta.value.get_mpfr_t());
   }
   #endif
 }
@@ -911,29 +911,29 @@ void IO::printLastInfo(int pIteration,
   printOneIteration(pIteration,mu,theta,solveInfo,alpha,
 		    beta, fpout, Display);
 
-  mpf_class mean = (abs(solveInfo.objValPrimal)
+  mpfr_class mean = (abs(solveInfo.objValPrimal)
 		 + abs(solveInfo.objValDual)) / 2.0;
-  mpf_class PDgap = abs(solveInfo.objValPrimal
+  mpfr_class PDgap = abs(solveInfo.objValPrimal
 		      - solveInfo.objValDual);
-  // mpf_class dominator;
-  mpf_class relgap;
+  // mpfr_class dominator;
+  mpfr_class relgap;
   if (mean < 1.0) {
     relgap = PDgap;
   } else {
     relgap = PDgap/mean;
   }
 
-  mpf_class gap    = mu.current*nDim; 
-  mpf_class digits = -mpf_approx_log10(abs(PDgap/mean));
+  mpfr_class gap    = mu.current*nDim; 
+  mpfr_class digits = -log10(abs(PDgap/mean));
 
   #if DIMACS_PRINT
-  mpf_class tmp = 0.0;
-  mpf_class b1 = 0.0;
+  mpfr_class tmp = 0.0;
+  mpfr_class b1 = 0.0;
   for (int k=0; k<inputData.b.nDim; ++k) {
     tmp= abs(inputData.b.ele[k]);
     b1 = max(b1, tmp);
   }
-  mpf_class c1 = 0.0;
+  mpfr_class c1 = 0.0;
   for (int l=0; l<inputData.C.SDP_sp_nBlock; ++l) {
     SparseMatrix& Cl = inputData.C.SDP_sp_block[l];
     if (Cl.type == SparseMatrix::SPARSE) {
@@ -955,10 +955,10 @@ void IO::printLastInfo(int pIteration,
     tmp = abs(inputData.C.LP_sp_block[l]);
     c1 = max(c1, tmp);
   }
-  mpf_class p_norm;
+  mpfr_class p_norm;
   Lal::let(tmp,'=',currentRes.primalVec,'.',currentRes.primalVec);
   p_norm = sqrt(tmp);
-  mpf_class d_norm = 0.0;
+  mpfr_class d_norm = 0.0;
   for (int l=0; l<currentRes.dualMat.SDP_nBlock; ++l) {
     Lal::let(tmp,'=',currentRes.dualMat.SDP_block[l],'.',currentRes.dualMat.SDP_block[l]);
     d_norm += sqrt(tmp);
@@ -971,82 +971,82 @@ void IO::printLastInfo(int pIteration,
     tmp += currentRes.dualMat.LP_block[l] * currentRes.dualMat.LP_block[l];
   }
   d_norm += sqrt(tmp);
-  mpf_class x_min =  Jal::getMinEigen(currentPt.xMat,work);
-  mpf_class z_min =  Jal::getMinEigen(currentPt.zMat,work);
+  mpfr_class x_min =  Jal::getMinEigen(currentPt.xMat,work);
+  mpfr_class z_min =  Jal::getMinEigen(currentPt.zMat,work);
 					
-  // gmp_printf("b1:%Fe\n",b1);
-  // gmp_printf("c1:%Fe\n",c1);
-  // gmp_printf("p_norm:%Fe\n",p_norm);
-  // gmp_printf("d_norm:%Fe\n",d_norm);
-  // gmp_printf("x_min:%Fe\n",x_min);
-  // gmp_printf("z_min:%Fe\n",z_min);
+  // mpfr_printf("b1:%Re\n",b1);
+  // mpfr_printf("c1:%Re\n",c1);
+  // mpfr_printf("p_norm:%Re\n",p_norm);
+  // mpfr_printf("d_norm:%Re\n",d_norm);
+  // mpfr_printf("x_min:%Re\n",x_min);
+  // mpfr_printf("z_min:%Re\n",z_min);
   
-  mpf_class ctx = solveInfo.objValPrimal;
-  mpf_class bty = solveInfo.objValDual;
-  mpf_class xtz = 0.0;
+  mpfr_class ctx = solveInfo.objValPrimal;
+  mpfr_class bty = solveInfo.objValDual;
+  mpfr_class xtz = 0.0;
   Lal::let(xtz,'=',currentPt.xMat,'.',currentPt.zMat);
 
-  mpf_class mzero = 0.0;
-  mpf_class err1 = p_norm / (1+b1);
-  mpf_class err2 = max( mzero, - x_min / (1+b1));
-  mpf_class err3 = d_norm / (1+c1);
-  mpf_class err4 = max( mzero, - z_min / (1+c1));
-  mpf_class err5 = (ctx - bty) / (1 + abs(ctx) + abs(bty));
-  mpf_class err6 = xtz / (1 + abs(ctx) + abs(bty));
+  mpfr_class mzero = 0.0;
+  mpfr_class err1 = p_norm / (1+b1);
+  mpfr_class err2 = max( mzero, - x_min / (1+b1));
+  mpfr_class err3 = d_norm / (1+c1);
+  mpfr_class err4 = max( mzero, - z_min / (1+c1));
+  mpfr_class err5 = (ctx - bty) / (1 + abs(ctx) + abs(bty));
+  mpfr_class err6 = xtz / (1 + abs(ctx) + abs(bty));
     
   #endif
   if (Display) {
     fprintf(Display, "\n");
     phase.display(Display);
         fprintf(Display, "   Iteration = %d\n",       pIteration);
-    gmp_fprintf(Display, "          mu = %4.16Fe\n",  mu.current.get_mpf_t());
-    gmp_fprintf(Display, "relative gap = %4.16Fe\n",  relgap.get_mpf_t());
-    gmp_fprintf(Display, "         gap = %4.16Fe\n",  gap.get_mpf_t());
-    gmp_fprintf(Display, "      digits = %4.16Fe\n",  digits.get_mpf_t());
+    mpfr_fprintf(Display, "          mu = %4.16Re\n",  mu.current.get_mpfr_t());
+    mpfr_fprintf(Display, "relative gap = %4.16Re\n",  relgap.get_mpfr_t());
+    mpfr_fprintf(Display, "         gap = %4.16Re\n",  gap.get_mpfr_t());
+    mpfr_fprintf(Display, "      digits = %4.16Re\n",  digits.get_mpfr_t());
 
     #if REVERSE_PRIMAL_DUAL
-    mpf_class mtmp1 = -solveInfo.objValDual;
-    mpf_class mtmp2 = -solveInfo.objValPrimal;
-    gmp_fprintf(Display, "objValPrimal = %10.16Fe\n",
-	    mtmp1.get_mpf_t());
-    gmp_fprintf(Display, "objValDual   = %10.16Fe\n",
-	    mtmp2.get_mpf_t());
-    gmp_fprintf(Display, "p.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(Display, "d.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(Display, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_class mtmp1 = -solveInfo.objValDual;
+    mpfr_class mtmp2 = -solveInfo.objValPrimal;
+    mpfr_fprintf(Display, "objValPrimal = %10.16Re\n",
+	    mtmp1.get_mpfr_t());
+    mpfr_fprintf(Display, "objValDual   = %10.16Re\n",
+	    mtmp2.get_mpfr_t());
+    mpfr_fprintf(Display, "p.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(Display, "d.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(Display, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #else
-    gmp_fprintf(Display, "objValPrimal = %10.16Fe\n",
-	    solveInfo.objValPrimal.get_mpf_t());
-    gmp_fprintf(Display, "objValDual   = %10.16Fe\n",
-	    solveInfo.objValDual.get_mpf_t());
-    gmp_fprintf(Display, "p.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(Display, "d.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(Display, "relative eps = %10.16Fe\n",
-            gmp_dlamchE().get_mpf_t());
+    mpfr_fprintf(Display, "objValPrimal = %10.16Re\n",
+	    solveInfo.objValPrimal.get_mpfr_t());
+    mpfr_fprintf(Display, "objValDual   = %10.16Re\n",
+	    solveInfo.objValDual.get_mpfr_t());
+    mpfr_fprintf(Display, "p.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(Display, "d.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(Display, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #endif
     if (printTime == true) {
       fprintf(Display, "total time   = %.3f\n",cputime);
     }
     #if DIMACS_PRINT
     fprintf(Display, "\n");
-    gmp_fprintf(Display, "* DIMACS_ERRORS * \n");
-    gmp_fprintf(Display, "err1 = %4.16Fe  [%40s]\n",
-	    err1.get_mpf_t(), "||Ax-b|| / (1+||b||_1) ");
-    gmp_fprintf(Display, "err2 = %4.16Fe  [%40s]\n",
-	    err2.get_mpf_t(), "max(0, -lambda(x) / (1+||b||_1))");
-    gmp_fprintf(Display, "err3 = %4.16Fe  [%40s]\n",
-	    err3.get_mpf_t(), "||A^Ty + z - c || / (1+||c||_1) ");
-    gmp_fprintf(Display, "err4 = %4.16Fe  [%40s]\n",
-	    err4.get_mpf_t(), "max(0, -lambda(z) / (1+||c||_1))");
-    gmp_fprintf(Display, "err5 = %4.16Fe  [%40s]\n",
-	    err5.get_mpf_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
-    gmp_fprintf(Display, "err6 = %4.16Fe  [%40s]\n",
-	    err6.get_mpf_t(),"<x,z> / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(Display, "* DIMACS_ERRORS * \n");
+    mpfr_fprintf(Display, "err1 = %4.16Re  [%40s]\n",
+	    err1.get_mpfr_t(), "||Ax-b|| / (1+||b||_1) ");
+    mpfr_fprintf(Display, "err2 = %4.16Re  [%40s]\n",
+	    err2.get_mpfr_t(), "max(0, -lambda(x) / (1+||b||_1))");
+    mpfr_fprintf(Display, "err3 = %4.16Re  [%40s]\n",
+	    err3.get_mpfr_t(), "||A^Ty + z - c || / (1+||c||_1) ");
+    mpfr_fprintf(Display, "err4 = %4.16Re  [%40s]\n",
+	    err4.get_mpfr_t(), "max(0, -lambda(z) / (1+||c||_1))");
+    mpfr_fprintf(Display, "err5 = %4.16Re  [%40s]\n",
+	    err5.get_mpfr_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(Display, "err6 = %4.16Re  [%40s]\n",
+	    err6.get_mpfr_t(),"<x,z> / (1 + |<c,x>| + |by|)");
     fprintf(Display, "\n");
     #endif
   }
@@ -1054,56 +1054,56 @@ void IO::printLastInfo(int pIteration,
     fprintf(fpout, "\n");
     phase.display(fpout);
         fprintf(fpout, "   Iteration = %d\n",  pIteration);
-    gmp_fprintf(fpout, "          mu = %4.16Fe\n",  mu.current.get_mpf_t());
-    gmp_fprintf(fpout, "relative gap = %4.16Fe\n",  relgap.get_mpf_t());
-    gmp_fprintf(fpout, "         gap = %4.16Fe\n",  gap.get_mpf_t());
-    gmp_fprintf(fpout, "      digits = %4.16Fe\n",  digits.get_mpf_t());
+    mpfr_fprintf(fpout, "          mu = %4.16Re\n",  mu.current.get_mpfr_t());
+    mpfr_fprintf(fpout, "relative gap = %4.16Re\n",  relgap.get_mpfr_t());
+    mpfr_fprintf(fpout, "         gap = %4.16Re\n",  gap.get_mpfr_t());
+    mpfr_fprintf(fpout, "      digits = %4.16Re\n",  digits.get_mpfr_t());
 
     #if REVERSE_PRIMAL_DUAL
-    mpf_class mtmp1=-solveInfo.objValDual;
-    mpf_class mtmp2=-solveInfo.objValPrimal;
-    gmp_fprintf(fpout, "objValPrimal = %10.16Fe\n",
-	    mtmp1.get_mpf_t());
-    gmp_fprintf(fpout, "objValDual   = %10.16Fe\n",
-	    mtmp2.get_mpf_t());
-    gmp_fprintf(fpout, "p.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(fpout, "d.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(fpout, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_class mtmp1=-solveInfo.objValDual;
+    mpfr_class mtmp2=-solveInfo.objValPrimal;
+    mpfr_fprintf(fpout, "objValPrimal = %10.16Re\n",
+	    mtmp1.get_mpfr_t());
+    mpfr_fprintf(fpout, "objValDual   = %10.16Re\n",
+	    mtmp2.get_mpfr_t());
+    mpfr_fprintf(fpout, "p.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(fpout, "d.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(fpout, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #else
-    gmp_fprintf(fpout, "objValPrimal = %10.16Fe\n",
-	    solveInfo.objValPrimal.get_mpf_t());
-    gmp_fprintf(fpout, "objValDual   = %10.16Fe\n",
-	    solveInfo.objValDual.get_mpf_t());
-    gmp_fprintf(fpout, "p.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(fpout, "d.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(fpout, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_fprintf(fpout, "objValPrimal = %10.16Re\n",
+	    solveInfo.objValPrimal.get_mpfr_t());
+    mpfr_fprintf(fpout, "objValDual   = %10.16Re\n",
+	    solveInfo.objValDual.get_mpfr_t());
+    mpfr_fprintf(fpout, "p.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(fpout, "d.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(fpout, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #endif
     fprintf(fpout, "total time   = %.3f\n",cputime);
     #if DIMACS_PRINT
     fprintf(fpout, "\n");
-    gmp_fprintf(fpout, "* DIMACS_ERRORS * \n");
-    gmp_fprintf(fpout, "err1 = %4.16Fe  [%40s]\n",
-	    err1.get_mpf_t(), "||Ax-b|| / (1+||b||_1) ");
-    gmp_fprintf(fpout, "err2 = %4.16Fe  [%40s]\n",
-	    err2.get_mpf_t(), "max(0, -lambda(x) / (1+||b||_1))");
-    gmp_fprintf(fpout, "err3 = %4.16Fe  [%40s]\n",
-	    err3.get_mpf_t(), "||A^Ty + z - c || / (1+||c||_1) ");
-    gmp_fprintf(fpout, "err4 = %4.16Fe  [%40s]\n",
-	    err4.get_mpf_t(), "max(0, -lambda(z) / (1+||c||_1))");
-    gmp_fprintf(fpout, "err5 = %4.16Fe  [%40s]\n",
-	    err5.get_mpf_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
-    gmp_fprintf(fpout, "err6 = %4.16Fe  [%40s]\n",
-	    err6.get_mpf_t(),"<x,z> / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(fpout, "* DIMACS_ERRORS * \n");
+    mpfr_fprintf(fpout, "err1 = %4.16Re  [%40s]\n",
+	    err1.get_mpfr_t(), "||Ax-b|| / (1+||b||_1) ");
+    mpfr_fprintf(fpout, "err2 = %4.16Re  [%40s]\n",
+	    err2.get_mpfr_t(), "max(0, -lambda(x) / (1+||b||_1))");
+    mpfr_fprintf(fpout, "err3 = %4.16Re  [%40s]\n",
+	    err3.get_mpfr_t(), "||A^Ty + z - c || / (1+||c||_1) ");
+    mpfr_fprintf(fpout, "err4 = %4.16Re  [%40s]\n",
+	    err4.get_mpfr_t(), "max(0, -lambda(z) / (1+||c||_1))");
+    mpfr_fprintf(fpout, "err5 = %4.16Re  [%40s]\n",
+	    err5.get_mpfr_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(fpout, "err6 = %4.16Re  [%40s]\n",
+	    err6.get_mpfr_t(),"<x,z> / (1 + |<c,x>| + |by|)");
     fprintf(fpout, "\n");
     #endif
 
-    gmp_fprintf(fpout, "\n\nParameters are\n");
+    mpfr_fprintf(fpout, "\n\nParameters are\n");
     param.display(fpout);
     com.display(fpout);
 
@@ -1150,31 +1150,31 @@ void IO::printLastInfo(int pIteration,
   printOneIteration(pIteration,mu,theta,solveInfo,alpha,
 		    beta, fpout, Display);
 
-  mpf_class mean = (abs(solveInfo.objValPrimal)
+  mpfr_class mean = (abs(solveInfo.objValPrimal)
 		 + abs(solveInfo.objValDual)) / 2.0;
-  mpf_class PDgap = abs(solveInfo.objValPrimal
+  mpfr_class PDgap = abs(solveInfo.objValPrimal
 		      - solveInfo.objValDual);
-  // mpf_class dominator;
-  mpf_class relgap;
+  // mpfr_class dominator;
+  mpfr_class relgap;
   if (mean < 1.0) {
     relgap = PDgap;
   } else {
     relgap = PDgap/mean;
   }
-  mpf_class gap    = mu.current*nDim;
-  mpf_class digits = 0.0;
+  mpfr_class gap    = mu.current*nDim;
+  mpfr_class digits = 0.0;
   if (PDgap != 0.0 && mean != 0.0) {
-    digits = -mpf_approx_log10(abs(PDgap/mean));
+    digits = -log10(abs(PDgap/mean));
   }
 
   #if DIMACS_PRINT
-  mpf_class tmp = 0.0;
-  mpf_class b1 = 0.0;
+  mpfr_class tmp = 0.0;
+  mpfr_class b1 = 0.0;
   for (int k=0; k<inputData.b.nDim; ++k) {
     tmp = abs(inputData.b.ele[k]);
     b1 = max(b1, tmp);
   }
-  mpf_class c1 = 0.0;
+  mpfr_class c1 = 0.0;
   for (int l=0; l<inputData.C.SDP_sp_nBlock; ++l) {
     SparseMatrix& Cl = inputData.C.SDP_sp_block[l];
     if (Cl.type == SparseMatrix::SPARSE) {
@@ -1196,10 +1196,10 @@ void IO::printLastInfo(int pIteration,
     tmp = abs(inputData.C.LP_sp_block[l]);
     c1 = max(c1, tmp);
   }
-  mpf_class p_norm;
+  mpfr_class p_norm;
   Lal::let(tmp,'=',currentRes.primalVec,'.',currentRes.primalVec);
   p_norm = sqrt(tmp);
-  mpf_class d_norm = 0.0;
+  mpfr_class d_norm = 0.0;
   for (int l=0; l<currentRes.dualMat.SDP_nBlock; ++l) {
     Lal::let(tmp,'=',currentRes.dualMat.SDP_block[l],'.',currentRes.dualMat.SDP_block[l]);
     d_norm += sqrt(tmp);
@@ -1212,83 +1212,83 @@ void IO::printLastInfo(int pIteration,
     tmp += currentRes.dualMat.LP_block[l] * currentRes.dualMat.LP_block[l];
   }
   d_norm += sqrt(tmp);
-  mpf_class x_min =  Jal::getMinEigen(currentPt.xMat,work);
-  mpf_class z_min =  Jal::getMinEigen(currentPt.zMat,work);
+  mpfr_class x_min =  Jal::getMinEigen(currentPt.xMat,work);
+  mpfr_class z_min =  Jal::getMinEigen(currentPt.zMat,work);
 					
-  //  gmp_printf("b1:%Fe\n",b1);
-  //  gmp_printf("c1:%Fe\n",c1);
-  //  gmp_printf("p_norm:%Fe\n",p_norm);
-  //  gmp_printf("d_norm:%Fe\n",d_norm);
-  //  gmp_printf("x_min:%Fe\n",x_min);
-  //  gmp_printf("z_min:%Fe\n",z_min);
+  //  mpfr_printf("b1:%Re\n",b1);
+  //  mpfr_printf("c1:%Re\n",c1);
+  //  mpfr_printf("p_norm:%Re\n",p_norm);
+  //  mpfr_printf("d_norm:%Re\n",d_norm);
+  //  mpfr_printf("x_min:%Re\n",x_min);
+  //  mpfr_printf("z_min:%Re\n",z_min);
   
-  mpf_class ctx = solveInfo.objValPrimal;
-  mpf_class bty = solveInfo.objValDual;
-  mpf_class xtz = 0.0;
+  mpfr_class ctx = solveInfo.objValPrimal;
+  mpfr_class bty = solveInfo.objValDual;
+  mpfr_class xtz = 0.0;
   Lal::let(xtz,'=',currentPt.xMat,'.',currentPt.zMat);
 
-  mpf_class mzero = 0.0;
-  mpf_class err1 = p_norm / (1+b1);
-  mpf_class err2 = max( mzero, - x_min / (1+b1));
-  mpf_class err3 = d_norm / (1+c1);
-  mpf_class err4 = max( mzero, - z_min / (1+c1));
-  mpf_class err5 = (ctx - bty) / (1 + abs(ctx) + abs(bty));
-  mpf_class err6 = xtz / (1 + abs(ctx) + abs(bty));
+  mpfr_class mzero = 0.0;
+  mpfr_class err1 = p_norm / (1+b1);
+  mpfr_class err2 = max( mzero, - x_min / (1+b1));
+  mpfr_class err3 = d_norm / (1+c1);
+  mpfr_class err4 = max( mzero, - z_min / (1+c1));
+  mpfr_class err5 = (ctx - bty) / (1 + abs(ctx) + abs(bty));
+  mpfr_class err6 = xtz / (1 + abs(ctx) + abs(bty));
     
   #endif
   
   if (Display) {
     fprintf(Display, "\n");
     phase.display(Display);
-    gmp_fprintf(Display, "   Iteration = %d\n",       pIteration);
-    gmp_fprintf(Display, "          mu = %4.16Fe\n",  mu.current.get_mpf_t());
-    gmp_fprintf(Display, "relative gap = %4.16Fe\n",  relgap.get_mpf_t());
-    gmp_fprintf(Display, "         gap = %4.16Fe\n",  gap.get_mpf_t());
-    gmp_fprintf(Display, "      digits = %4.16Fe\n",  digits.get_mpf_t());
+    mpfr_fprintf(Display, "   Iteration = %d\n",       pIteration);
+    mpfr_fprintf(Display, "          mu = %4.16Re\n",  mu.current.get_mpfr_t());
+    mpfr_fprintf(Display, "relative gap = %4.16Re\n",  relgap.get_mpfr_t());
+    mpfr_fprintf(Display, "         gap = %4.16Re\n",  gap.get_mpfr_t());
+    mpfr_fprintf(Display, "      digits = %4.16Re\n",  digits.get_mpfr_t());
 
     #if REVERSE_PRIMAL_DUAL
-    mpf_class mtmp1 = -solveInfo.objValDual;
-    mpf_class mtmp2 = -solveInfo.objValPrimal;
-    gmp_fprintf(Display, "objValPrimal = %10.16Fe\n",
-	    mtmp1.get_mpf_t());
-    gmp_fprintf(Display, "objValDual   = %10.16Fe\n",
-	    mtmp2.get_mpf_t());
-    gmp_fprintf(Display, "p.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(Display, "d.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(Display, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_class mtmp1 = -solveInfo.objValDual;
+    mpfr_class mtmp2 = -solveInfo.objValPrimal;
+    mpfr_fprintf(Display, "objValPrimal = %10.16Re\n",
+	    mtmp1.get_mpfr_t());
+    mpfr_fprintf(Display, "objValDual   = %10.16Re\n",
+	    mtmp2.get_mpfr_t());
+    mpfr_fprintf(Display, "p.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(Display, "d.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(Display, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #else
-    gmp_fprintf(Display, "objValPrimal = %10.16Fe\n",
-	    solveInfo.objValPrimal.get_mpf_t());
-    gmp_fprintf(Display, "objValDual   = %10.16Fe\n",
-	    solveInfo.objValDual.get_mpf_t());
-    gmp_fprintf(Display, "p.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(Display, "d.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(Display, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_fprintf(Display, "objValPrimal = %10.16Re\n",
+	    solveInfo.objValPrimal.get_mpfr_t());
+    mpfr_fprintf(Display, "objValDual   = %10.16Re\n",
+	    solveInfo.objValDual.get_mpfr_t());
+    mpfr_fprintf(Display, "p.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(Display, "d.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(Display, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #endif
     if (printTime == true) {
       fprintf(Display, "total time   = %.3f\n",cputime);
     }
     #if DIMACS_PRINT
     fprintf(Display, "\n");
-    gmp_fprintf(Display, "* DIMACS_ERRORS * \n");
-    gmp_fprintf(Display, "err1 = %4.16Fe  [%40s]\n",
-	    err1.get_mpf_t(), "||Ax-b|| / (1+||b||_1) ");
-    gmp_fprintf(Display, "err2 = %4.16Fe  [%40s]\n",
-	    err2.get_mpf_t(), "max(0, -lambda(x) / (1+||b||_1))");
-    gmp_fprintf(Display, "err3 = %4.16Fe  [%40s]\n",
-	    err3.get_mpf_t(), "||A^Ty + z - c || / (1+||c||_1) ");
-    gmp_fprintf(Display, "err4 = %4.16Fe  [%40s]\n",
-	    err4.get_mpf_t(), "max(0, -lambda(z) / (1+||c||_1))");
-    gmp_fprintf(Display, "err5 = %4.16Fe  [%40s]\n",
-	    err5.get_mpf_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
-    gmp_fprintf(Display, "err6 = %4.16Fe  [%40s]\n",
-	    err6.get_mpf_t(),"<x,z> / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(Display, "* DIMACS_ERRORS * \n");
+    mpfr_fprintf(Display, "err1 = %4.16Re  [%40s]\n",
+	    err1.get_mpfr_t(), "||Ax-b|| / (1+||b||_1) ");
+    mpfr_fprintf(Display, "err2 = %4.16Re  [%40s]\n",
+	    err2.get_mpfr_t(), "max(0, -lambda(x) / (1+||b||_1))");
+    mpfr_fprintf(Display, "err3 = %4.16Re  [%40s]\n",
+	    err3.get_mpfr_t(), "||A^Ty + z - c || / (1+||c||_1) ");
+    mpfr_fprintf(Display, "err4 = %4.16Re  [%40s]\n",
+	    err4.get_mpfr_t(), "max(0, -lambda(z) / (1+||c||_1))");
+    mpfr_fprintf(Display, "err5 = %4.16Re  [%40s]\n",
+	    err5.get_mpfr_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(Display, "err6 = %4.16Re  [%40s]\n",
+	    err6.get_mpfr_t(),"<x,z> / (1 + |<c,x>| + |by|)");
     fprintf(Display, "\n");
     #endif
   }
@@ -1296,52 +1296,52 @@ void IO::printLastInfo(int pIteration,
     fprintf(fpout, "\n");
     phase.display(fpout);
     fprintf(fpout, "   Iteration = %d\n",  pIteration);
-    gmp_fprintf(fpout, "          mu = %4.16Fe\n",  mu.current.get_mpf_t());
-    gmp_fprintf(fpout, "relative gap = %4.16Fe\n",  relgap.get_mpf_t());
-    gmp_fprintf(fpout, "         gap = %4.16Fe\n",  gap.get_mpf_t());
-    gmp_fprintf(fpout, "      digits = %4.16Fe\n",  digits.get_mpf_t());
+    mpfr_fprintf(fpout, "          mu = %4.16Re\n",  mu.current.get_mpfr_t());
+    mpfr_fprintf(fpout, "relative gap = %4.16Re\n",  relgap.get_mpfr_t());
+    mpfr_fprintf(fpout, "         gap = %4.16Re\n",  gap.get_mpfr_t());
+    mpfr_fprintf(fpout, "      digits = %4.16Re\n",  digits.get_mpfr_t());
 
     #if REVERSE_PRIMAL_DUAL
-    mpf_class mtmp1=-solveInfo.objValDual;
-    mpf_class mtmp2=-solveInfo.objValPrimal;
-    gmp_fprintf(fpout, "objValPrimal = %10.16Fe\n",
-	    mtmp1.get_mpf_t());
-    gmp_fprintf(fpout, "objValDual   = %10.16Fe\n",
-	    mtmp2.get_mpf_t());
-    gmp_fprintf(fpout, "p.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(fpout, "d.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(fpout, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_class mtmp1=-solveInfo.objValDual;
+    mpfr_class mtmp2=-solveInfo.objValPrimal;
+    mpfr_fprintf(fpout, "objValPrimal = %10.16Re\n",
+	    mtmp1.get_mpfr_t());
+    mpfr_fprintf(fpout, "objValDual   = %10.16Re\n",
+	    mtmp2.get_mpfr_t());
+    mpfr_fprintf(fpout, "p.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(fpout, "d.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(fpout, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #else
-    gmp_fprintf(fpout, "objValPrimal = %10.16Fe\n",
-	    solveInfo.objValPrimal.get_mpf_t());
-    gmp_fprintf(fpout, "objValDual   = %10.16Fe\n",
-	    solveInfo.objValDual.get_mpf_t());
-    gmp_fprintf(fpout, "p.feas.error = %10.16Fe\n",
-	    currentRes.normPrimalVec.get_mpf_t());
-    gmp_fprintf(fpout, "d.feas.error = %10.16Fe\n",
-	    currentRes.normDualMat.get_mpf_t());
-    gmp_fprintf(fpout, "relative eps = %10.16Fe\n",
-            Rlamch_gmp("E").get_mpf_t());
+    mpfr_fprintf(fpout, "objValPrimal = %10.16Re\n",
+	    solveInfo.objValPrimal.get_mpfr_t());
+    mpfr_fprintf(fpout, "objValDual   = %10.16Re\n",
+	    solveInfo.objValDual.get_mpfr_t());
+    mpfr_fprintf(fpout, "p.feas.error = %10.16Re\n",
+	    currentRes.normPrimalVec.get_mpfr_t());
+    mpfr_fprintf(fpout, "d.feas.error = %10.16Re\n",
+	    currentRes.normDualMat.get_mpfr_t());
+    mpfr_fprintf(fpout, "relative eps = %10.16Re\n",
+            Rlamch_mpfr("E").get_mpfr_t());
     #endif
     fprintf(fpout, "total time   = %.3f\n",cputime);
     #if DIMACS_PRINT
     fprintf(fpout, "\n");
-    gmp_fprintf(fpout, "* DIMACS_ERRORS * \n");
-    gmp_fprintf(fpout, "err1 = %4.16Fe  [%40s]\n",
-	    err1.get_mpf_t(), "||Ax-b|| / (1+||b||_1) ");
-    gmp_fprintf(fpout, "err2 = %4.16Fe  [%40s]\n",
-	    err2.get_mpf_t(), "max(0, -lambda(x) / (1+||b||_1))");
-    gmp_fprintf(fpout, "err3 = %4.16Fe  [%40s]\n",
-	    err3.get_mpf_t(), "||A^Ty + z - c || / (1+||c||_1) ");
-    gmp_fprintf(fpout, "err4 = %4.16Fe  [%40s]\n",
-	    err4.get_mpf_t(), "max(0, -lambda(z) / (1+||c||_1))");
-    gmp_fprintf(fpout, "err5 = %4.16Fe  [%40s]\n",
-	    err5.get_mpf_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
-    gmp_fprintf(fpout, "err6 = %4.16Fe  [%40s]\n",
-	    err6.get_mpf_t(),"<x,z> / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(fpout, "* DIMACS_ERRORS * \n");
+    mpfr_fprintf(fpout, "err1 = %4.16Re  [%40s]\n",
+	    err1.get_mpfr_t(), "||Ax-b|| / (1+||b||_1) ");
+    mpfr_fprintf(fpout, "err2 = %4.16Re  [%40s]\n",
+	    err2.get_mpfr_t(), "max(0, -lambda(x) / (1+||b||_1))");
+    mpfr_fprintf(fpout, "err3 = %4.16Re  [%40s]\n",
+	    err3.get_mpfr_t(), "||A^Ty + z - c || / (1+||c||_1) ");
+    mpfr_fprintf(fpout, "err4 = %4.16Re  [%40s]\n",
+	    err4.get_mpfr_t(), "max(0, -lambda(z) / (1+||c||_1))");
+    mpfr_fprintf(fpout, "err5 = %4.16Re  [%40s]\n",
+	    err5.get_mpfr_t(),"(<c,x> - by) / (1 + |<c,x>| + |by|)");
+    mpfr_fprintf(fpout, "err6 = %4.16Re  [%40s]\n",
+	    err6.get_mpfr_t(),"<x,z> / (1 + |<c,x>| + |by|)");
     fprintf(fpout, "\n");
     #endif
 
@@ -1400,10 +1400,10 @@ void IO::displayDenseLinarSpaceLast(DenseLinearSpace& aMat,
 	} else if (blockType[i] == 3){
 	  fprintf(fpout,"{");
 	  for (int l=0; l<blockStruct[i]-1; ++l) {
-		gmp_fprintf(fpout,P_FORMAT",",aMat.LP_block[blockNumber[i]+l].get_mpf_t());
+		mpfr_fprintf(fpout,P_FORMAT",",aMat.LP_block[blockNumber[i]+l].get_mpfr_t());
 	  }
 	  if (blockStruct[i] > 0) {
-		gmp_fprintf(fpout,P_FORMAT"}\n",aMat.LP_block[blockNumber[i]+blockStruct[i]-1].get_mpf_t());
+		mpfr_fprintf(fpout,P_FORMAT"}\n",aMat.LP_block[blockNumber[i]+blockStruct[i]-1].get_mpfr_t());
 	  } else {
 		fprintf(fpout,"  }\n");
 	  }

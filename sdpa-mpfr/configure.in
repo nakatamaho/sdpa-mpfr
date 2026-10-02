@@ -1,8 +1,8 @@
 nl
-dnl Configure for SDPA-GMP 7.1.2
+dnl Configure for SDPA-MPFR 7.1.2
 dnl
 
-AC_INIT(sdpa-gmp, 7.1.2)
+AC_INIT(sdpa-mpfr, 7.1.2)
 AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_CXX
@@ -12,11 +12,6 @@ AC_ARG_WITH(system-spooles,
 [  --with-system-spooles      Use spooles already on system],
 WITH_SYSTEM_SPOOLES=$withval, WITH_SYSTEM_SPOOLES=no)
 AM_CONDITIONAL(BUILD_SPOOLES, test x$WITH_SYSTEM_SPOOLES = xno)
-
-AC_ARG_WITH(system-mpack,
-[  --with-system-mpack      Use mpack already on system],
-WITH_SYSTEM_MPACK=$withval, WITH_SYSTEM_MPACK=no)
-AM_CONDITIONAL(BUILD_MPACK, test x$WITH_SYSTEM_MPACK = xno)
 
 AC_ARG_WITH(gmp-includedir,
 [  --with-gmp-includedir    Gives gmp include dir you use(e.g., /usr/local/include).],
@@ -28,14 +23,21 @@ AC_ARG_WITH(gmp-libdir,
 GMP_LIBDIR=$withval
 )
 
-AC_ARG_WITH(mpack-includedir,
-[  --with-mpack-includedir    Gives mpack include dir you use(e.g., /usr/local/include).],
-MPACK_INCLUDEDIR=$withval
+AC_ARG_WITH(mpfr-includedir,
+[  --with-mpfr-includedir    Gives mpfr include dir you use(e.g., /usr/local/include).],
+MPFR_INCLUDEDIR=$withval
 )
 
-AC_ARG_WITH(mpack-libdir,
-[  --with-mpack-libdir    Gives mpack lib dir you use(e.g., /usr/local/lib).],
-MPACK_LIBDIR=$withval
+AC_ARG_WITH(mpfr-libdir,
+[  --with-mpfr-libdir    Gives mpfr lib dir you use(e.g., /usr/local/lib).],
+MPFR_LIBDIR=$withval
+)
+
+AC_ARG_WITH(gmpfrxx-mkii-includedir,
+[  --with-gmpfrxx-mkii-includedir    Gives gmpfrxx_mkII include dir you use
+                                    (the directory containing mpfrxx_mkII.h,
+                                    e.g., /usr/local/include).],
+GMPFRXX_MKII_INCLUDEDIR=$withval
 )
 
 AC_ARG_WITH(spooles-includedir,
@@ -214,7 +216,7 @@ CPPFLAGS=$save_CPPFLAGS
 if test x$HAVE_GMP_HEADER = xyes; then
   save_LDFLAGS="$LDFLAGS"
   LDFLAGS="$LDFLAGS -L$GMP_LIBDIR"
-  AC_CHECK_LIB(gmp, __gmpf_init_set, [GMP_LIBS="-lgmpxx -lgmp"; HAVE_GMP=yes])
+  AC_CHECK_LIB(gmp, __gmpz_init, [GMP_LIBS="-lgmp"; HAVE_GMP=yes])
   LDFLAGS=$save_LDFLAGS
 fi
 
@@ -226,45 +228,76 @@ fi
 AC_SUBST(GMP_LIBDIR)
 AC_SUBST(GMP_INCLUDEDIR)
 
-dnl Check for MPACK include and library files
+dnl Check for MPFR include and library files
 dnl some dummy settings
-if test x$MPACK_INCLUDEDIR = x; then
-MPACK_INCLUDEDIR="."
+if test x$MPFR_INCLUDEDIR = x; then
+MPFR_INCLUDEDIR="."
 fi
-if test x$MPACK_LIBDIR = x; then
-MPACK_LIBDIR="."
+if test x$MPFR_LIBDIR = x; then
+MPFR_LIBDIR="."
 fi
 
-if test x$WITH_SYSTEM_MPACK != xno; then
-HAVE_MPACK_HEADER=""
-HAVE_MPACK=""
+HAVE_MPFR_HEADER=""
+HAVE_MPFR=""
 save_CPPFLAGS="$CPPFLAGS"
-CPPFLAGS="$CPPFLAGS -I$MPACK_INCLUDEDIR"
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADER(mblas_gmp.h, HAVE_MPACK_HEADER=yes)
+CPPFLAGS="$CPPFLAGS -I$MPFR_INCLUDEDIR -I$GMP_INCLUDEDIR"
+AC_CHECK_HEADER(mpfr.h, HAVE_MPFR_HEADER=yes)
 CPPFLAGS=$save_CPPFLAGS
 
-if test x$HAVE_MPACK_HEADER = xyes; then
+if test x$HAVE_MPFR_HEADER = xyes; then
   save_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$LDFLAGS -L$MPACK_LIBDIR"
-  LIBS="$LDFLAGS -L$MPACK_LIBDIR -lmlapack_gmp -lmblas_gmp -lgmpxx -lgmp";
- # AC_CHECK_FUNC(Rsyev, [HAVE_MPACK=yes])
-  HAVE_MPACK=yes
+  LDFLAGS="$LDFLAGS -L$MPFR_LIBDIR -L$GMP_LIBDIR"
+  AC_CHECK_LIB(mpfr, mpfr_strtofr, [HAVE_MPFR=yes], [], [-lgmp])
   LDFLAGS=$save_LDFLAGS
 fi
 
-if test x$HAVE_MPACK != xyes; then
-  echo "Please install MPACK (MBLAS/MLAPACK)"
-  echo "MPACK (MBLAS/MLAPACK) http://mplapack.cvs.sourceforge.net/"
-  AC_MSG_ERROR([No MPACK found])
+if test x$HAVE_MPFR != xyes; then
+  echo "Please install MPFR"
+  echo "MPFR https://www.mpfr.org/"
+  AC_MSG_ERROR([No MPFR found])
 fi
-else
-MPACK_LIBDIR=`pwd`/mpack
-MPACK_INCLUDEDIR=`pwd`/mpack
+AC_SUBST(MPFR_LIBDIR)
+AC_SUBST(MPFR_INCLUDEDIR)
+
+dnl Check for gmpfrxx_mkII (header only C++17 wrapper of GMP/MPFR)
+dnl https://github.com/nakatamaho/gmpfrxx_mkII
+if test x$GMPFRXX_MKII_INCLUDEDIR = x; then
+GMPFRXX_MKII_INCLUDEDIR="."
 fi
-AM_CONDITIONAL(SYSTEM_MPACK, test x$with_system_mpack = xyes)
-AC_SUBST(MPACK_LIBDIR)
-AC_SUBST(MPACK_INCLUDEDIR)
+
+AC_LANG_PUSH([C++])
+save_CXXFLAGS="$CXXFLAGS"
+CXXFLAGS="$CXXFLAGS -std=c++17"
+AC_MSG_CHECKING([whether $CXX supports -std=c++17])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+  [AC_MSG_RESULT([yes])],
+  [AC_MSG_RESULT([no]); AC_MSG_ERROR([A C++17 compiler is required by gmpfrxx_mkII])])
+
+save_CPPFLAGS="$CPPFLAGS"
+save_LIBS="$LIBS"
+CPPFLAGS="$CPPFLAGS -I$GMPFRXX_MKII_INCLUDEDIR -I$MPFR_INCLUDEDIR -I$GMP_INCLUDEDIR"
+LIBS="-L$MPFR_LIBDIR -L$GMP_LIBDIR -lmpfr -lgmp $LIBS"
+AC_MSG_CHECKING([for gmpfrxx_mkII (mpfrxx_mkII.h)])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <cstdio>
+#include <mpfrxx_mkII.h>]],
+  [[mpfrxx::set_default_precision_bits(200);
+    mpfrxx::mpfr_class a = 1.0, b = 3.0;
+    mpfrxx::mpfr_class c = a / b;
+    return mpfr_get_prec(c.get_mpfr_t()) == 200 ? 0 : 1;]])],
+  [AC_MSG_RESULT([yes]); HAVE_GMPFRXX_MKII=yes],
+  [AC_MSG_RESULT([no]); HAVE_GMPFRXX_MKII=no])
+CPPFLAGS=$save_CPPFLAGS
+LIBS=$save_LIBS
+CXXFLAGS=$save_CXXFLAGS
+AC_LANG_POP([C++])
+
+if test x$HAVE_GMPFRXX_MKII != xyes; then
+  echo "Please install gmpfrxx_mkII and give its include directory by"
+  echo "  --with-gmpfrxx-mkii-includedir=DIR"
+  echo "gmpfrxx_mkII https://github.com/nakatamaho/gmpfrxx_mkII"
+  AC_MSG_ERROR([No gmpfrxx_mkII found])
+fi
+AC_SUBST(GMPFRXX_MKII_INCLUDEDIR)
 
 dnl openmp
 WITH_OPENMP=NO
