@@ -64,32 +64,32 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rsyev(const char *jobz, const char *uplo, mpackint n, mpf_class * A,
-    mpackint lda, mpf_class * w, mpf_class * work, mpackint *lwork, mpackint *info)
+Rsyev(const char *jobz, const char *uplo, mpackint n, mpfr_class * A,
+    mpackint lda, mpfr_class * w, mpfr_class * work, mpackint *lwork, mpackint *info)
 {
 
     mpackint wantz, lower, lquery, nb, lwkopt, iscale, imax;
     mpackint inde, indtau, indwrk, llwork, iinfo;
 
-    mpf_class Zero = 0.0, One = 1.0, Two = 2.0;
-    mpf_class safmin, eps, smlnum, bignum, rmin, rmax;
-    mpf_class sigma, anrm;
-    mpf_class rtmp;
+    mpfr_class Zero = 0.0, One = 1.0, Two = 2.0;
+    mpfr_class safmin, eps, smlnum, bignum, rmin, rmax;
+    mpfr_class sigma, anrm;
+    mpfr_class rtmp;
 
-    wantz = Mlsame_gmp(jobz, "V");
-    lower = Mlsame_gmp(uplo, "L");
+    wantz = Mlsame_mpfr(jobz, "V");
+    lower = Mlsame_mpfr(uplo, "L");
     lquery = 0;
     if (*lwork == -1)
 	lquery = 1;
 
     *info = 0;
-    if (!(wantz || Mlsame_gmp(jobz, "N"))) {
+    if (!(wantz || Mlsame_mpfr(jobz, "N"))) {
 	*info = -1;
-    } else if (!(lower || Mlsame_gmp(uplo, "U"))) {
+    } else if (!(lower || Mlsame_mpfr(uplo, "U"))) {
 	*info = -2;
     } else if (n < 0) {
 	*info = -3;
@@ -98,7 +98,7 @@ Rsyev(const char *jobz, const char *uplo, mpackint n, mpf_class * A,
     }
 
     if (*info == 0) {
-	nb = iMlaenv_gmp(1, "Rsytrd", uplo, n, -1, -1, -1);
+	nb = iMlaenv_mpfr(1, "Rsytrd", uplo, n, -1, -1, -1);
 	lwkopt = max((mpackint)1, (nb + 2) * n);
 	work[0] = (double)lwkopt;	//needs cast mpackint to mpf
 	if (*lwork < max((mpackint)1, 3 * n - 1) && !lquery) {
@@ -107,7 +107,7 @@ Rsyev(const char *jobz, const char *uplo, mpackint n, mpf_class * A,
     }
 
     if (*info != 0) {
-	Mxerbla_gmp("Rsyev ", -(*info));
+	Mxerbla_mpfr("Rsyev ", -(*info));
 	return;
     } else if (lquery) {
 	return;
@@ -125,8 +125,8 @@ Rsyev(const char *jobz, const char *uplo, mpackint n, mpf_class * A,
 	return;
     }
 //Get machine constants.
-    safmin = Rlamch_gmp("Safe minimum");
-    eps = Rlamch_gmp("Precision");
+    safmin = Rlamch_mpfr("Safe minimum");
+    eps = Rlamch_mpfr("Precision");
     smlnum = safmin / eps;
     bignum = One / smlnum;
     rmin = sqrt(smlnum);

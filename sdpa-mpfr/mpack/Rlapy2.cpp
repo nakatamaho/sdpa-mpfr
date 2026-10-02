@@ -64,17 +64,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
-mpf_class
-Rlapy2(mpf_class x, mpf_class y)
+mpfr_class
+Rlapy2(mpfr_class x, mpfr_class y)
 {
-    mpf_class Zero = 0.0;
-    mpf_class One = 1.0;
-    mpf_class w, z;
+    mpfr_class Zero = 0.0;
+    mpfr_class One = 1.0;
+    mpfr_class w, z;
 
-    mpf_class xabs, yabs;
+    mpfr_class xabs, yabs;
 
     xabs = abs(x);
     yabs = abs(y);

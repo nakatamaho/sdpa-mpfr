@@ -64,37 +64,37 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
 Rlarfb(const char *side, const char *trans, const char *direct,
-    const char *storev, mpackint m, mpackint n, mpackint k, mpf_class * V, mpackint ldv,
-    mpf_class * T, mpackint ldt, mpf_class * C, mpackint ldc, mpf_class * work,
+    const char *storev, mpackint m, mpackint n, mpackint k, mpfr_class * V, mpackint ldv,
+    mpfr_class * T, mpackint ldt, mpfr_class * C, mpackint ldc, mpfr_class * work,
     mpackint ldwork)
 {
     mpackint i, j;
-    mpf_class One = 1.0;
-    mpf_class mOne = -1.0;
+    mpfr_class One = 1.0;
+    mpfr_class mOne = -1.0;
     char transt;
 
     //Quick return if possible
     if (m <= 0 || n <= 0)
 	return;
 
-    if (Mlsame_gmp(trans, "N")) {
+    if (Mlsame_mpfr(trans, "N")) {
 	transt = 'T';
     } else {
 	transt = 'N';
     }
 
-    if (Mlsame_gmp(storev, "C")) {
-	if (Mlsame_gmp(direct, "F")) {
+    if (Mlsame_mpfr(storev, "C")) {
+	if (Mlsame_mpfr(direct, "F")) {
 
 //Let V = (V1) (first K rows)
 //        (V2)
 // where V1 is unit lower triangular.
-	    if (Mlsame_gmp(side, "L")) {
+	    if (Mlsame_mpfr(side, "L")) {
 
 //Form H * C or H ' * C  where  C = ( C1 )
 //                                  ( C2 )
@@ -130,7 +130,7 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 			C[j + i * ldc] -= work[i + j * ldwork];
 		    }
 		}
-	    } else if (Mlsame_gmp(side, "R")) {
+	    } else if (Mlsame_mpfr(side, "R")) {
 //Form C * H or C * H '  where  C = ( C1  C2 )
 //W: = C * V = (C1 * V1 + C2 * V2) (stored in WORK)
 //W: = C1
@@ -168,7 +168,7 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 //Let V = (V1)
 //        (V2) (last K rows)
 // where V2 is unit upper triangular.
-	    if (Mlsame_gmp(side, "L")) {
+	    if (Mlsame_mpfr(side, "L")) {
 //Form H * C or H ' * C  where  C = ( C1 )
 //                                  ( C2 )
 //W: = C ' * V  =  (C1' * V1 + C2 '*V2)  (stored in WORK)
@@ -202,7 +202,7 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 			C[m - k + j + i * ldc] -= work[i + j * ldwork];
 		    }
 		}
-	    } else if (Mlsame_gmp(side, "R")) {
+	    } else if (Mlsame_mpfr(side, "R")) {
 //Form C * H or C * H '  where  C = ( C1  C2 )
 // W: = C * V = (C1 * V1 + C2 * V2) (stored in WORK)
 // W: = C2
@@ -237,12 +237,12 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 		}
 	    }
 	}
-    } else if (Mlsame_gmp(storev, "R")) {
-	if (Mlsame_gmp(direct, "F")) {
+    } else if (Mlsame_mpfr(storev, "R")) {
+	if (Mlsame_mpfr(direct, "F")) {
 //Let V = (V1 V2) (V1:first K columns)
 //where V1 is unit upper triangular.
 
-	    if (Mlsame_gmp(side, "L")) {
+	    if (Mlsame_mpfr(side, "L")) {
 //Form H * C or H ' * C  where  C = ( C1 )
 //                                  ( C2 )
 // W:= C ' * V' = (C1 '*V1' + C2 '*V2') (stored in WORK)
@@ -276,7 +276,7 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 			C[j + i * ldc] -= work[i + j * ldwork];
 		    }
 		}
-	    } else if (Mlsame_gmp(side, "R")) {
+	    } else if (Mlsame_mpfr(side, "R")) {
 //Form C * H or C * H '  where  C = ( C1  C2 )
 // W:= C * V '  =  (C1*V1' + C2 * V2 ')  (stored in WORK)
 // W:= C1
@@ -315,7 +315,7 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 	} else {
 //Let V = (V1 V2) (V2:last K columns)
 // where V2 is unit lower triangular.
-	    if (Mlsame_gmp(side, "L")) {
+	    if (Mlsame_mpfr(side, "L")) {
 //Form H * C or H ' * C  where  C = ( C1 )
 //                                  ( C2 )
 //W:= C ' * V' = (C1 '*V1' + C2 '*V2') (stored in WORK)
@@ -353,7 +353,7 @@ Rlarfb(const char *side, const char *trans, const char *direct,
 			C[m - k + j + i * ldc] -= work[i + j * ldwork];
 		    }
 		}
-	    } else if (Mlsame_gmp(side, "R")) {
+	    } else if (Mlsame_mpfr(side, "R")) {
 //Form C * H or C * H '  where  C = ( C1  C2 )
 // W:= C * V '  =  (C1*V1' + C2 * V2 ')  (stored in WORK)
 // W:= C2

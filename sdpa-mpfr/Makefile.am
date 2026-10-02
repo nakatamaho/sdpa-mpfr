@@ -1,13 +1,6 @@
-bin_PROGRAMS = sdpa_gmp
+bin_PROGRAMS = sdpa_mpfr
 
-if SYSTEM_MPACK
-sdpa_gmp_SOURCES = sdpa_chordal.cpp sdpa_dataset.cpp sdpa_io.cpp \
-sdpa_jordan.cpp sdpa_linear.cpp sdpa_main.cpp sdpa_newton.cpp sdpa_parts.cpp \
-sdpa_struct.cpp sdpa_tool.cpp sdpa_chordal.h sdpa_dataset.h \
-sdpa_include.h sdpa_io.h sdpa_jordan.h sdpa_linear.h sdpa_newton.h \
-sdpa_parts.h sdpa_right.h sdpa_struct.h sdpa_tool.h
-else
-sdpa_gmp_SOURCES = sdpa_chordal.cpp sdpa_dataset.cpp sdpa_io.cpp \
+sdpa_mpfr_SOURCES = sdpa_chordal.cpp sdpa_dataset.cpp sdpa_io.cpp \
 sdpa_jordan.cpp sdpa_linear.cpp sdpa_main.cpp sdpa_newton.cpp sdpa_parts.cpp \
 sdpa_struct.cpp sdpa_tool.cpp sdpa_chordal.h sdpa_dataset.h \
 sdpa_include.h sdpa_io.h sdpa_jordan.h sdpa_linear.h sdpa_newton.h \
@@ -24,21 +17,16 @@ mpack/Rger.cpp mpack/Rpotrf.cpp mpack/Mxerbla.cpp mpack/Rpotf2.cpp \
 mpack/Mlsame.cpp mpack/Rscal.cpp mpack/Rcopy.cpp mpack/Rgemv.cpp \
 mpack/Rtrmv.cpp mpack/Rsteqr.cpp mpack/Rlaset.cpp mpack/Rlaev2.cpp \
 mpack/Rlasr.cpp mpack/Rlartg.cpp mpack/Rswap.cpp mpack/Rsyev.cpp\
-mpack/Rlansy.cpp mpack/Mutils.cpp
-endif
+mpack/Rlansy.cpp \
+mpack/mblas_mpfr.h mpack/mlapack_mpfr.h mpack/mutils_mpfr.h mpack/mpack_config.h
 
 if ENABLE_SHARED
 else
-sdpa_gmp_LDFLAGS = -static
+sdpa_mpfr_LDFLAGS = -static
 endif
 
-if SYSTEM_MPACK
-sdpa_gmp_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(GMP_LIBDIR) -lgmp -lgmpxx $(OPENMPLIB) -L$(MPACK_LIBDIR) -lmlapack_gmp -lmblas_gmp
-sdpa_gmp_CXXFLAGS= $(pthread_cflags) -I$(SPOOLES_INCLUDEDIR) -DUseMETIS=0 -I$(GMP_INCLUDEDIR) $(OPENMPFLAGS) -I$(MPACK_INCLUDEDIR)
-else
-sdpa_gmp_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(GMP_LIBDIR) -lgmp -lgmpxx $(OPENMPLIB)
-sdpa_gmp_CXXFLAGS= $(pthread_cflags) -I$(SPOOLES_INCLUDEDIR) -DUseMETIS=0 -I$(GMP_INCLUDEDIR) $(OPENMPFLAGS) -I./mpack
-endif
+sdpa_mpfr_LDADD = $(pthread_lib) -L$(SPOOLES_LIBDIR) -lspooles -L$(MPFR_LIBDIR) -lmpfr -L$(GMP_LIBDIR) -lgmp $(OPENMPLIB)
+sdpa_mpfr_CXXFLAGS= -std=c++17 $(pthread_cflags) -I$(SPOOLES_INCLUDEDIR) -DUseMETIS=0 -I$(GMPFRXX_MKII_INCLUDEDIR) -I$(MPFR_INCLUDEDIR) -I$(GMP_INCLUDEDIR) $(OPENMPFLAGS) -I./mpack
 
 if BUILD_SPOOLES
 SUBDIRS = spooles

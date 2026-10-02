@@ -72,22 +72,22 @@ where alpha is a scalar, x and y are n element vectors and A is an n
 by n symmetric matrix.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rsyr2(const char *uplo, mpackint n, mpf_class alpha, mpf_class * x,
-    mpackint incx, mpf_class * y, mpackint incy, mpf_class * A, mpackint lda)
+Rsyr2(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * x,
+    mpackint incx, mpfr_class * y, mpackint incy, mpfr_class * A, mpackint lda)
 {
-    mpf_class temp1, temp2;
+    mpfr_class temp1, temp2;
 
-    mpf_class Zero = 0.0;
+    mpfr_class Zero = 0.0;
 
     mpackint ix, iy, jx, jy, kx, ky;
 
     //test the input parameters.
     mpackint info = 0;
 
-    if (!Mlsame_gmp(uplo, "U") && !Mlsame_gmp(uplo, "L"))
+    if (!Mlsame_mpfr(uplo, "U") && !Mlsame_mpfr(uplo, "L"))
 	info = 1;
     else if (n < 0)
 	info = 2;
@@ -98,7 +98,7 @@ Rsyr2(const char *uplo, mpackint n, mpf_class alpha, mpf_class * x,
     else if (lda < max((mpackint) 1, n))
 	info = 9;
     if (info != 0) {
-	Mxerbla_gmp("Rsyr2 ", info);
+	Mxerbla_mpfr("Rsyr2 ", info);
 	return;
     }
     //quick return if possible.
@@ -116,7 +116,7 @@ Rsyr2(const char *uplo, mpackint n, mpf_class alpha, mpf_class * x,
     jx = kx;
     jy = ky;
 
-    if (Mlsame_gmp(uplo, "U")) {
+    if (Mlsame_mpfr(uplo, "U")) {
 	for (mpackint j = 0; j < n; j++) {
 	    if ((x[jx] != Zero) || (y[jy] != Zero)) {
 		temp1 = alpha * y[jy];

@@ -64,26 +64,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
 Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
-    mpackint n, mpf_class * c, mpf_class * s, mpf_class * A, mpackint lda)
+    mpackint n, mpfr_class * c, mpfr_class * s, mpfr_class * A, mpackint lda)
 {
-    mpf_class Zero = 0.0;
-    mpf_class One = 1.0;
-    mpf_class ctemp, stemp, temp;
+    mpfr_class Zero = 0.0;
+    mpfr_class One = 1.0;
+    mpfr_class ctemp, stemp, temp;
     mpackint info;
     mpackint i, j;
 
     info = 0;
-    if (!(Mlsame_gmp(side, "L") || Mlsame_gmp(side, "R")))
+    if (!(Mlsame_mpfr(side, "L") || Mlsame_mpfr(side, "R")))
 	info = 1;
-    else if (!(Mlsame_gmp(pivot, "V") || Mlsame_gmp(pivot, "T")
-	    || Mlsame_gmp(pivot, "B")))
+    else if (!(Mlsame_mpfr(pivot, "V") || Mlsame_mpfr(pivot, "T")
+	    || Mlsame_mpfr(pivot, "B")))
 	info = 2;
-    else if (!(Mlsame_gmp(direct, "F") || Mlsame_gmp(direct, "B")))
+    else if (!(Mlsame_mpfr(direct, "F") || Mlsame_mpfr(direct, "B")))
 	info = 3;
     else if (m < 0)
 	info = 4;
@@ -92,7 +92,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
     else if (lda < max((mpackint)1, m))
 	info = 9;
     if (info != 0) {
-	Mxerbla_gmp("Rlasr ", info);
+	Mxerbla_mpfr("Rlasr ", info);
 	return;
     }
 //Quick return if possible
@@ -100,10 +100,10 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 	return;
     }
 
-    if (Mlsame_gmp(side, "L")) {
+    if (Mlsame_mpfr(side, "L")) {
 //Form  P * A
-	if (Mlsame_gmp(pivot, "V")) {
-	    if (Mlsame_gmp(direct, "F")) {
+	if (Mlsame_mpfr(pivot, "V")) {
+	    if (Mlsame_mpfr(direct, "F")) {
 		for (j = 0; j < m - 1; j++) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -117,7 +117,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 			}
 		    }
 		}
-	    } else if (Mlsame_gmp(direct, "B")) {
+	    } else if (Mlsame_mpfr(direct, "B")) {
 		for (j = m - 2; j >= 0; j--) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -134,8 +134,8 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 	    }
 	}
 
-	else if (Mlsame_gmp(pivot, "T")) {
-	    if (Mlsame_gmp(direct, "F")) {
+	else if (Mlsame_mpfr(pivot, "T")) {
+	    if (Mlsame_mpfr(direct, "F")) {
 		for (j = 1; j < m; j++) {
 		    ctemp = c[j - 1];
 		    stemp = s[j - 1];
@@ -147,7 +147,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 			}
 		    }
 		}
-	    } else if (Mlsame_gmp(direct, "B")) {
+	    } else if (Mlsame_mpfr(direct, "B")) {
 		for (j = m - 1; j >= 1; j--) {
 		    ctemp = c[j - 1];
 		    stemp = s[j - 1];
@@ -162,8 +162,8 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 	    }
 	}
 
-	else if (Mlsame_gmp(pivot, "B")) {
-	    if (Mlsame_gmp(direct, "F")) {
+	else if (Mlsame_mpfr(pivot, "B")) {
+	    if (Mlsame_mpfr(direct, "F")) {
 		for (j = 0; j < m - 1; j++) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -177,7 +177,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 			}
 		    }
 		}
-	    } else if (Mlsame_gmp(direct, "B")) {
+	    } else if (Mlsame_mpfr(direct, "B")) {
 		for (j = m - 2; j >= 0; j--) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -195,10 +195,10 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 	}
     }
 
-    else if (Mlsame_gmp(side, "R")) {
+    else if (Mlsame_mpfr(side, "R")) {
 //Form A * P'
-	if (Mlsame_gmp(pivot, "V")) {
-	    if (Mlsame_gmp(direct, "F")) {
+	if (Mlsame_mpfr(pivot, "V")) {
+	    if (Mlsame_mpfr(direct, "F")) {
 		for (j = 0; j < n - 1; j++) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -212,7 +212,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 			}
 		    }
 		}
-	    } else if (Mlsame_gmp(direct, "B")) {
+	    } else if (Mlsame_mpfr(direct, "B")) {
 		for (j = n - 2; j >= 0; j--) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -227,8 +227,8 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 		    }
 		}
 	    }
-	} else if (Mlsame_gmp(pivot, "T")) {
-	    if (Mlsame_gmp(direct, "F")) {
+	} else if (Mlsame_mpfr(pivot, "T")) {
+	    if (Mlsame_mpfr(direct, "F")) {
 		for (j = 1; j < n; j++) {
 		    ctemp = c[j - 1];
 		    stemp = s[j - 1];
@@ -240,7 +240,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 			}
 		    }
 		}
-	    } else if (Mlsame_gmp(direct, "B")) {
+	    } else if (Mlsame_mpfr(direct, "B")) {
 		for (j = n - 1; j >= 1; j--) {
 		    ctemp = c[j - 1];
 		    stemp = s[j - 1];
@@ -253,8 +253,8 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 		    }
 		}
 	    }
-	} else if (Mlsame_gmp(pivot, "B")) {
-	    if (Mlsame_gmp(direct, "F")) {
+	} else if (Mlsame_mpfr(pivot, "B")) {
+	    if (Mlsame_mpfr(direct, "F")) {
 		for (j = 0; j < n - 1; j++) {
 		    ctemp = c[j];
 		    stemp = s[j];
@@ -268,7 +268,7 @@ Rlasr(const char *side, const char *pivot, const char *direct, mpackint m,
 			}
 		    }
 		}
-	    } else if (Mlsame_gmp(direct, "B")) {
+	    } else if (Mlsame_mpfr(direct, "B")) {
 		for (j = n - 2; j >= 0; j--) {
 		    ctemp = c[j];
 		    stemp = s[j];

@@ -65,15 +65,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rlae2(mpf_class a, mpf_class b, mpf_class c, mpf_class * rt1, mpf_class * rt2)
+Rlae2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class * rt1, mpfr_class * rt2)
 {
-    mpf_class sm, df, adf, tb, ab;
-    mpf_class acmx, acmn, rt;
-    mpf_class One = 1.0, Two = 2.0, Half = .5;
+    mpfr_class sm, df, adf, tb, ab;
+    mpfr_class acmx, acmn, rt;
+    mpfr_class One = 1.0, Two = 2.0, Half = .5;
 
     sm = a + c;
     df = a - c;

@@ -64,21 +64,21 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <stdlib.h>
 
 void
-Rpotf2(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpackint *info)
+Rpotf2(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpackint *info)
 {
     mpackint j, upper, success = 1;
-    mpf_class ajj;
-    mpf_class Zero = 0.0;
-    mpf_class One = 1.0;
+    mpfr_class ajj;
+    mpfr_class Zero = 0.0;
+    mpfr_class One = 1.0;
 
     *info = 0;
-    upper = Mlsame_gmp(uplo, "U");
-    if (!upper && !Mlsame_gmp(uplo, "L")) {
+    upper = Mlsame_mpfr(uplo, "U");
+    if (!upper && !Mlsame_mpfr(uplo, "L")) {
 	*info = -1;
     } else if (n < 0) {
 	*info = -2;
@@ -86,7 +86,7 @@ Rpotf2(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpackint *info
 	*info = -4;
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rpotf2", -(*info));
+	Mxerbla_mpfr("Rpotf2", -(*info));
 	return;
     }
 //Quick return if possible

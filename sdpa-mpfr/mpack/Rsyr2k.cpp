@@ -75,31 +75,31 @@ and  A and B  are  n by k  matrices  in the  first  case  and  k by n
 matrices in the second case.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
 Rsyr2k(const char *uplo, const char *trans, mpackint n, mpackint k,
-    mpf_class alpha, mpf_class * A, mpackint lda, mpf_class * B, mpackint ldb,
-    mpf_class beta, mpf_class * C, mpackint ldc)
+    mpfr_class alpha, mpfr_class * A, mpackint lda, mpfr_class * B, mpackint ldb,
+    mpfr_class beta, mpfr_class * C, mpackint ldc)
 {
     mpackint nrowa, upper, info;
 
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
-    mpf_class temp1, temp2;
+    mpfr_class temp1, temp2;
 
     //test the input parameters.
-    if (Mlsame_gmp(trans, "N"))
+    if (Mlsame_mpfr(trans, "N"))
 	nrowa = n;
     else
 	nrowa = k;
-    upper = Mlsame_gmp(uplo, "U");
+    upper = Mlsame_mpfr(uplo, "U");
 
     info = 0;
-    if ((!upper) && (!Mlsame_gmp(uplo, "L")))
+    if ((!upper) && (!Mlsame_mpfr(uplo, "L")))
 	info = 1;
-    else if ((!Mlsame_gmp(trans, "N")) && (!Mlsame_gmp(trans, "T"))
-	&& (!Mlsame_gmp(trans, "C")))
+    else if ((!Mlsame_mpfr(trans, "N")) && (!Mlsame_mpfr(trans, "T"))
+	&& (!Mlsame_mpfr(trans, "C")))
 	info = 2;
     else if (n < 0)
 	info = 3;
@@ -112,7 +112,7 @@ Rsyr2k(const char *uplo, const char *trans, mpackint n, mpackint k,
     else if (ldc < max((mpackint) 1, n))
 	info = 12;
     if (info != 0) {
-	Mxerbla_gmp("Rsyr2k", info);
+	Mxerbla_mpfr("Rsyr2k", info);
 	return;
     }
     //quick return if possible.
@@ -153,7 +153,7 @@ Rsyr2k(const char *uplo, const char *trans, mpackint n, mpackint k,
 	return;
     }
     //start the operations.
-    if (Mlsame_gmp(trans, "N")) {
+    if (Mlsame_mpfr(trans, "N")) {
 	//form C:= alpha*A*B' + alpha*B*A'+C.
 	if (upper) {
 	    for (mpackint j = 0; j < n; j++) {

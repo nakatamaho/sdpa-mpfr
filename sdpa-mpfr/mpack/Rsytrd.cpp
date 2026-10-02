@@ -64,26 +64,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rsytrd(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpf_class * d,
-    mpf_class * e, mpf_class * tau, mpf_class * work, mpackint lwork, mpackint *info)
+Rsytrd(const char *uplo, mpackint n, mpfr_class * A, mpackint lda, mpfr_class * d,
+    mpfr_class * e, mpfr_class * tau, mpfr_class * work, mpackint lwork, mpackint *info)
 {
     mpackint upper, lquery, nb, lwkopt, nx, iws;
     mpackint ldwork, nbmin, kk;
     mpackint i, j;
     mpackint iinfo;
-    mpf_class One = 1.0;
+    mpfr_class One = 1.0;
 
     *info = 0;
-    upper = Mlsame_gmp(uplo, "U");
+    upper = Mlsame_mpfr(uplo, "U");
     lquery = 0;
     if (lwork == -1)
 	lquery = 1;
 
-    if (!upper && !Mlsame_gmp(uplo, "L")) {
+    if (!upper && !Mlsame_mpfr(uplo, "L")) {
 	*info = -1;
     } else if (n < 0) {
 	*info = -2;
@@ -94,12 +94,12 @@ Rsytrd(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpf_class * d,
     }
     if (*info == 0) {
 //Determine the block size.
-	nb = iMlaenv_gmp(1, "Rsytrd", uplo, n, -1, -1, -1);
+	nb = iMlaenv_mpfr(1, "Rsytrd", uplo, n, -1, -1, -1);
 	lwkopt = n * nb;
 	work[0] = (double)lwkopt;	//cast from mpackint to mpf
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rsytrd", -(*info));
+	Mxerbla_mpfr("Rsytrd", -(*info));
 	return;
     } else if (lquery) {
 	return;
@@ -115,7 +115,7 @@ Rsytrd(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpf_class * d,
     if (nb > 1 && nb < n) {
 //Determine when to cross over from blocked to unblocked code
 //(last block is always handled by unblocked code).
-	nx = max(nb, iMlaenv_gmp(3, "Rsytrd", uplo, n, -1, -1, -1));
+	nx = max(nb, iMlaenv_mpfr(3, "Rsytrd", uplo, n, -1, -1, -1));
 	if (nx < n) {
 //Determine if workspace is large enough for blocked code.
 	    ldwork = n;
@@ -125,7 +125,7 @@ Rsytrd(const char *uplo, mpackint n, mpf_class * A, mpackint lda, mpf_class * d,
 //minimum value of NB, and reduce NB or force use of
 //unblocked code by setting NX = N.
 		nb = max(lwork / ldwork, (mpackint)1);
-		nbmin = iMlaenv_gmp(2, "Rsytrd", uplo, n, -1, -1, -1);
+		nbmin = iMlaenv_mpfr(2, "Rsytrd", uplo, n, -1, -1, -1);
 		if (nb < nbmin) {
 		    nx = n;
 		}

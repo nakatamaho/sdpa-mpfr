@@ -4,7 +4,7 @@
  * 
  * Copyright 2008 by Nakata, Maho
  * 
- * $Id: Mlsame_gmp.cpp,v 1.3 2009/09/17 00:59:04 nakatamaho Exp $ 
+ * $Id: Mlsame_mpfr.cpp,v 1.3 2009/09/17 00:59:04 nakatamaho Exp $ 
  *
  * MPACK - multiple precision arithmetic library
  *
@@ -66,13 +66,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*
 Based on http://www.netlib.org/blas/lsame.f
-Mlsame_gmp returns 1 if CA is the same letter as CB regardless of case.
+Mlsame_mpfr returns 1 if CA is the same letter as CB regardless of case.
 */
 
 #include <ctype.h>
 
 int
-Mlsame_gmp(const char *a, const char *b)
+Mlsame_mpfr(const char *a, const char *b)
 {
     if (toupper(*a) == toupper(*b))
 	return 1;

@@ -74,23 +74,23 @@ alpha and beta are scalars, and A, B and C are matrices, with op( A )
 an m by k matrix, op(B) a k by n matrix and C an m by n matrix.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
 Rgemm(const char *transa, const char *transb, mpackint m, mpackint n,
-    mpackint k, mpf_class alpha, mpf_class * A, mpackint lda, mpf_class * B,
-    mpackint ldb, mpf_class beta, mpf_class * C, mpackint ldc)
+    mpackint k, mpfr_class alpha, mpfr_class * A, mpackint lda, mpfr_class * B,
+    mpackint ldb, mpfr_class beta, mpfr_class * C, mpackint ldc)
 {
     mpackint nota, notb;
     mpackint nrowa, ncola;
     mpackint nrowb;
     mpackint info;
 
-    mpf_class Zero = 0.0, One = 1.0;
-    mpf_class temp;
+    mpfr_class Zero = 0.0, One = 1.0;
+    mpfr_class temp;
 
-    nota = Mlsame_gmp(transa, "N");
-    notb = Mlsame_gmp(transb, "N");
+    nota = Mlsame_mpfr(transa, "N");
+    notb = Mlsame_mpfr(transb, "N");
 
     if (nota) {
 	nrowa = m;
@@ -107,9 +107,9 @@ Rgemm(const char *transa, const char *transb, mpackint m, mpackint n,
 
     //Test the input parameters.
     info = 0;
-    if (!nota && (!Mlsame_gmp(transa, "C")) && (!Mlsame_gmp(transa, "T")))
+    if (!nota && (!Mlsame_mpfr(transa, "C")) && (!Mlsame_mpfr(transa, "T")))
 	info = 1;
-    else if (!notb && (!Mlsame_gmp(transb, "C")) && (!Mlsame_gmp(transb, "T")))
+    else if (!notb && (!Mlsame_mpfr(transb, "C")) && (!Mlsame_mpfr(transb, "T")))
 	info = 2;
     else if (m < 0)
 	info = 3;
@@ -124,7 +124,7 @@ Rgemm(const char *transa, const char *transb, mpackint m, mpackint n,
     else if (ldc < max((mpackint) 1, m))
 	info = 13;
     if (info != 0) {
-	Mxerbla_gmp("Rgemm ", info);
+	Mxerbla_mpfr("Rgemm ", info);
 	return;
     }
 //Quick return if possible.

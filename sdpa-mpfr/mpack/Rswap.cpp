@@ -69,14 +69,14 @@ Based on http://www.netlib.org/blas/dswap.f
 mpackinterchanges two vectors.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rswap(mpackint n, mpf_class * dx, mpackint incx, mpf_class * dy, mpackint incy)
+Rswap(mpackint n, mpfr_class * dx, mpackint incx, mpfr_class * dy, mpackint incy)
 {
     mpackint ix, iy;
 
-    mpf_class temp;
+    mpfr_class temp;
 
     if (n <= 0)
 	return;

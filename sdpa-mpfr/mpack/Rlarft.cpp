@@ -64,22 +64,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rlarft(const char *direct, const char *storev, mpackint n, mpackint k, mpf_class * v,
-    mpackint ldv, mpf_class * tau, mpf_class * t, mpackint ldt)
+Rlarft(const char *direct, const char *storev, mpackint n, mpackint k, mpfr_class * v,
+    mpackint ldv, mpfr_class * tau, mpfr_class * t, mpackint ldt)
 {
-    mpf_class Zero = 0.0, One = 1.0;
-    mpf_class vii;
+    mpfr_class Zero = 0.0, One = 1.0;
+    mpfr_class vii;
     mpackint i, j;
 
     //Quick return if possible
     if (n == 0)
 	return;
 
-    if (Mlsame_gmp(direct, "F")) {
+    if (Mlsame_mpfr(direct, "F")) {
 	for (i = 1; i <= k; i++) {
 	    if (tau[i - 1] == Zero) {
 		//H(i)  =  I
@@ -90,7 +90,7 @@ Rlarft(const char *direct, const char *storev, mpackint n, mpackint k, mpf_class
 		//general case
 		vii = v[(i - 1) + (i - 1) * ldv];
 		v[(i - 1) + (i - 1) * ldv] = One;
-		if (Mlsame_gmp(storev, "C")) {
+		if (Mlsame_mpfr(storev, "C")) {
 		    // T(1:i-1,i) := - tau(i) * V(i:n,1:i-1)' * V(i:n,i)
 		    Rgemv("Transpose", n - i + 1, i - 1, -tau[i - 1],
 			&v[(i - 1) + 0 * ldv], ldv,
@@ -120,7 +120,7 @@ Rlarft(const char *direct, const char *storev, mpackint n, mpackint k, mpf_class
 	    } else {
 		//general case
 		if (i < k) {
-		    if (Mlsame_gmp(storev, "C")) {
+		    if (Mlsame_mpfr(storev, "C")) {
 			vii = v[(n - k + i - 1) + (i - 1) * ldv];
 			v[(n - k + i - 1) + (i - 1) * ldv] = One;
 			//T(i+1:k,i) := - tau(i) * V(1:n-k+i,i+1:k)' * V(1:n-k+i,i)

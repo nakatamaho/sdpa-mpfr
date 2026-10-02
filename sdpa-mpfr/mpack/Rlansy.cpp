@@ -64,26 +64,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
-mpf_class
-Rlansy(const char *norm, const char *uplo, mpackint n, mpf_class * A, mpackint lda,
-    mpf_class * work)
+mpfr_class
+Rlansy(const char *norm, const char *uplo, mpackint n, mpfr_class * A, mpackint lda,
+    mpfr_class * work)
 {
-    mpf_class One = 1.0, Zero = 0.0;
+    mpfr_class One = 1.0, Zero = 0.0;
     mpackint i, j;
-    mpf_class absa, scale, sum, value;
-    mpf_class mtmp;
+    mpfr_class absa, scale, sum, value;
+    mpfr_class mtmp;
 
     if (n == 0) {
 	value = Zero;
 	return value;
     }
-    if (Mlsame_gmp(norm, "M")) {
+    if (Mlsame_mpfr(norm, "M")) {
 //Find max(abs(A(i,j))).
 	value = Zero;
-	if (Mlsame_gmp(uplo, "U")) {
+	if (Mlsame_mpfr(uplo, "U")) {
 	    for (j = 0; j < n; j++) {
 		for (i = 0; i <= j; i++) {
 		    mtmp = abs(A[i + j * lda]);
@@ -98,10 +98,10 @@ Rlansy(const char *norm, const char *uplo, mpackint n, mpf_class * A, mpackint l
 		}
 	    }
 	}
-    } else if (Mlsame_gmp(norm, "I") || Mlsame_gmp(norm, "O") || Mlsame_gmp(norm, "1")) {
+    } else if (Mlsame_mpfr(norm, "I") || Mlsame_mpfr(norm, "O") || Mlsame_mpfr(norm, "1")) {
 // Find normI(A) ( = norm1(A), since A is symmetric).
 	value = Zero;
-	if (Mlsame_gmp(uplo, "U")) {
+	if (Mlsame_mpfr(uplo, "U")) {
 	    for (j = 0; j < n; j++) {
 		sum = Zero;
 		for (i = 0; i < j; i++) {
@@ -128,11 +128,11 @@ Rlansy(const char *norm, const char *uplo, mpackint n, mpf_class * A, mpackint l
 		value = max(value, sum);
 	    }
 	}
-    } else if (Mlsame_gmp(norm, "F") || Mlsame_gmp(norm, "E")) {
+    } else if (Mlsame_mpfr(norm, "F") || Mlsame_mpfr(norm, "E")) {
 //Find normF(A).
 	scale = Zero;
 	sum = One;
-	if (Mlsame_gmp(uplo, "U")) {
+	if (Mlsame_mpfr(uplo, "U")) {
 	    for (j = 1; j < n; j++) {
 		Rlassq(j, &A[j * lda], 1, &scale, &sum);
 	    }

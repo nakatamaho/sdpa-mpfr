@@ -68,10 +68,10 @@ Based on http://www.netlib.org/blas/dscal.f
 scales a vector by a constant.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rscal(mpackint n, mpf_class da, mpf_class * dx, mpackint incx)
+Rscal(mpackint n, mpfr_class da, mpfr_class * dx, mpackint incx)
 {
     mpackint nincx;
 

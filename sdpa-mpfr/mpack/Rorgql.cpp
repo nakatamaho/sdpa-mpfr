@@ -64,14 +64,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rorgql(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_class * tau,
-    mpf_class * work, mpackint lwork, mpackint *info)
+Rorgql(mpackint m, mpackint n, mpackint k, mpfr_class * A, mpackint lda, mpfr_class * tau,
+    mpfr_class * work, mpackint lwork, mpackint *info)
 {
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
     mpackint nbmin, nx, iws, nb, lwkopt, lquery, kk;
     mpackint i, j, l, iinfo, ldwork, ib;
 
@@ -96,7 +96,7 @@ Rorgql(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_clas
 	if (n == 0) {
 	    lwkopt = 1;
 	} else {
-	    nb = iMlaenv_gmp(1, "Rorgql", " ", m, n, k, -1);
+	    nb = iMlaenv_mpfr(1, "Rorgql", " ", m, n, k, -1);
 	    lwkopt = n * nb;
 	}
 	work[0] = (double)lwkopt;	//needs cast mpackint to mpf
@@ -105,7 +105,7 @@ Rorgql(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_clas
 	}
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rorgql", -(*info));
+	Mxerbla_mpfr("Rorgql", -(*info));
 	return;
     } else if (lquery) {
 	return;
@@ -118,7 +118,7 @@ Rorgql(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_clas
     iws = n;
     if (nb > 1 && nb < k) {
 //Determine when to cross over from blocked to unblocked code.
-	nx = max((mpackint)0, iMlaenv_gmp(3, "Rorgql", " ", m, n, k, -1));
+	nx = max((mpackint)0, iMlaenv_mpfr(3, "Rorgql", " ", m, n, k, -1));
 	if (nx < k) {
 //Determine if workspace is large enough for blocked code.
 	    ldwork = n;
@@ -127,7 +127,7 @@ Rorgql(mpackint m, mpackint n, mpackint k, mpf_class * A, mpackint lda, mpf_clas
 //Not enough workspace to use optimal NB:  reduce NB and
 //determine the minimum value of NB.
 		nb = lwork / ldwork;
-		nbmin = max((mpackint)2, iMlaenv_gmp(2, "Rorgql", " ", m, n, k, -1));
+		nbmin = max((mpackint)2, iMlaenv_mpfr(2, "Rorgql", " ", m, n, k, -1));
 	    }
 	}
     }

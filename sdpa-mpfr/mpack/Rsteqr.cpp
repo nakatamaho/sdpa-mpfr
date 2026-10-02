@@ -64,31 +64,31 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <stdio.h> //for untested part
 void
-Rsteqr(const char *compz, mpackint n, mpf_class * d, mpf_class * e, mpf_class * Z,
-    mpackint ldz, mpf_class * work, mpackint *info)
+Rsteqr(const char *compz, mpackint n, mpfr_class * d, mpfr_class * e, mpfr_class * Z,
+    mpackint ldz, mpfr_class * work, mpackint *info)
 {
     mpackint nmaxit, maxit, jtot, l1, nm1;
     mpackint i, m, mm, mm1, l, lm1, lend, lsv, lendsv, lendm1, iscale, icompz;
     mpackint lendp1, ii, k, j;
 
-    mpf_class Zero = 0.0, One = 1.0, Two = 2.0, Three = 3.0;
-    mpf_class eps, eps2, safmin, safmax, ssfmax, ssfmin;
-    mpf_class c, s, rt1, rt2;
-    mpf_class tst, anorm, po;
-    mpf_class f, b, p, g, r;
+    mpfr_class Zero = 0.0, One = 1.0, Two = 2.0, Three = 3.0;
+    mpfr_class eps, eps2, safmin, safmax, ssfmax, ssfmin;
+    mpfr_class c, s, rt1, rt2;
+    mpfr_class tst, anorm, po;
+    mpfr_class f, b, p, g, r;
 
     maxit = 30;
 
     *info = 0;
-    if (Mlsame_gmp(compz, "N")) {
+    if (Mlsame_mpfr(compz, "N")) {
 	icompz = 0;
-    } else if (Mlsame_gmp(compz, "V")) {
+    } else if (Mlsame_mpfr(compz, "V")) {
 	icompz = 1;
-    } else if (Mlsame_gmp(compz, "I")) {
+    } else if (Mlsame_mpfr(compz, "I")) {
 	icompz = 2;
     } else {
 	icompz = -1;
@@ -101,7 +101,7 @@ Rsteqr(const char *compz, mpackint n, mpf_class * d, mpf_class * e, mpf_class * 
 	*info = -6;
     }
     if (*info != 0) {
-	Mxerbla_gmp("Rsteqr", -(*info));
+	Mxerbla_mpfr("Rsteqr", -(*info));
 	return;
     }
 //Quick return if possible
@@ -114,9 +114,9 @@ Rsteqr(const char *compz, mpackint n, mpf_class * d, mpf_class * e, mpf_class * 
 	return;
     }
 //Determine the unit roundoff and over/underflow thresholds.
-    eps = Rlamch_gmp("E");
+    eps = Rlamch_mpfr("E");
     eps2 = eps * eps;
-    safmin = Rlamch_gmp("S");
+    safmin = Rlamch_mpfr("S");
     safmax = One / safmin;
     ssfmax = sqrt(safmax) / Three;
     ssfmin = sqrt(safmin) / eps2;

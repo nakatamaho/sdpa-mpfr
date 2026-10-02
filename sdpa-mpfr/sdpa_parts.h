@@ -115,16 +115,16 @@ class StepLength
 {
 public:
 
-  mpf_class primal;
-  mpf_class dual;
+  mpfr_class primal;
+  mpfr_class dual;
   StepLength();
-  StepLength(mpf_class alphaP, mpf_class alphaD, int nBlock,
+  StepLength(mpfr_class alphaP, mpfr_class alphaD, int nBlock,
 	      int* blockStruct);
   ~StepLength();
-  void initialize(mpf_class alphaP, mpf_class alphaD);
+  void initialize(mpfr_class alphaP, mpfr_class alphaD);
   void terminate();
   
-  static mpf_class minBlockVector(BlockVector& aVec);
+  static mpfr_class minBlockVector(BlockVector& aVec);
 
   void computeStepLength(Solutions& currentPt,
 			 Newton& newton,
@@ -149,10 +149,10 @@ public:
 class DirectionParameter
 {
 public:
-  mpf_class value;
-  DirectionParameter(mpf_class betaStar=0.0);
+  mpfr_class value;
+  DirectionParameter(mpfr_class betaStar=0.0);
   ~DirectionParameter();
-  void initialize(mpf_class betaStar=0.0);
+  void initialize(mpfr_class betaStar=0.0);
   
   void MehrotraPredictor(Phase& phase, Switch& reduction,
 			 Parameter& param);
@@ -181,11 +181,11 @@ public:
 class AverageComplementarity
 {
 public:
-  mpf_class initial;
-  mpf_class current;
-  AverageComplementarity(mpf_class lambdaStar = 0.0);
+  mpfr_class initial;
+  mpfr_class current;
+  AverageComplementarity(mpfr_class lambdaStar = 0.0);
   ~AverageComplementarity();
-  void initialize(mpf_class lambdaStar = 0.0);
+  void initialize(mpfr_class lambdaStar = 0.0);
   void initialize(Solutions& initPt);
   void update(Solutions& currentPt);
   void display(FILE* fpout = stdout);
@@ -194,8 +194,8 @@ public:
 class RatioInitResCurrentRes
 {
 public:
-  mpf_class primal;
-  mpf_class dual;
+  mpfr_class primal;
+  mpfr_class dual;
   
   RatioInitResCurrentRes();
   RatioInitResCurrentRes(Parameter& param, Residuals& initRes);
@@ -214,19 +214,19 @@ public:
   enum phaseType { noINFO,pFEAS,dFEAS,pdFEAS,pdINF,pFEAS_dINF,
 		   pINF_dFEAS,pdOPT,pUNBD,dUNBD};
 
-  mpf_class rho;
-  mpf_class etaPrimal;
-  mpf_class etaDual;
-  mpf_class objValPrimal;
-  mpf_class objValDual;
+  mpfr_class rho;
+  mpfr_class etaPrimal;
+  mpfr_class etaDual;
+  mpfr_class objValPrimal;
+  mpfr_class objValDual;
 
   SolveInfo();
   SolveInfo(InputData& inputData, Solutions& currentPt, 
-	    mpf_class mu0, mpf_class omegaStar);
+	    mpfr_class mu0, mpfr_class omegaStar);
   ~SolveInfo();
 
   void initialize(InputData& inputData, Solutions& currentPt, 
-		  mpf_class mu0, mpf_class omegaStar);
+		  mpfr_class mu0, mpfr_class omegaStar);
 
   void update(InputData& inputData,
 	      DenseLinearSpace& initPt_xMat, 

@@ -64,22 +64,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 void
-Rlatrd(const char *uplo, mpackint n, mpackint nb, mpf_class * A, mpackint lda, mpf_class * e,
-    mpf_class * tau, mpf_class * w, mpackint ldw)
+Rlatrd(const char *uplo, mpackint n, mpackint nb, mpfr_class * A, mpackint lda, mpfr_class * e,
+    mpfr_class * tau, mpfr_class * w, mpackint ldw)
 {
     mpackint i, iw;
-    mpf_class Zero = 0.0, Half = 0.5, One = 1.0;
-    mpf_class alpha;
+    mpfr_class Zero = 0.0, Half = 0.5, One = 1.0;
+    mpfr_class alpha;
 
 //Quick return if possible
     if (n <= 0)
 	return;
 
-    if (Mlsame_gmp(uplo, "U")) {
+    if (Mlsame_mpfr(uplo, "U")) {
 //Reduce last NB columns of upper triangle
 	for (i = n; i >= n - nb + 1; i--) {
 	    iw = i - n + nb;

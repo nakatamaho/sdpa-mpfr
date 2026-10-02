@@ -79,7 +79,7 @@ bool pinpal(char* dataFile, char* initFile, char* outFile,
   int m;
   time_t ltime;
   time( &ltime );
-  fprintf(fpOut,"SDPA-GMP start at %s",ctime(&ltime));
+  fprintf(fpOut,"SDPA-MPFR start at %s",ctime(&ltime));
   IO::read(fpData,fpOut,m,titleAndComment);
   fprintf(fpOut,"data      is %s\n",dataFile);
   if (paraFile) {
@@ -566,7 +566,7 @@ int main(int argc, char** argv)
 
   time_t ltime;
   time( &ltime );
-  cout << "SDPA-GMP start at    " << ctime(&ltime);
+  cout << "SDPA-MPFR start at    " << ctime(&ltime);
   // << "... (built at "<< __DATE__ << " " <<__TIME__ ")" << endl;
   // cout << "let me see your ..." << endl;
 

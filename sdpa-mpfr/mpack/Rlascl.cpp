@@ -64,36 +64,36 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 #define MTRUE 1
 #define MFALSE 0
 
 void
-Rlascl(const char *type, mpackint kl, mpackint ku, mpf_class cfrom, mpf_class cto, mpackint m,
-    mpackint n, mpf_class * A, mpackint lda, mpackint *info)
+Rlascl(const char *type, mpackint kl, mpackint ku, mpfr_class cfrom, mpfr_class cto, mpackint m,
+    mpackint n, mpfr_class * A, mpackint lda, mpackint *info)
 {
     mpackint i, j, k1, k2, k3, k4;
     mpackint itype;
-    mpf_class One = 1.0, Zero = 0.0;
-    mpf_class bignum, cfrom1, cfromc, cto1, ctoc, mul, smlnum;
+    mpfr_class One = 1.0, Zero = 0.0;
+    mpfr_class bignum, cfrom1, cfromc, cto1, ctoc, mul, smlnum;
     mpackint done = MFALSE;
 
     *info = 0;
-    if (Mlsame_gmp(type, "G")) {
+    if (Mlsame_mpfr(type, "G")) {
 	itype = 0;
-    } else if (Mlsame_gmp(type, "L")) {
+    } else if (Mlsame_mpfr(type, "L")) {
 	itype = 1;
-    } else if (Mlsame_gmp(type, "U")) {
+    } else if (Mlsame_mpfr(type, "U")) {
 	itype = 2;
-    } else if (Mlsame_gmp(type, "H")) {
+    } else if (Mlsame_mpfr(type, "H")) {
 	itype = 3;
-    } else if (Mlsame_gmp(type, "B")) {
+    } else if (Mlsame_mpfr(type, "B")) {
 	itype = 4;
-    } else if (Mlsame_gmp(type, "Q")) {
+    } else if (Mlsame_mpfr(type, "Q")) {
 	itype = 5;
-    } else if (Mlsame_gmp(type, "Z")) {
+    } else if (Mlsame_mpfr(type, "Z")) {
 	itype = 6;
     } else {
 	itype = -1;
@@ -123,7 +123,7 @@ Rlascl(const char *type, mpackint kl, mpackint ku, mpf_class cfrom, mpf_class ct
     }
 
     if (*info != 0) {
-	Mxerbla_gmp("Rlascl", -(*info));
+	Mxerbla_mpfr("Rlascl", -(*info));
 	return;
     }
 //Quick return if possible 
@@ -131,7 +131,7 @@ Rlascl(const char *type, mpackint kl, mpackint ku, mpf_class cfrom, mpf_class ct
 	return;
     }
 //Get machine parameters 
-    smlnum = Rlamch_gmp("S");
+    smlnum = Rlamch_mpfr("S");
     bignum = One / smlnum;
 
     cfromc = cfrom;

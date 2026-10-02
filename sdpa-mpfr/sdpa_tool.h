@@ -32,7 +32,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include <sys/time.h>
 #include <string>
 
-#include <gmpxx.h>
+#include <cstdio>
+#include <mpfrxx_mkII.h>
+
+using mpfrxx::mpfr_class;
 
 namespace sdpa {
 
@@ -62,9 +65,20 @@ exit(false)
 extern int IZERO   ; // =  0;
 extern int IONE    ; // =  1;
 extern int IMONE   ; // = -1;
-extern mpf_class MZERO; // =  0.0;
-extern mpf_class MONE ; // =  1.0;
-extern mpf_class MMONE; // = -1.0;
+extern mpfr_class MZERO; // =  0.0;
+extern mpfr_class MONE ; // =  1.0;
+extern mpfr_class MMONE; // = -1.0;
+
+// Sets the MPFR default precision (in bits) used by subsequently
+// constructed mpfr_class objects, and re-initializes MZERO, MONE, MMONE
+// at that precision.
+void setDefaultPrecision(int precision);
+
+// Replacement for gmp_fscanf(fp, "%*[^0-9+-]%Fe", value).
+// Skips characters other than [0-9+-], then reads one floating-point
+// number into *value at its current precision.
+// Returns 1 on success, 0 on a malformed number, EOF at end of file.
+int sdpa_fscan_real(FILE* fp, mpfr_class* value);
 
 class Time
 {

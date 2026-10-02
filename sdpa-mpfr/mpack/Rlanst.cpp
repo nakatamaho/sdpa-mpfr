@@ -65,8 +65,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
 */
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 
 #ifndef max
 #define max(a,b) (((a)>(b))?(a):(b))
@@ -75,18 +75,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define min(a,b) (((a)<(b))?(a):(b))
 #endif
 
-mpf_class
-Rlanst(const char *norm, mpackint n, mpf_class * d, mpf_class * e)
+mpfr_class
+Rlanst(const char *norm, mpackint n, mpfr_class * d, mpfr_class * e)
 {
     mpackint i;
-    mpf_class anorm, scale, sum;
-    mpf_class Zero = 0.0;
-    mpf_class One = 1.0;
-    mpf_class mtmp1, mtmp2;
+    mpfr_class anorm, scale, sum;
+    mpfr_class Zero = 0.0;
+    mpfr_class One = 1.0;
+    mpfr_class mtmp1, mtmp2;
 
     if (n <= 0) {
 	anorm = Zero;
-    } else if (Mlsame_gmp(norm, "M")) {
+    } else if (Mlsame_mpfr(norm, "M")) {
 //Find max(abs(A(i,j))).
 	anorm = abs(d[n - 1]);
 	for (i = 0; i < n - 1; i++) {
@@ -97,7 +97,7 @@ Rlanst(const char *norm, mpackint n, mpf_class * d, mpf_class * e)
 //          anorm = max(anorm, abs(d[i]));
 //          anorm = max(anorm, abs(e[i]));
 	}
-    } else if (Mlsame_gmp(norm, "O") || Mlsame_gmp(norm, "1") || Mlsame_gmp(norm, "I")) {
+    } else if (Mlsame_mpfr(norm, "O") || Mlsame_mpfr(norm, "1") || Mlsame_mpfr(norm, "I")) {
 	if (n == 1) {
 	    anorm = abs(d[0]);
 	} else {
@@ -106,7 +106,7 @@ Rlanst(const char *norm, mpackint n, mpf_class * d, mpf_class * e)
 		anorm = max(anorm, abs(d[i]) + abs(e[i]) + abs(e[i - 1]));
 	    }
 	}
-    } else if (Mlsame_gmp(norm, "F") || Mlsame_gmp(norm, "E")) {
+    } else if (Mlsame_mpfr(norm, "F") || Mlsame_mpfr(norm, "E")) {
 //Find normF(A).
 	scale = Zero;
 	sum = One;

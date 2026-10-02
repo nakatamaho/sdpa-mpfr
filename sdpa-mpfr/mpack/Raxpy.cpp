@@ -68,13 +68,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Based on http://www.netlib.org/blas/daxpy.f
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Raxpy(mpackint n, mpf_class da, mpf_class * dx, mpackint incx, mpf_class * dy,
+Raxpy(mpackint n, mpfr_class da, mpfr_class * dx, mpackint incx, mpfr_class * dy,
     mpackint incy)
 {
-    mpf_class Zero = 0.0;
+    mpfr_class Zero = 0.0;
 
     if (n <= 0)
 	return;

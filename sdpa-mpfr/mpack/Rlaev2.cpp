@@ -66,17 +66,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // http://www.netlib.org/lapack/double/dlaev2.f
 
-#include <mblas_gmp.h>
-#include <mlapack_gmp.h>
+#include <mblas_mpfr.h>
+#include <mlapack_mpfr.h>
 #include <stdio.h> //for printf. shall be removed
 
 void
-Rlaev2(mpf_class a, mpf_class b, mpf_class c, mpf_class * rt1, mpf_class * rt2,
-    mpf_class * cs1, mpf_class * sn1)
+Rlaev2(mpfr_class a, mpfr_class b, mpfr_class c, mpfr_class * rt1, mpfr_class * rt2,
+    mpfr_class * cs1, mpfr_class * sn1)
 {
-    mpf_class ab, acmn, acmx, acs, adf;
-    mpf_class cs, ct, df, rt, sm, tb, tn;
-    mpf_class zero, one, two, half;
+    mpfr_class ab, acmn, acmx, acs, adf;
+    mpfr_class cs, ct, df, rt, sm, tb, tn;
+    mpfr_class zero, one, two, half;
     mpackint sgn1, sgn2;
 
     zero = 0.0;

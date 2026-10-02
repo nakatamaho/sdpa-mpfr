@@ -73,38 +73,38 @@ non-unit, upper or lower triangular matrix and op(A) is one  of
  op(A) = A  or op(A) = A'.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
 Rtrmm(const char *side, const char *uplo, const char *transa, const char *diag,
-    mpackint m, mpackint n, mpf_class alpha, mpf_class * A, mpackint lda,
-    mpf_class * B, mpackint ldb)
+    mpackint m, mpackint n, mpfr_class alpha, mpfr_class * A, mpackint lda,
+    mpfr_class * B, mpackint ldb)
 {
     mpackint info, lside, nrowa, nounit, upper;
 
-    mpf_class temp;
+    mpfr_class temp;
 
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
     //test the input parameters.
-    lside = Mlsame_gmp(side, "L");
+    lside = Mlsame_mpfr(side, "L");
     if (lside)
 	nrowa = m;
     else
 	nrowa = n;
 
-    nounit = Mlsame_gmp(diag, "N");
-    upper = Mlsame_gmp(uplo, "U");
+    nounit = Mlsame_mpfr(diag, "N");
+    upper = Mlsame_mpfr(uplo, "U");
 
     info = 0;
-    if ((!lside) && (!Mlsame_gmp(side, "R")))
+    if ((!lside) && (!Mlsame_mpfr(side, "R")))
 	info = 1;
-    else if ((!upper) && (!Mlsame_gmp(uplo, "L")))
+    else if ((!upper) && (!Mlsame_mpfr(uplo, "L")))
 	info = 2;
-    else if ((!Mlsame_gmp(transa, "N")) && (!Mlsame_gmp(transa, "T"))
-	&& (!Mlsame_gmp(transa, "C")))
+    else if ((!Mlsame_mpfr(transa, "N")) && (!Mlsame_mpfr(transa, "T"))
+	&& (!Mlsame_mpfr(transa, "C")))
 	info = 3;
-    else if ((!Mlsame_gmp(diag, "U")) && (!Mlsame_gmp(diag, "N")))
+    else if ((!Mlsame_mpfr(diag, "U")) && (!Mlsame_mpfr(diag, "N")))
 	info = 4;
     else if (m < 0)
 	info = 5;
@@ -115,7 +115,7 @@ Rtrmm(const char *side, const char *uplo, const char *transa, const char *diag,
     else if (ldb < max((mpackint) 1, m))
 	info = 11;
     if (info != 0) {
-	Mxerbla_gmp("Rtrmm ", info);
+	Mxerbla_mpfr("Rtrmm ", info);
 	return;
     }
     //quick return if possible.
@@ -133,7 +133,7 @@ Rtrmm(const char *side, const char *uplo, const char *transa, const char *diag,
     }
     //start the operations.
     if (lside) {
-	if (Mlsame_gmp(transa, "N")) {
+	if (Mlsame_mpfr(transa, "N")) {
 	    //Form B := alpha*A*B.
 	    if (upper) {
 		for (mpackint j = 0; j < n; j++) {
@@ -196,7 +196,7 @@ Rtrmm(const char *side, const char *uplo, const char *transa, const char *diag,
 	    }
 	}
     } else {
-	if (Mlsame_gmp(transa, "N")) {
+	if (Mlsame_mpfr(transa, "N")) {
 	    //Form B := alpha*B*A.
 	    if (upper) {
 		for (mpackint j = n - 1; j >= 0; j--) {

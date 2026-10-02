@@ -72,23 +72,23 @@ where alpha and beta are scalars, x and y are n element vectors and
  A is an n by n symmetric matrix.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rsymv(const char *uplo, mpackint n, mpf_class alpha, mpf_class * A,
-    mpackint lda, mpf_class * x, mpackint incx, mpf_class beta, mpf_class * y,
+Rsymv(const char *uplo, mpackint n, mpfr_class alpha, mpfr_class * A,
+    mpackint lda, mpfr_class * x, mpackint incx, mpfr_class beta, mpfr_class * y,
     mpackint incy)
 {
     mpackint ix, iy, jx, jy, kx, ky;
 
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
-    mpf_class temp1, temp2;
+    mpfr_class temp1, temp2;
 
     //test the input parameters.
     mpackint info = 0;
 
-    if (!Mlsame_gmp(uplo, "U") && !Mlsame_gmp(uplo, "L"))
+    if (!Mlsame_mpfr(uplo, "U") && !Mlsame_mpfr(uplo, "L"))
 	info = 1;
     else if (n < 0)
 	info = 2;
@@ -100,7 +100,7 @@ Rsymv(const char *uplo, mpackint n, mpf_class alpha, mpf_class * A,
 	info = 10;
 
     if (info != 0) {
-	Mxerbla_gmp("Rsymv ", info);
+	Mxerbla_mpfr("Rsymv ", info);
 	return;
     }
     //quick return if possible.
@@ -139,7 +139,7 @@ Rsymv(const char *uplo, mpackint n, mpf_class alpha, mpf_class * A,
     if (alpha == Zero)
 	return;
 
-    if (Mlsame_gmp(uplo, "U")) {
+    if (Mlsame_mpfr(uplo, "U")) {
 	//form  y  when a is stored in upper triangle.
 	jx = kx;
 	jy = ky;

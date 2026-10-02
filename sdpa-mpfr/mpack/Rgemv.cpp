@@ -72,23 +72,23 @@ where alpha and beta are scalars, x and y are vectors and A is an
 m by n matrix.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rgemv(const char *trans, mpackint m, mpackint n, mpf_class alpha,
-    mpf_class * A, mpackint lda, mpf_class * x, mpackint incx, mpf_class beta,
-    mpf_class * y, mpackint incy)
+Rgemv(const char *trans, mpackint m, mpackint n, mpfr_class alpha,
+    mpfr_class * A, mpackint lda, mpfr_class * x, mpackint incx, mpfr_class beta,
+    mpfr_class * y, mpackint incy)
 {
     mpackint lenx, leny, ix, jx, kx, iy, jy, ky;
 
     mpackint info = 0;
 
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
-    mpf_class temp;
+    mpfr_class temp;
 
     //Test the input parameters.
-    if (!Mlsame_gmp(trans, "N") && !Mlsame_gmp(trans, "T") && !Mlsame_gmp(trans, "C"))
+    if (!Mlsame_mpfr(trans, "N") && !Mlsame_mpfr(trans, "T") && !Mlsame_mpfr(trans, "C"))
 	info = 1;
     else if (m < 0)
 	info = 2;
@@ -101,7 +101,7 @@ Rgemv(const char *trans, mpackint m, mpackint n, mpf_class alpha,
     else if (incy == 0)
 	info = 11;
     if (info != 0) {
-	Mxerbla_gmp("Rgemv ", info);
+	Mxerbla_mpfr("Rgemv ", info);
 	return;
     }
     //Quick return if possible.
@@ -110,7 +110,7 @@ Rgemv(const char *trans, mpackint m, mpackint n, mpf_class alpha,
 
     //Set lenx and leny, the lengths of the vectors x and y, and set
     //up the start points in x and y.
-    if (Mlsame_gmp(trans, "N")) {
+    if (Mlsame_mpfr(trans, "N")) {
 	lenx = n;
 	leny = m;
     } else {
@@ -145,7 +145,7 @@ Rgemv(const char *trans, mpackint m, mpackint n, mpf_class alpha,
     }
     if (alpha == Zero)
 	return;
-    if (Mlsame_gmp(trans, "N")) {
+    if (Mlsame_mpfr(trans, "N")) {
 	//form y := alpha*A*x + y.
 	jx = kx;
 	for (mpackint j = 0; j < n; j++) {

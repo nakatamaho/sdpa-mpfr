@@ -69,14 +69,14 @@ Based on http://www.netlib.org/blas/dnrm2.f
 Rnrm2 returns the euclidean norm of a vector, sqrt( x'*x ).
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
-mpf_class
-Rnrm2(mpackint n, mpf_class * x, mpackint incx)
+mpfr_class
+Rnrm2(mpackint n, mpfr_class * x, mpackint incx)
 {
-    mpf_class Zero = 0.0, One = 1.0;
+    mpfr_class Zero = 0.0, One = 1.0;
 
-    mpf_class norm, scale, ssq, absxi;
+    mpfr_class norm, scale, ssq, absxi;
 
     if (n < 1 || incx < 1) {
 	norm = Zero;

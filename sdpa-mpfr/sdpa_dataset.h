@@ -58,18 +58,18 @@ public:
   DenseLinearSpace invCholeskyZ;
   DenseLinearSpace invzMat;
 
-  mpf_class xzMinEigenValue;
+  mpfr_class xzMinEigenValue;
 
   Solutions();
   Solutions(int m,
 	    int SDP_nBlock, int* SDP_blockStruct,
 	    int SOCP_nBlock, int* SOCP_blockStruct,
-	    int LP_nBlock, mpf_class lambda,ComputeTime& com);
+	    int LP_nBlock, mpfr_class lambda,ComputeTime& com);
   ~Solutions();
   void initialize(int m,
 		  int SDP_nBlock, int* SDP_blockStruct,
 		  int SOCP_nBlock, int* SOCP_blockStruct,
-		  int LP_nBlock, mpf_class lambda,ComputeTime& com);
+		  int LP_nBlock, mpfr_class lambda,ComputeTime& com);
   void terminate();
 
   // if we set initial point,
@@ -149,9 +149,9 @@ class Residuals
 public:
   Vector           primalVec;
   DenseLinearSpace dualMat;
-  mpf_class            normPrimalVec;
-  mpf_class            normDualMat;
-  mpf_class            centerNorm;
+  mpfr_class            normPrimalVec;
+  mpfr_class            normDualMat;
+  mpfr_class            centerNorm;
 
   Residuals();
   Residuals(int m,
@@ -170,8 +170,8 @@ public:
 
   void copyFrom(Residuals& other);
   
-  mpf_class computeMaxNorm(Vector& primalVec);
-  mpf_class computeMaxNorm(DenseLinearSpace& dualMat);
+  mpfr_class computeMaxNorm(Vector& primalVec);
+  mpfr_class computeMaxNorm(DenseLinearSpace& dualMat);
 
   void update(int m,
 	      InputData& inputData,

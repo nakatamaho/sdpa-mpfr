@@ -72,15 +72,15 @@ where alpha is a scalar, x is an m element vector, y is an n element
 vector and A is an m by n matrix.
 */
 
-#include <mblas_gmp.h>
+#include <mblas_mpfr.h>
 
 void
-Rger(mpackint m, mpackint n, mpf_class alpha, mpf_class * x, mpackint incx,
-    mpf_class * y, mpackint incy, mpf_class * A, mpackint lda)
+Rger(mpackint m, mpackint n, mpfr_class alpha, mpfr_class * x, mpackint incx,
+    mpfr_class * y, mpackint incy, mpfr_class * A, mpackint lda)
 {
     mpackint ix, kx, jy;
-    mpf_class Zero = 0.0, One = 1.0;
-    mpf_class temp;
+    mpfr_class Zero = 0.0, One = 1.0;
+    mpfr_class temp;
 
 //Test the input parameters.
     mpackint info = 0;
@@ -96,7 +96,7 @@ Rger(mpackint m, mpackint n, mpf_class alpha, mpf_class * x, mpackint incx,
     else if (lda < max((mpackint) 1, m))
 	info = 9;
     if (info != 0) {
-	Mxerbla_gmp("Rger  ", info);
+	Mxerbla_mpfr("Rger  ", info);
 	return;
     }
     //quick return if possible.
